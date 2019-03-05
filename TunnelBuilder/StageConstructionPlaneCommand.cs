@@ -134,7 +134,7 @@ namespace TunnelBuilder
                         var plane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
                         var world_to_plane = Transform.ChangeBasis(Plane.WorldXY, cplane);
 
-                        Curve tunnel_profile = intersection_curves[0].DuplicateCurve();
+                        Curve tunnel_profile = Curve.JoinCurves(intersection_curves)[0].DuplicateCurve();
                         Curve tunnel_profile_World = tunnel_profile.DuplicateCurve();
                         tunnel_profile.Transform(world_to_plane);
                         var bbox = tunnel_profile.GetBoundingBox(true);
@@ -166,37 +166,50 @@ namespace TunnelBuilder
                             {
                                 Point3d left_intersection = new Point3d(tunnel_width_intersection_events[0].PointA);
                                 Point3d right_intersection = new Point3d(tunnel_width_intersection_events[1].PointA);
-
-
                                 left_intersection.Transform(world_to_plane);
                                 right_intersection.Transform(world_to_plane);
-                                left_intersection[0] = left_intersection[0] - 1;
-                                right_intersection[0] = right_intersection[0] + 1;
-
-                                if(tunnel_profile.Contains(left_intersection,Plane.WorldXY, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == Rhino.Geometry.PointContainment.Inside)
-                                {
-                                    left_intersection[0] = left_intersection[0] + 2;
-                                    right_intersection[0] = right_intersection[0] - 2;
-                                }
 
                                 Point3d left_intersection_World = new Point3d(left_intersection);
                                 Point3d right_intersection_World = new Point3d(right_intersection);
-
                                 left_intersection_World.Transform(plane_to_world);
                                 right_intersection_World.Transform(plane_to_world);
 
-                                if (i > 0)
+                                if (left_surface_points.Length > 0 && right_surface_points.Length>0)
                                 {
-                                    Line left_segement = new Line(left_surface_points[left_surface_points.Length - 1], left_intersection_World);
-                                    Line right_segement = new Line(right_surface_points[right_surface_points.Length - 1], right_intersection_World);
-                                    double a, b;
-                                    var intersection = Rhino.Geometry.Intersect.Intersection.LineLine(left_segement, right_segement, out a, out b,Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance,true);
-                                    if (intersection)
+                                    Point3d previousLeft_World = new Point3d(left_surface_points[left_surface_points.Length - 1]);
+                                    Point3d previousRight_World = new Point3d (right_surface_points[right_surface_points.Length - 1]);
+
+                                    Curve left_segement = new Line(previousLeft_World, left_intersection_World).ToNurbsCurve();
+                                    Curve right_segement = new Line(previousRight_World, right_intersection_World).ToNurbsCurve();
+
+                                    left_segement = Curve.ProjectToPlane(left_segement, Plane.WorldXY);
+                                    right_segement = Curve.ProjectToPlane(right_segement, Plane.WorldXY);
+
+
+                                    var intersection = Rhino.Geometry.Intersect.Intersection.CurveCurve(left_segement, right_segement,Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance,0);
+                                    if (intersection.Count>0)
                                     {
                                         left_intersection_World = new Point3d(right_intersection);
                                         right_intersection_World = new Point3d(left_intersection);
+                                        left_intersection_World.Transform(plane_to_world);
+                                        right_intersection_World.Transform(plane_to_world);
                                     }
                                 }
+
+                                left_intersection_World.Transform(world_to_plane);
+                                right_intersection_World.Transform(world_to_plane);
+
+                                left_intersection_World[0] = left_intersection_World[0] - 1;
+                                right_intersection_World[0] = right_intersection_World[0] + 1;
+
+                                if (tunnel_profile.Contains(left_intersection_World, Plane.WorldXY, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == Rhino.Geometry.PointContainment.Inside)
+                                {
+                                    left_intersection_World[0] = left_intersection_World[0] + 2;
+                                    right_intersection_World[0] = right_intersection_World[0] - 2;
+                                }
+
+                                left_intersection_World.Transform(plane_to_world);
+                                right_intersection_World.Transform(plane_to_world);
 
                                 Array.Resize(ref left_surface_points, left_surface_points.Length + 1);
                                 Array.Resize(ref right_surface_points, right_surface_points.Length + 1);
