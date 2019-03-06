@@ -115,7 +115,7 @@ namespace TunnelBuilder
         }
 
         private int exportBolts(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string filename,int boltStartId,int boltSegment)
-        {
+        { 
             System.IO.StreamWriter fs = new System.IO.StreamWriter(filename);
 
             Rhino.DocObjects.RhinoObject[] boltObjs = doc.Objects.FindByLayer(boltLayer);
@@ -134,6 +134,7 @@ namespace TunnelBuilder
             }
             fs.Close();
 
+            // Return the number of bolts in the layer
             return boltObjs.Length;
         }
     }
