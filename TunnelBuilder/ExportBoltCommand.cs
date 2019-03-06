@@ -78,11 +78,7 @@ namespace TunnelBuilder
                 return Result.Failure;
             }
 
-            Rhino.DocObjects.RhinoObject[] boltObjs = doc.Objects.FindByLayer(boltLayer);
-            if (boltObjs == null || boltObjs.Length < 1)
-            {
-                return Result.Cancel;
-            }
+            
 
             var fn = RhinoGet.GetFileName(GetFileNameMode.SaveTextFile, "bolt.f3dat", "Bolt File Name", null);
             if(fn==string.Empty)
@@ -93,21 +89,52 @@ namespace TunnelBuilder
             string extension = System.IO.Path.GetExtension(fn);
             fn = fn.Replace(extension, ".f3dat");
 
-            System.IO.StreamWriter fs = new System.IO.StreamWriter(fn);
+            
 
-            for (int i = 0; i < boltObjs.Length; i++)
+            Rhino.DocObjects.Layer[] childrenLayers = boltLayer.GetChildren();
+            if(childrenLayers == null)
             {
-                Guid boltId = boltObjs[i].Id;
-                var boltLine = new Rhino.DocObjects.ObjRef(boltId).Curve();
-                string line = "structure cable create by-line " + getCoordString(boltLine.PointAtStart) + " " + getCoordString(boltLine.PointAtEnd) + " id=" + (boltStartId+ i).ToString() + " seg=" + boltSegment.ToString();
-                fs.WriteLine(line);
+                exportBolts(doc, boltLayer, fn, boltStartId, boltSegment);
             }
-            fs.Close();
+            else
+            {
+                for(int i=0;i<childrenLayers.Length;i++)
+                {
+
+                    string filenameWithoutExtension = System.IO.Path.ChangeExtension(fn, null);
+                    boltStartId = boltStartId + exportBolts(doc, childrenLayers[i], filenameWithoutExtension+"-"+childrenLayers[i].Name+".f3dat", boltStartId, boltSegment);
+                }
+            }
+
+            
             return Result.Success;
         }
         private string getCoordString(Point3d point)
         {
             return "(" + point.X.ToString() + "," + point.Y.ToString() + "," + point.Z.ToString() + ")";
+        }
+
+        private int exportBolts(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string filename,int boltStartId,int boltSegment)
+        {
+            System.IO.StreamWriter fs = new System.IO.StreamWriter(filename);
+
+            Rhino.DocObjects.RhinoObject[] boltObjs = doc.Objects.FindByLayer(boltLayer);
+            if (boltObjs == null || boltObjs.Length < 1)
+            {
+                return -1;
+            }
+
+
+            for (int i = 0; i < boltObjs.Length; i++)
+            {
+                Guid boltId = boltObjs[i].Id;
+                var boltLine = new Rhino.DocObjects.ObjRef(boltId).Curve();
+                string line = "structure cable create by-line " + getCoordString(boltLine.PointAtStart) + " " + getCoordString(boltLine.PointAtEnd) + " id=" + (boltStartId + i).ToString() + " seg=" + boltSegment.ToString();
+                fs.WriteLine(line);
+            }
+            fs.Close();
+
+            return boltObjs.Length;
         }
     }
     

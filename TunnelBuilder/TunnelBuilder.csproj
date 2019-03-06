@@ -56,6 +56,7 @@
     <Compile Include="ExportBoltCommand.cs" />
     <Compile Include="InstallBoltCommand.cs" />
     <Compile Include="StageConstructionPlaneCommand.cs" />
+    <Compile Include="StageExcavationCommand.cs" />
     <Compile Include="TunnelBuilderCommand.cs" />
     <Compile Include="TunnelBuilderPlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
