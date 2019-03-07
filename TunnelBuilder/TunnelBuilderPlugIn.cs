@@ -13,6 +13,8 @@
     {
         public TunnelBuilderPlugIn()
         {
+            Rhino.RhinoApp.WriteLine("Tunnel Builder");
+            Rhino.RhinoApp.WriteLine("jianan.jiang@psm.com.au");
             Instance = this;
         }
 

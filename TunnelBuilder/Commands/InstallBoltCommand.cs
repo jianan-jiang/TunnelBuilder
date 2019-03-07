@@ -36,6 +36,7 @@ namespace TunnelBuilder
             string boltLayerName = "Bolt";
 
             OptionToggle boltInstallLocationToggle = new OptionToggle(true, "All", "CrownOnly");
+            OptionToggle staggeredToggle = new OptionToggle(false, "Normal", "Staggered");
 
             var rc = RhinoGet.GetNumber("Bolt Length", false, ref boltLength);
             if (rc != Result.Success)
@@ -102,6 +103,7 @@ namespace TunnelBuilder
                 go.SetCommandPrompt("Select Control Line");
                 go.GeometryFilter = Rhino.DocObjects.ObjectType.Curve;
                 go.AddOptionToggle("BoltInstallationRange",ref boltInstallLocationToggle);
+                go.AddOptionToggle("BoltPattern", ref staggeredToggle);
                 while (true)
                 {
                     GetResult get_rc = go.GetMultiple(1, 0);
@@ -128,6 +130,7 @@ namespace TunnelBuilder
                 go.SetCommandPrompt("Select Tunnel Surface");
                 go.GeometryFilter = Rhino.DocObjects.ObjectType.Brep;
                 go.AddOptionToggle("BoltInstallationRange", ref boltInstallLocationToggle);
+                go.AddOptionToggle("BoltPattern", ref staggeredToggle);
                 while (true)
                 {
                     GetResult get_rc = go.GetMultiple(1, 0);
@@ -179,6 +182,10 @@ namespace TunnelBuilder
                             continue;
                         }
                         tunnel_profile = joint_tunnel_profile[0];
+                        if(!tunnel_profile.IsClosed)
+                        {
+                            continue;
+                        }
                         tunnel_profile.Transform(world_to_plane);
                         // By Default, the command will only install bolts on the crown of the tunnel.
                         var bbox = tunnel_profile.GetBoundingBox(true);
@@ -196,10 +203,33 @@ namespace TunnelBuilder
                         if(apex_events.Count>0)
                         {
                             Point3d apex = apex_events[0].PointA;
-                            //Intall the bolts in +t_param direction
-                            installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world,true);
-                            //Intall the bolts in -t_param direction
-                            installBoltIteration(doc, apex, tunnel_profile, - boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world,false);
+                            if (staggeredToggle.CurrentValue)
+                            {
+                                // If the bolt pattern is staggered, offset the bolt according to advance number.
+                                if(i % 2==0)
+                                {
+                                    //Intall the bolts in +t_param direction
+                                    installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, boltSectionSpacing / 2);
+                                    //Intall the bolts in -t_param direction
+                                    installBoltIteration(doc, apex, tunnel_profile, -boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltSectionSpacing / 2);
+                                }
+                                else
+                                {
+                                    //Intall the bolts in +t_param direction
+                                    installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
+                                    //Intall the bolts in -t_param direction
+                                    installBoltIteration(doc, apex, tunnel_profile, -boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltSectionSpacing);
+                                }
+                                
+                            }
+                            else
+                            {
+                                //Intall the bolts in +t_param direction
+                                installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
+                                //Intall the bolts in -t_param direction
+                                installBoltIteration(doc, apex, tunnel_profile, -boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltSectionSpacing);
+                            }
+                            
                         }
                     }
                     else
@@ -219,15 +249,17 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        private bool installBoltIteration(RhinoDoc doc,Point3d apex,Curve tunnel_profile,double boltSectionSpacing,double boltLength,int bolt_layer_index,OptionToggle boltInstallLocationToggle, Brep tunnelSurface,Transform plane_to_world,bool installApexBolt)
+        private bool installBoltIteration(RhinoDoc doc,Point3d apex,Curve tunnel_profile,double boltSectionSpacing,double boltLength,int bolt_layer_index,OptionToggle boltInstallLocationToggle, Brep tunnelSurface,Transform plane_to_world,double offset)
         {
-            Point3d bolt_installation_point = new Point3d(apex);
+            
             Interval tunnel_profile_domain = tunnel_profile.Domain;
             double tunnel_profile_legnth = tunnel_profile.GetLength();
             double apex_t_param;
             tunnel_profile.ClosestPoint(apex, out apex_t_param);
             double apex_tunnel_profile_length = tunnel_profile.GetLength(new Interval(tunnel_profile_domain[0], apex_t_param));
-            double bolt_installation_point_tunnel_profile_length = apex_tunnel_profile_length;
+            double bolt_installation_point_tunnel_profile_length = apex_tunnel_profile_length + offset;
+            Point3d bolt_installation_point = tunnel_profile.PointAtLength(bolt_installation_point_tunnel_profile_length);
+            
             var current_curvature = tunnel_profile.CurvatureAt(apex_t_param).Length;
             bool onCrownFlag = true;
             //Intall the bolts in +t_param direction
@@ -271,11 +303,6 @@ namespace TunnelBuilder
                 if (intersectPoints.Length > 1)
                 {
                     //If yes, do not install this bolt
-                    continue;
-                }
-
-                if (bolt_installation_point_tunnel_profile_length == apex_tunnel_profile_length + boltSectionSpacing && !installApexBolt)
-                {
                     continue;
                 }
 

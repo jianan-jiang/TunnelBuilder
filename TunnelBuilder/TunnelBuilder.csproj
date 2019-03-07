@@ -53,11 +53,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ExportBoltCommand.cs" />
-    <Compile Include="InstallBoltCommand.cs" />
-    <Compile Include="StageConstructionPlaneCommand.cs" />
-    <Compile Include="StageExcavationCommand.cs" />
-    <Compile Include="TunnelBuilderCommand.cs" />
+    <Compile Include="Commands\ExportBoltCommand.cs" />
+    <Compile Include="Views\ExportBoltDialog.cs" />
+    <Compile Include="Commands\InstallBoltCommand.cs" />
+    <Compile Include="Commands\StageConstructionPlaneCommand.cs" />
+    <Compile Include="Commands\StageExcavationCommand.cs" />
+    <Compile Include="Commands\TunnelBuilderCommand.cs" />
     <Compile Include="TunnelBuilderPlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilFunctions.cs" />
