@@ -29,16 +29,17 @@ namespace TunnelBuilder
             }
 
             // Does a layer with the same name already exist?
-            int layer_index = doc.Layers.Find(layer_name, true);
-            if (layer_index >= 0)
+            Rhino.DocObjects.Layer layer = doc.Layers.FindName(layer_name);
+            
+            if (layer != null)
             {
-                return layer_index;
+                return layer.Index;
             }
 
             // Add a new layer to the document
            
             System.Drawing.Color layer_color = getRandomColor();
-            layer_index = doc.Layers.Add(layer_name, layer_color);
+            int layer_index = doc.Layers.Add(layer_name, layer_color);
             if (layer_index < 0)
             {
                 Rhino.RhinoApp.WriteLine("Unable to add {0} layer.", layer_name);

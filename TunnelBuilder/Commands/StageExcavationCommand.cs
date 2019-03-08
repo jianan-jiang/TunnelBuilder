@@ -123,7 +123,6 @@ namespace TunnelBuilder
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                 //doc.Objects.AddPoint(point);
                 const double intersection_tolerance = 0.001;
-                const double overlap_tolerance = 0.0;
                 Curve[] intersection_curves;
                 Point3d[] intersection_points;
                 var events = Rhino.Geometry.Intersect.Intersection.BrepSurface(tunnelSurface, srf, intersection_tolerance, out intersection_curves, out intersection_points);

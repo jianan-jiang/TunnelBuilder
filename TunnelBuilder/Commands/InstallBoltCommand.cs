@@ -152,16 +152,27 @@ namespace TunnelBuilder
                 
             }
 
-            Interval t = controlLine.Domain;
-            int numberOfAdvances = (int) Math.Floor(controlLine.GetLength()/boltAdvanceSpacing);
-            for(int i=0;i<numberOfAdvances;i++)
+            double controlLineLength = controlLine.GetLength();
+            double totalAdvanceLength = 0.0;
+            int advanceIteration = 1;
+
+
+            while(totalAdvanceLength<=controlLineLength)
             {
-                double x = (double)i / numberOfAdvances * (t[1] - t[0]) + t[0];
-                Vector3d tangent = controlLine.TangentAt(x);
+                Point3d currentAdvancePoint = controlLine.PointAtLength(totalAdvanceLength);
+                double currentAdvancePoint_t_param;
+                controlLine.ClosestPoint(currentAdvancePoint, out currentAdvancePoint_t_param);
+                Vector3d tangent = controlLine.TangentAt(currentAdvancePoint_t_param);
                 Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
                 tangentUsedToAlignCPlane[2] = 0.0;
-                Point3d point = controlLine.PointAt(x);
+                Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
                 Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+
+                if(cplane.YAxis[2]<0)
+                {
+                    cplane = new Plane(point, -tangentUsedToAlignCPlane);
+                }
+
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000,1000), new Interval(-1000, 1000));
                 const double intersection_tolerance = 0.001;
                 const double overlap_tolerance = 0.0;
@@ -182,18 +193,26 @@ namespace TunnelBuilder
                             continue;
                         }
                         tunnel_profile = joint_tunnel_profile[0];
-                        if(!tunnel_profile.IsClosed)
+                        
+                        if (!tunnel_profile.IsClosed)
                         {
+                            advanceIteration = advanceIteration + 1;
+                            totalAdvanceLength = totalAdvanceLength + boltAdvanceSpacing;
                             continue;
                         }
+
                         tunnel_profile.Transform(world_to_plane);
+
+                        if (!tunnel_profile.IsClosed)
+                        {
+                            Curve newLine = new Line(tunnel_profile.PointAtStart, tunnel_profile.PointAtEnd).ToNurbsCurve();
+                            Curve[] result = Curve.JoinCurves(new Curve[] {tunnel_profile, newLine });
+                            tunnel_profile = result[0];
+                        }
+
                         // By Default, the command will only install bolts on the crown of the tunnel.
                         var bbox = tunnel_profile.GetBoundingBox(true);
                         var crown_z = bbox.Max[1];
-                        if(cplane.YAxis[2]<0)
-                        {
-                            crown_z = bbox.Min[1];
-                        }
                         var start_point = new Point3d(-1000, crown_z,0);
                         var end_point = new Point3d(1000, crown_z,0);
                         
@@ -206,7 +225,7 @@ namespace TunnelBuilder
                             if (staggeredToggle.CurrentValue)
                             {
                                 // If the bolt pattern is staggered, offset the bolt according to advance number.
-                                if(i % 2==0)
+                                if(advanceIteration % 2==0)
                                 {
                                     //Intall the bolts in +t_param direction
                                     installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, boltSectionSpacing / 2);
@@ -243,6 +262,9 @@ namespace TunnelBuilder
                     RhinoApp.WriteLine("Fail to extract tunnel section profile");
                     return Result.Failure;
                 }
+
+                advanceIteration = advanceIteration + 1;
+                totalAdvanceLength = totalAdvanceLength + boltAdvanceSpacing;
             }
 
             doc.Views.Redraw();
@@ -272,20 +294,20 @@ namespace TunnelBuilder
 
                 var bolt_installation_point_curvarture = tunnel_profile.CurvatureAt(bolt_installation_point_t_param).Length;
 
-                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture) < 0.05;
+                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture)/bolt_installation_point_curvarture < 0.05;
 
                 if (boltInstallLocationToggle.CurrentValue == true && onCrownFlag == false)
                 {
                     break;
                 }
 
-                Line line = getBoltLine(tunnel_profile, bolt_installation_point, boltLength);
-
+                BoltLineResult br = getBoltLine(tunnel_profile, bolt_installation_point, boltLength);
+                Curve line = br.line;
 
                 //Transform everything backto world coordinates
                 Point3d bolt_installation_point_World = new Point3d(bolt_installation_point);
                 bolt_installation_point_World.Transform(plane_to_world);
-                Line line_World = line;
+                Curve line_World = line;
                 line_World.Transform(plane_to_world);
 
                 //Test if bolt intersects with tunnel surface more than once.
@@ -306,16 +328,21 @@ namespace TunnelBuilder
                     continue;
                 }
 
-                var guid = doc.Objects.AddLine(line_World);
-                var bolt_line_object = new Rhino.DocObjects.ObjRef(guid).Object();
-                bolt_line_object.Attributes.LayerIndex = bolt_layer_index;
-                bolt_line_object.CommitChanges();
+                var attributes = new Rhino.DocObjects.ObjectAttributes();
+                attributes.LayerIndex = bolt_layer_index;
+                if(br.TAG && System.Diagnostics.Debugger.IsAttached)
+                {
+                    attributes.ObjectColor = System.Drawing.Color.Red;
+                    attributes.ColorSource = Rhino.DocObjects.ObjectColorSource.ColorFromObject;
+                }
+
+                var guid = doc.Objects.AddCurve(line_World,attributes);
             }
 
             return true;
         }
 
-        private Line getBoltLine(Curve tunnel_profile, Point3d bolt_installation_point, double boltLength)
+        private BoltLineResult getBoltLine(Curve tunnel_profile, Point3d bolt_installation_point, double boltLength)
         {
             double bolt_installation_point_t_param;
             tunnel_profile.ClosestPoint(bolt_installation_point, out bolt_installation_point_t_param);
@@ -338,19 +365,37 @@ namespace TunnelBuilder
             Line line = new Line(bolt_installation_point, normal, boltLength);
 
             var events = Rhino.Geometry.Intersect.Intersection.CurveCurve(tunnel_profile, line.ToNurbsCurve(), Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance, 0);
-
-            if (tunnel_profile.Contains(line.PointAtLength(line.Length)) == Rhino.Geometry.PointContainment.Inside)
+            bool TAG = false;
+            
+            if ((tunnel_profile.Contains(line.ToNurbsCurve().PointAtStart, Plane.WorldXY, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance)==PointContainment.Inside)|| (tunnel_profile.Contains(line.ToNurbsCurve().PointAtEnd, Plane.WorldXY, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance) == PointContainment.Inside))
             {
                 normal = -normal;
+                TAG = true;
             }
             else if (events.Count>1)
             {
                 normal = -normal;
+                TAG = true;
+            }
+            else
+            {
+                TAG = false;
             }
 
             line = new Line(bolt_installation_point, normal, boltLength);
-            return line;
+
+            BoltLineResult br = new BoltLineResult();
+            br.line = line.ToNurbsCurve();
+            br.TAG = TAG;
+
+            return br;
         }
     }
     
+    public class BoltLineResult
+    {
+        public Curve line;
+        public bool TAG;
+    }
+
 }
