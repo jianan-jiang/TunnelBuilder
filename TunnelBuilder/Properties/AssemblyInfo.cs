@@ -5,14 +5,14 @@ using Rhino.PlugIns;
 
 // Plug-in Description Attributes - all of these are optional.
 // These will show in Rhino's option dialog, in the tab Plug-ins.
-[assembly: PlugInDescription(DescriptionType.Address, "-")]
-[assembly: PlugInDescription(DescriptionType.Country, "-")]
-[assembly: PlugInDescription(DescriptionType.Email, "-")]
-[assembly: PlugInDescription(DescriptionType.Phone, "-")]
-[assembly: PlugInDescription(DescriptionType.Fax, "-")]
-[assembly: PlugInDescription(DescriptionType.Organization, "-")]
+[assembly: PlugInDescription(DescriptionType.Address, "G3 56 Delhi Road North Ryde NSW")]
+[assembly: PlugInDescription(DescriptionType.Country, "Australia")]
+[assembly: PlugInDescription(DescriptionType.Email, "jianan.jiang@psm.com.au")]
+[assembly: PlugInDescription(DescriptionType.Phone, "+61 2 98125000")]
+[assembly: PlugInDescription(DescriptionType.Fax, "+61 2 98125001")]
+[assembly: PlugInDescription(DescriptionType.Organization, "Pells Sullivan Meynink")]
 [assembly: PlugInDescription(DescriptionType.UpdateUrl, "-")]
-[assembly: PlugInDescription(DescriptionType.WebSite, "-")]
+[assembly: PlugInDescription(DescriptionType.WebSite, "www.psm.com.au")]
 
 // Icons should be Windows .ico files and contain 32-bit images in the following sizes: 16, 24, 32, 48, and 256.
 // This is a Rhino 6-only description.
@@ -24,10 +24,10 @@ using Rhino.PlugIns;
 [assembly: AssemblyTitle("TunnelBuilder")]
 
 // This will be used also for the plug-in description.
-[assembly: AssemblyDescription("TunnelBuilder utility plug-in")]
+[assembly: AssemblyDescription("TunnelBuilder plug-in")]
 
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Pells Sullivan Meynink")]
 [assembly: AssemblyProduct("TunnelBuilder")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
