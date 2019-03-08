@@ -170,7 +170,8 @@ namespace TunnelBuilder
 
                 if(cplane.YAxis[2]<0)
                 {
-                    cplane = new Plane(point, -tangentUsedToAlignCPlane);
+                    //Rotate the plane 180 degree if y axis is pointing down
+                    cplane.Rotate(Math.PI,cplane.XAxis);
                 }
 
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000,1000), new Interval(-1000, 1000));
