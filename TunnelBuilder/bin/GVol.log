@@ -1,9 +1,17 @@
 Itasca Consulting Group, Inc., Griddle-GVol version: 1.0.5.0 2018.7.23.1050
-Rhino model: C:\Users\Jianan Jiang\source\repos\TunnelBuilder\TunnelBuilder\bin\C:\Users\Jianan Jiang\Documents\PSM3696\50\Rhino\v2\Model 001.3dm
-Time: Wed Mar  6 15:56:18 2019
+Rhino model: W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\C:\Users\Jianan Jiang\Downloads\ban thu nghiem,=.3dm
+Time: Wed Apr  3 17:03:36 2019
 
 GVol input parameters
   Mode: Tet
-NODE ERROR
-Traces of problem faces, edges, and points have been placed in layer MESHING_ERRORS.
+
+input mesh
+  number of triangles: 147377
+  number of nodes: 72857
+
+output mesh
+  number of tetrahedra: 3367418
+  number of nodes: 569735
+
+meshing time: 116.99 s
 

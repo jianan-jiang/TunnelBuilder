@@ -7,6 +7,7 @@ using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
+    [System.Runtime.InteropServices.Guid("9804BACC-58AA-4BCB-8C5C-972B23C244F3")]
     public class StageExcavationCommand : Command
     {
         static StageExcavationCommand _instance;

@@ -1,6 +1,6 @@
 Itasca Consulting Group, Inc., Griddle-GInt version: 1.0.5.0 2018.7.23.1050
-Rhino model: C:\Users\Jianan Jiang\Documents\PSM3696\50\Rhino\v2\Model 001.3dm
-Time: Wed Mar  6 15:55:45 2019
+Rhino model: C:\Users\Jianan Jiang\Downloads\ban thu nghiem,=.3dm
+Time: Wed Apr  3 17:02:57 2019
 
 GInt input parameters
   Tolerance: -1.00
@@ -8,12 +8,12 @@ GInt input parameters
   DeleteInput: Yes
 
 input mesh
-  number of triangles: 1591
-  number of nodes: 1036
+  number of triangles: 20337
+  number of nodes: 10217
 
 output mesh
-  number of triangles: 1888
-  number of nodes: 1117
+  number of triangles: 20337
+  number of nodes: 10217
 
-meshing time: 0.71 s
+meshing time: 1.27 s
 

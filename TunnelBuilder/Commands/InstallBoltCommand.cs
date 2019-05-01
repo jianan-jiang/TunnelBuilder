@@ -8,7 +8,7 @@ using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
-
+    [System.Runtime.InteropServices.Guid("4D48EFD3-AAD0-46DC-9AA7-3D3B28B244A3")]
     public class InstallBoltCommand : Command
     {
         ///<summary>The only instance of this command.</summary>
@@ -338,6 +338,52 @@ namespace TunnelBuilder
                 }
 
                 var guid = doc.Objects.AddCurve(line_World,attributes);
+            }
+
+            if (bolt_installation_point_tunnel_profile_length+boltSectionSpacing>tunnel_profile_legnth && bolt_installation_point_tunnel_profile_length + boltSectionSpacing < tunnel_profile_legnth+boltSectionSpacing)
+            {
+                bolt_installation_point_tunnel_profile_length = bolt_installation_point_tunnel_profile_length + boltSectionSpacing - tunnel_profile_legnth;
+                Point3d nextBoltInstallationPoint = tunnel_profile.PointAtLength(bolt_installation_point_tunnel_profile_length);
+                bolt_installation_point = nextBoltInstallationPoint;
+                double bolt_installation_point_t_param;
+                tunnel_profile.ClosestPoint(bolt_installation_point, out bolt_installation_point_t_param);
+
+                var bolt_installation_point_curvarture = tunnel_profile.CurvatureAt(bolt_installation_point_t_param).Length;
+
+                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture) / bolt_installation_point_curvarture < 0.05;
+
+                if (boltInstallLocationToggle.CurrentValue == true && onCrownFlag == false)
+                {
+                    return true;
+                }
+                BoltLineResult br = getBoltLine(tunnel_profile, bolt_installation_point, boltLength);
+                Curve line = br.line;
+
+                //Transform everything backto world coordinates
+                Point3d bolt_installation_point_World = new Point3d(bolt_installation_point);
+                bolt_installation_point_World.Transform(plane_to_world);
+                Curve line_World = line;
+                line_World.Transform(plane_to_world);
+
+                //Test if bolt intersects with tunnel surface more than once.
+                Curve[] intersectCurves;
+                Point3d[] intersectPoints;
+                Rhino.Geometry.Intersect.Intersection.CurveBrep(line_World.ToNurbsCurve(), tunnelSurface, 0.001, out intersectCurves, out intersectPoints);
+                if (intersectPoints.Length > 1)
+                {
+                    //If yes, do not install this bolt
+                    return true;
+                }
+                var attributes = new Rhino.DocObjects.ObjectAttributes();
+                attributes.LayerIndex = bolt_layer_index;
+                if (br.TAG && System.Diagnostics.Debugger.IsAttached)
+                {
+                    attributes.ObjectColor = System.Drawing.Color.Red;
+                    attributes.ColorSource = Rhino.DocObjects.ObjectColorSource.ColorFromObject;
+                }
+
+                var guid = doc.Objects.AddCurve(line_World, attributes);
+
             }
 
             return true;

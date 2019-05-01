@@ -52,6 +52,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ModifyBoltLengthCommand.cs" />
     <Compile Include="Commands\ExportBoltCommand.cs" />
     <Compile Include="Views\ExportBoltDialog.cs" />
     <Compile Include="Commands\InstallBoltCommand.cs" />

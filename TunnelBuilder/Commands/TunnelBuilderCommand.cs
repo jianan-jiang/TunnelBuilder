@@ -8,6 +8,7 @@ using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
+    [System.Runtime.InteropServices.Guid("7E89AE64-4EB7-48B0-BE49-891B7FCA97C5")]
     public class TunnelBuilderCommand : Command
     {
 

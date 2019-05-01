@@ -4,3 +4,9 @@ C:\Users\Jianan Jiang\source\repos\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelB
 C:\Users\Jianan Jiang\source\repos\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CoreCompileInputs.cache
 C:\Users\Jianan Jiang\source\repos\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.dll
 C:\Users\Jianan Jiang\source\repos\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.pdb
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\TunnelBuilder.dll
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\TunnelBuilder.pdb
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csprojAssemblyReference.cache
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CoreCompileInputs.cache
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.dll
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.pdb

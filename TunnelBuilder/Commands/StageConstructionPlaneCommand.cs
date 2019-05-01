@@ -7,6 +7,7 @@ using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
+    [System.Runtime.InteropServices.Guid("D36C141E-B001-42CA-BB96-1123B494FF38")]
     public class StageConstructionPlaneCommand : Command
     {
         static StageConstructionPlaneCommand _instance;

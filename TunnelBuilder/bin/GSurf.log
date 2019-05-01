@@ -1,6 +1,6 @@
 Itasca Consulting Group, Inc., Griddle-GSurf version: 1.0.5.0 2018.7.23.1050
-Rhino model: C:\Users\Jianan Jiang\Documents\PSM3696\50\Rhino\v2\Model 001.3dm
-Time: Wed Mar  6 16:01:09 2019
+Rhino model: C:\Users\Jianan Jiang\Downloads\ban thu nghiem,=.3dm
+Time: Wed Apr  3 17:03:08 2019
 
 GSurf input parameters
   MinEdgeLength: 0.00
@@ -8,4 +8,16 @@ GSurf input parameters
   Mode: Tri
   RidgeAngle: 20.00
   MaxGradation: 0.10
-  DeleteInput: Yes
+  DeleteInput: No
+
+input mesh
+  number of triangles: 46912
+  number of nodes: 23112
+
+output mesh
+  number of quadrilatrals: 0
+  number of triangles: 147377
+  number of nodes: 72857
+
+meshing time: 18.95 s
+

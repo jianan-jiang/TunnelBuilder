@@ -7,6 +7,7 @@ using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
+    [System.Runtime.InteropServices.Guid("35FC0792-5A85-4744-B8EF-C2E62144178F")]
     public class ExportBoltCommand : Command
     {
         static ExportBoltCommand _instance;
