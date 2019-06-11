@@ -152,12 +152,18 @@ namespace TunnelBuilder
                 
             }
 
+            return installBolt(doc,controlLine,tunnelSurface,boltLength,boltAdvanceSpacing,boltSectionSpacing,bolt_layer_index,boltInstallLocationToggle,staggeredToggle);
+            
+        }
+
+        public Result installBolt(RhinoDoc doc,Curve controlLine, Brep tunnelSurface, double boltLength, double boltAdvanceSpacing, double boltSectionSpacing, int bolt_layer_index, OptionToggle boltInstallLocationToggle, OptionToggle staggeredToggle)
+        {
             double controlLineLength = controlLine.GetLength();
             double totalAdvanceLength = 0.0;
             int advanceIteration = 1;
 
 
-            while(totalAdvanceLength<=controlLineLength)
+            while (totalAdvanceLength <= controlLineLength)
             {
                 Point3d currentAdvancePoint = controlLine.PointAtLength(totalAdvanceLength);
                 double currentAdvancePoint_t_param;
@@ -168,33 +174,33 @@ namespace TunnelBuilder
                 Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
                 Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
 
-                if(cplane.YAxis[2]<0)
+                if (cplane.YAxis[2] < 0)
                 {
                     //Rotate the plane 180 degree if y axis is pointing down
-                    cplane.Rotate(Math.PI,cplane.XAxis);
+                    cplane.Rotate(Math.PI, cplane.XAxis);
                 }
 
-                Surface srf = new PlaneSurface(cplane, new Interval(-1000,1000), new Interval(-1000, 1000));
+                Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                 const double intersection_tolerance = 0.001;
                 const double overlap_tolerance = 0.0;
                 Curve[] intersection_curves;
                 Point3d[] intersection_points;
                 var events = Rhino.Geometry.Intersect.Intersection.BrepSurface(tunnelSurface, srf, intersection_tolerance, out intersection_curves, out intersection_points);
-                if(events)
+                if (events)
                 {
-                    if(intersection_curves.Length>0||intersection_points.Length>0)
+                    if (intersection_curves.Length > 0 || intersection_points.Length > 0)
                     {
                         var plane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
                         var world_to_plane = Transform.ChangeBasis(Plane.WorldXY, cplane);
                         Curve tunnel_profile = null;
-                        Curve[] joint_tunnel_profile = Curve.JoinCurves(intersection_curves, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance,false);
-                        if(joint_tunnel_profile.Length == 0)
+                        Curve[] joint_tunnel_profile = Curve.JoinCurves(intersection_curves, Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance, false);
+                        if (joint_tunnel_profile.Length == 0)
                         {
                             RhinoApp.WriteLine("Fail to extract tunnel section profile");
                             continue;
                         }
                         tunnel_profile = joint_tunnel_profile[0];
-                        
+
                         if (!tunnel_profile.IsClosed)
                         {
                             advanceIteration = advanceIteration + 1;
@@ -207,26 +213,26 @@ namespace TunnelBuilder
                         if (!tunnel_profile.IsClosed)
                         {
                             Curve newLine = new Line(tunnel_profile.PointAtStart, tunnel_profile.PointAtEnd).ToNurbsCurve();
-                            Curve[] result = Curve.JoinCurves(new Curve[] {tunnel_profile, newLine });
+                            Curve[] result = Curve.JoinCurves(new Curve[] { tunnel_profile, newLine });
                             tunnel_profile = result[0];
                         }
 
                         // By Default, the command will only install bolts on the crown of the tunnel.
                         var bbox = tunnel_profile.GetBoundingBox(true);
                         var crown_z = bbox.Max[1];
-                        var start_point = new Point3d(-1000, crown_z,0);
-                        var end_point = new Point3d(1000, crown_z,0);
-                        
+                        var start_point = new Point3d(-1000, crown_z, 0);
+                        var end_point = new Point3d(1000, crown_z, 0);
+
 
                         var l = new Line(start_point, end_point);
                         Rhino.Geometry.Intersect.CurveIntersections apex_events = Rhino.Geometry.Intersect.Intersection.CurveLine(tunnel_profile, l, intersection_tolerance, overlap_tolerance);
-                        if(apex_events.Count>0)
+                        if (apex_events.Count > 0)
                         {
                             Point3d apex = apex_events[0].PointA;
                             if (staggeredToggle.CurrentValue)
                             {
                                 // If the bolt pattern is staggered, offset the bolt according to advance number.
-                                if(advanceIteration % 2==0)
+                                if (advanceIteration % 2 == 0)
                                 {
                                     //Intall the bolts in +t_param direction
                                     installBoltIteration(doc, apex, tunnel_profile, boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, boltSectionSpacing / 2);
@@ -240,7 +246,7 @@ namespace TunnelBuilder
                                     //Intall the bolts in -t_param direction
                                     installBoltIteration(doc, apex, tunnel_profile, -boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltSectionSpacing);
                                 }
-                                
+
                             }
                             else
                             {
@@ -249,7 +255,7 @@ namespace TunnelBuilder
                                 //Intall the bolts in -t_param direction
                                 installBoltIteration(doc, apex, tunnel_profile, -boltSectionSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltSectionSpacing);
                             }
-                            
+
                         }
                     }
                     else

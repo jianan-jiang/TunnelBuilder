@@ -1,0 +1,44 @@
+﻿<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://tempuri.org/TunnelSupportSchema.xsd"
+           targetNamespace="http://tempuri.org/TunnelSupportSchema.xsd"
+           elementFormDefault="qualified">
+  <xsd:element name="TunnelSupport" type="tns:TunnelSupportType"/>
+  <xsd:complexType name="TunnelSupportType">
+    <xsd:sequence>
+      <xsd:element name="Bolt" type="tns:Bolt"/>
+      <xsd:element name="Shotcrete" type="tns:Shotcrete"/>
+    </xsd:sequence>
+    <xsd:attribute name="OrderDate" type="xsd:date"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="Bolt">
+    <xsd:sequence>
+      <xsd:element name="Alignment" type="tns:Alignment"/>
+    </xsd:sequence>
+    
+  </xsd:complexType>
+  
+  <xsd:complexType name="BoltSupportType">
+    <xsd:attribute name="Length" type="xsd:double"/>
+    <xsd:attribute name="TransversiveSpacing" type="xsd:double"/>
+    <xsd:attribute name="LongitudinalSpacing" type="xsd:double"/>
+    <xsd:attribute name="Staggered" type="xsd:boolean"/>
+    <xsd:attribute name="CrownOnly" type="xsd:boolean"/>
+  </xsd:complexType>
+  
+  <xsd:complexType name="Alignment">
+    <xsd:all>
+      <xsd:element name="Interval" type="tns:SupportInterval"/>
+    </xsd:all>
+    <xsd:attribute name="Name" type="xsd:string"/>
+  </xsd:complexType>
+  <xsd:complexType name="SupportInterval">
+    <xsd:sequence>
+      <xsd:element name="From" type="xsd:double"/>
+      <xsd:element name="To" type="xsd:double"/>
+      <xsd:element name="SupportType" type="tns:BoltSupportType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:complexType name="Shotcrete">
+  </xsd:complexType>
+</xsd:schema>

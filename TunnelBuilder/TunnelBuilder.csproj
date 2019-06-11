@@ -50,10 +50,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\BatchInstallBoltCommand.cs" />
+    <Compile Include="Commands\ExportTunnelSpanCommand.cs" />
+    <Compile Include="Commands\MinimumClearanceCommand.cs" />
     <Compile Include="Commands\ModifyBoltLengthCommand.cs" />
     <Compile Include="Commands\ExportBoltCommand.cs" />
+    <Compile Include="Models\TunnelSupport.cs">
+      <DependentUpon>TunnelSupport.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExportBoltDialog.cs" />
     <Compile Include="Commands\InstallBoltCommand.cs" />
     <Compile Include="Commands\StageConstructionPlaneCommand.cs" />
@@ -67,6 +75,9 @@
     <EmbeddedResource Include="EmbeddedResources\plugin-utility.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Models\TunnelSupport.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
