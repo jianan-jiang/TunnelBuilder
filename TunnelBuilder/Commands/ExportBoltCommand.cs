@@ -161,15 +161,32 @@ namespace TunnelBuilder
             switch (exportEnvironment)
             {
                 case ExportEnvironment.FLAC3D:
+                    fs.WriteLine();
+                    fs.WriteLine("; Define bolt properties");
                     fs.WriteLine("structure cable group '" + getGroupName(boltLayer) + "' ra id = " + boltStartId + ", " + (boltStartId + boltObjs.Length - 1).ToString());
-                    fs.WriteLine("structure cable in f-a=" + bp.preTension.ToString() + " range group '" + getGroupName(boltLayer) + "'");
+                    if (bp.preTension > 0)
+                    {
+                        fs.WriteLine("structure cable in f-a=" + bp.preTension.ToString() + " range group '" + getGroupName(boltLayer) + "'");
+                    }         
                     fs.WriteLine("structure cable property young= " + bp.young + " g-c= " + bp.groutCohesion + " g-s= " + bp.groutStiffness + " g-p= " + bp.groutPerimeter + " c-s-a= " + bp.crossSectionArea + " y-t= " + bp.yieldTension + " y-c= " + bp.yieldCompression + " range group '" + getGroupName(boltLayer) + "'");
                     break;
                 case ExportEnvironment.UDEC:
+                    fs.WriteLine();
+                    fs.WriteLine("; Define bolt properties");
                     fs.WriteLine("block structure cable change mat-steel 1");
                     fs.WriteLine("block structure cable change mat-grout 2");
                     fs.WriteLine("block structure cable property material 1 young= "+ bp.young +" c-s-a= "+bp.crossSectionArea+" y-t= "+bp.yieldTension+" y-c= "+bp.yieldCompression+" density=0.008 spacing 1");
                     fs.WriteLine("block structure cable property material 2 grout-stiffness="+bp.groutStiffness+" grout-strength="+bp.groutCohesion);
+                    if(bp.preTension>0)
+                    {
+                        fs.WriteLine();
+                        fs.WriteLine("; Pre-tensioning the bolts");
+                        fs.WriteLine("block structure cable fix-tension " + bp.preTension.ToString());
+                        fs.WriteLine("block structure cable property material 2 grout-strength=0.0");
+                        fs.WriteLine("model cycle 100");
+                        fs.WriteLine("block structure cable property material 2 grout-strength="+bp.groutCohesion);
+                        fs.WriteLine("block structure cable free-tension");
+                    }
                     break;
                 default:
                     throw new System.ArgumentException("Unsupported Export Environment");
