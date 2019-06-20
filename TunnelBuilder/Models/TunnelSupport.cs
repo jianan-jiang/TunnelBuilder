@@ -24,16 +24,17 @@ namespace TunnelBuilder.Models {
     [System.Xml.Serialization.XmlRootAttribute("TunnelSupport", Namespace="http://tempuri.org/TunnelSupportSchema.xsd", IsNullable=false)]
     public partial class TunnelSupportType {
         
-        private Bolt boltField;
+        private Alignment[] boltField;
         
         private Shotcrete shotcreteField;
         
-        private System.DateTime orderDateField;
+        private System.DateTime createDateField;
         
-        private bool orderDateFieldSpecified;
+        private bool createDateFieldSpecified;
         
         /// <remarks/>
-        public Bolt Bolt {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public Alignment[] Bolt {
             get {
                 return this.boltField;
             }
@@ -54,44 +55,23 @@ namespace TunnelBuilder.Models {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute(DataType="date")]
-        public System.DateTime OrderDate {
+        public System.DateTime CreateDate {
             get {
-                return this.orderDateField;
+                return this.createDateField;
             }
             set {
-                this.orderDateField = value;
+                this.createDateField = value;
             }
         }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool OrderDateSpecified {
+        public bool CreateDateSpecified {
             get {
-                return this.orderDateFieldSpecified;
+                return this.createDateFieldSpecified;
             }
             set {
-                this.orderDateFieldSpecified = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    public partial class Bolt {
-        
-        private Alignment alignmentField;
-        
-        /// <remarks/>
-        public Alignment Alignment {
-            get {
-                return this.alignmentField;
-            }
-            set {
-                this.alignmentField = value;
+                this.createDateFieldSpecified = value;
             }
         }
     }
@@ -104,12 +84,13 @@ namespace TunnelBuilder.Models {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
     public partial class Alignment {
         
-        private SupportInterval intervalField;
+        private SupportInterval[] intervalField;
         
         private string nameField;
         
         /// <remarks/>
-        public SupportInterval Interval {
+        [System.Xml.Serialization.XmlElementAttribute("Interval")]
+        public SupportInterval[] Interval {
             get {
                 return this.intervalField;
             }

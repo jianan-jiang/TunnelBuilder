@@ -8,12 +8,12 @@
       <xsd:element name="Bolt" type="tns:Bolt"/>
       <xsd:element name="Shotcrete" type="tns:Shotcrete"/>
     </xsd:sequence>
-    <xsd:attribute name="OrderDate" type="xsd:date"/>
+    <xsd:attribute name="CreateDate" type="xsd:date"/>
   </xsd:complexType>
 
   <xsd:complexType name="Bolt">
     <xsd:sequence>
-      <xsd:element name="Alignment" type="tns:Alignment"/>
+      <xsd:element name="Alignment" type="tns:Alignment" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
     
   </xsd:complexType>
@@ -27,9 +27,9 @@
   </xsd:complexType>
   
   <xsd:complexType name="Alignment">
-    <xsd:all>
-      <xsd:element name="Interval" type="tns:SupportInterval"/>
-    </xsd:all>
+    <xsd:sequence>
+      <xsd:element name="Interval" type="tns:SupportInterval" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
     <xsd:attribute name="Name" type="xsd:string"/>
   </xsd:complexType>
   <xsd:complexType name="SupportInterval">
