@@ -2,12 +2,32 @@
 using Eto.Drawing;
 using Eto.Forms;
 using Rhino.UI.Forms;
+using Rhino;
+using System.ComponentModel;
 
 namespace TunnelBuilder.Views
 {
+    class LayerNameTextBox:TextBox
+    {
+        private RhinoDoc layer_doc;
+        public string FullPath;
+        public LayerNameTextBox(RhinoDoc doc)
+        {
+            ReadOnly = true;
+            layer_doc = doc;
+        }
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            var layer_dialog = new Views.LayerNameDialog(layer_doc);
+            var layer_dialog_rc = layer_dialog.ShowModal();
+            Text = layer_dialog.selectedLayerName;
+            FullPath = layer_dialog.selectedLayerFullPath;
+        }
+    }
     class ExportBoltDialog:CommandDialog
     {
-        private TextBox boltLayerNameTextBox;
+        private LayerNameTextBox boltLayerNameTextBox;
         private NumericStepper segmentNumberStepper;
         private NumericStepper boltStartIDStepper;
         private NumericStepper youngStepper;
@@ -18,9 +38,15 @@ namespace TunnelBuilder.Views
         private NumericStepper yieldCompressionStepper;
         private NumericStepper yieldTensionStepper;
         private NumericStepper preTensionStepper;
+        private NumericStepper longitudinalSpacingStepper;
+        private ExportEnvironment exportEnvironment;
+        private RhinoDoc doc;
 
-        public ExportBoltDialog()
+        public ExportBoltDialog(ExportEnvironment eE, RhinoDoc d)
         {
+            exportEnvironment = eE;
+            doc = d;
+
             Padding = new Padding(10);
             Title = "Bolts Parameters";
             Resizable = false;
@@ -29,7 +55,7 @@ namespace TunnelBuilder.Views
             ShowInTaskbar = false;
             WindowStyle = WindowStyle.Default;
 
-            boltLayerNameTextBox = new TextBox();
+            boltLayerNameTextBox = new LayerNameTextBox(doc);
 
             segmentNumberStepper = new NumericStepper();
             segmentNumberStepper.DecimalPlaces = 0;
@@ -84,7 +110,18 @@ namespace TunnelBuilder.Views
             yieldCompressionStepper.DecimalPlaces = 3;
             yieldCompressionStepper.Value = 0.31;
 
-            Content = new TableLayout
+            longitudinalSpacingStepper = new NumericStepper();
+            longitudinalSpacingStepper.DecimalPlaces = 2;
+            longitudinalSpacingStepper.MinValue = 0;
+            longitudinalSpacingStepper.Value = 1.0;
+
+            Content = exportBoltDialogLayout();
+            
+        }
+
+        private TableLayout exportBoltDialogLayout()
+        {
+            TableLayout layout = new TableLayout
             {
                 Spacing = new Size(5, 5),
                 Padding = new Padding(10, 10, 10, 10),
@@ -136,11 +173,46 @@ namespace TunnelBuilder.Views
                         ),
                 }
             };
+
+            if (exportEnvironment == ExportEnvironment.UDEC)
+            {
+
+                layout.Rows.Add(new TableRow(new TableCell(new Label { Text = "Longitudinal Spacing" }, true), new TableCell(longitudinalSpacingStepper, true)));
+            }
+            return layout;
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if(Result==Rhino.Commands.Result.Success)
+            {
+                if (validateInputs() == false)
+                {
+                    e.Cancel = true;
+                }
+            }
+            
+        }
+
+        private bool validateInputs()
+        {
+            if(this.doc.Layers.FindByFullPath(this.boltLayerFullPath,-1)==-1)
+            {
+                MessageBox.Show("Please select a valid bolt root layer", "Input Error", MessageBoxType.Error);
+                return false;
+            }
+            return true;
         }
 
         public string boltLayerName
         {
             get { return boltLayerNameTextBox.Text; }
+        }
+
+        public string boltLayerFullPath
+        {
+            get { return boltLayerNameTextBox.FullPath; }
         }
 
         public int boltSegment
@@ -182,6 +254,11 @@ namespace TunnelBuilder.Views
         public double yieldCompression
         {
             get { return yieldCompressionStepper.Value; }
+        }
+
+        public double longitudinalSpacing
+        {
+            get { return longitudinalSpacingStepper.Value; }
         }
     }
 }

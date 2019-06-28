@@ -1,10 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections.Generic;
 using Rhino;
 using Rhino.Commands;
 using Rhino.Geometry;
-using Rhino.Input;
-using Rhino.Input.Custom;
 
 namespace TunnelBuilder
 {
@@ -41,38 +40,7 @@ namespace TunnelBuilder
             int boltSegment = 10;
             int boltStartId = 1;
 
-            var dialog = new Views.ExportBoltDialog();
-            var dialog_rc = dialog.ShowModal();
-            boltLayerName = dialog.boltLayerName;
-            boltSegment = dialog.boltSegment;
-            boltStartId = dialog.boltStartId;
-
-            bp = new BoltParameter();
-            bp.preTension = dialog.preTension;
-            bp.young = dialog.young;
-            bp.groutCohesion = dialog.groutCohesion;
-            bp.groutStiffness = dialog.groutStiffness;
-            bp.groutPerimeter = dialog.groutPerimeter;
-            bp.crossSectionArea = dialog.crossSectionArea;
-            bp.yieldTension = dialog.yieldTension;
-            bp.yieldCompression = dialog.yieldCompression;
-
-            Rhino.DocObjects.Layer boltLayer = null;
-
-            if (boltLayerName == "Bolt")
-            {
-                boltLayer = doc.Layers.FindName("Bolt");
-            }
-            else
-            {
-                int boltLayerIndex = doc.Layers.FindByFullPath("Bolt::" + boltLayerName, -1);
-                if (boltLayerIndex == -1)
-                {
-                    RhinoApp.WriteLine("Unable to find bolt layer");
-                    return Result.Failure;
-                }
-                boltLayer = doc.Layers.FindIndex(boltLayerIndex);
-            }
+            
 
             var fd = new Rhino.UI.SaveFileDialog { Filter = "FLAC3D Data File (*.f3dat)|*.f3dat|UDEC Data File (*.uddat)|*.uddat", Title = "Save bolt files", DefaultExt = "f3dat",FileName="bolt.f3dat" };
             if (!fd.ShowSaveDialog())
@@ -95,22 +63,56 @@ namespace TunnelBuilder
                 exportEnvironment = ExportEnvironment.UDEC;
             }
 
-            iterateLayers(doc, boltLayer, fn, boltStartId, boltSegment,exportEnvironment);
-            
+            var dialog = new Views.ExportBoltDialog(exportEnvironment,doc);
+            var dialog_rc = dialog.ShowModal();
+            if(dialog_rc!=Result.Success)
+            {
+                return dialog_rc;
+            }
+            boltLayerName = dialog.boltLayerName;
+            boltSegment = dialog.boltSegment;
+            boltStartId = dialog.boltStartId;
+
+            bp = new BoltParameter();
+            bp.preTension = dialog.preTension;
+            bp.young = dialog.young;
+            bp.groutCohesion = dialog.groutCohesion;
+            bp.groutStiffness = dialog.groutStiffness;
+            bp.groutPerimeter = dialog.groutPerimeter;
+            bp.crossSectionArea = dialog.crossSectionArea;
+            bp.yieldTension = dialog.yieldTension;
+            bp.yieldCompression = dialog.yieldCompression;
+            bp.longitudinalSpacing = dialog.longitudinalSpacing;
+
+            Rhino.DocObjects.Layer boltLayer;
+
+            int boltLayerIndex = doc.Layers.FindByFullPath(dialog.boltLayerFullPath,-1);
+            if (boltLayerIndex == -1)
+            {
+                
+                RhinoApp.WriteLine("Unable to find bolt layer");
+                return Result.Failure;
+            }
+            boltLayer = doc.Layers.FindIndex(boltLayerIndex);
+
+            iterateLayers(doc, boltLayer, fn, boltStartId, boltSegment,exportEnvironment,1);
+
+            RhinoApp.WriteLine("Successfully exported all bolts in " + dialog.boltLayerName + " to " + exportEnvironment.GetDescription() + " data file(s)");
+
             return Result.Success;
         }
 
-        private int iterateLayers(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string fn, int boltStartId, int boltSegment,ExportEnvironment exportEnvironment)
+        private int iterateLayers(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string fn, int boltStartId, int boltSegment,ExportEnvironment exportEnvironment,int fileCount)
         {
             string filenameWithoutExtension = System.IO.Path.ChangeExtension(fn, null);
-            boltStartId = boltStartId + exportBolts(doc, boltLayer, filenameWithoutExtension + "-"+getGroupName(boltLayer) + ExportEnvironmentExtension[exportEnvironment], boltStartId, boltSegment, exportEnvironment);
+            boltStartId = boltStartId + exportBolts(doc, boltLayer, filenameWithoutExtension + "-"+getGroupName(boltLayer) + ExportEnvironmentExtension[exportEnvironment], boltStartId, boltSegment, exportEnvironment,fileCount+1);
 
             Rhino.DocObjects.Layer[] childrenLayers = boltLayer.GetChildren();
             if(childrenLayers!=null)
             {
                 for (int i = 0; i < childrenLayers.Length; i++)
                 {
-                    boltStartId=iterateLayers(doc, childrenLayers[i], fn, boltStartId, boltSegment,exportEnvironment);
+                    boltStartId=iterateLayers(doc, childrenLayers[i], fn, boltStartId, boltSegment,exportEnvironment,fileCount+1);
                 }
             }
             return boltStartId;
@@ -130,7 +132,7 @@ namespace TunnelBuilder
             
         }
 
-        private int exportBolts(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string filename,int boltStartId,int boltSegment, ExportEnvironment exportEnvironment)
+        private int exportBolts(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string filename,int boltStartId,int boltSegment, ExportEnvironment exportEnvironment,int grountMaterialCount)
         { 
             Rhino.DocObjects.RhinoObject[] boltObjs = doc.Objects.FindByLayer(boltLayer);
             if (boltObjs == null || boltObjs.Length < 1)
@@ -150,7 +152,15 @@ namespace TunnelBuilder
                         line = "structure cable create by-line " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " id=" + (boltStartId + i).ToString() + " seg=" + boltSegment.ToString();
                         break;
                     case ExportEnvironment.UDEC:
-                        line = "block structure cable create begin " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " end " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " group='" + getGroupName(boltLayer) + "' seg=" + boltSegment.ToString();
+                        if (bp.preTension == 0)
+                        {
+                            line = "block structure cable create begin " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " end " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " group='" + getGroupName(boltLayer) + "' seg=" + boltSegment.ToString();
+                        }
+                        else
+                        {
+                            line = "block structure cable create begin " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " end " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " group='" + getGroupName(boltLayer) + "' seg=" + boltSegment.ToString() +" m-s 1 m-g "+grountMaterialCount.ToString();
+                        }
+                        
                         break;
                     default:
                         throw new System.ArgumentException("Unsupported Export Environment");
@@ -173,19 +183,17 @@ namespace TunnelBuilder
                 case ExportEnvironment.UDEC:
                     fs.WriteLine();
                     fs.WriteLine("; Define bolt properties");
-                    fs.WriteLine("block structure cable change mat-steel 1");
-                    fs.WriteLine("block structure cable change mat-grout 2");
-                    fs.WriteLine("block structure cable property material 1 young= "+ bp.young +" c-s-a= "+bp.crossSectionArea+" y-t= "+bp.yieldTension+" y-c= "+bp.yieldCompression+" density=0.008 spacing 1");
-                    fs.WriteLine("block structure cable property material 2 grout-stiffness="+bp.groutStiffness+" grout-strength="+bp.groutCohesion);
+                    fs.WriteLine("block structure cable property material 1 young= "+ bp.young +" c-s-a= "+bp.crossSectionArea+" y-t= "+bp.yieldTension+" y-c= "+bp.yieldCompression+" density=0.008 spacing "+bp.longitudinalSpacing.ToString());
+                    fs.WriteLine("block structure cable property material "+grountMaterialCount.ToString()+" grout-stiffness="+bp.groutStiffness+" grout-strength="+bp.groutCohesion);
                     if(bp.preTension>0)
                     {
                         fs.WriteLine();
                         fs.WriteLine("; Pre-tensioning the bolts");
-                        fs.WriteLine("block structure cable fix-tension " + bp.preTension.ToString());
-                        fs.WriteLine("block structure cable property material 2 grout-strength=0.0");
-                        fs.WriteLine("model cycle 100");
-                        fs.WriteLine("block structure cable property material 2 grout-strength="+bp.groutCohesion);
-                        fs.WriteLine("block structure cable free-tension");
+                        fs.WriteLine("block structure cable fix-tension " + bp.preTension.ToString()+" range group '"+getGroupName(boltLayer)+"'");
+                        fs.WriteLine("block structure cable property material " + grountMaterialCount.ToString() + " grout-strength=0.0");
+                        fs.WriteLine("model cycle 1");
+                        fs.WriteLine("block structure cable property material " + grountMaterialCount.ToString() + " grout-strength=" +bp.groutCohesion);
+                        fs.WriteLine("block structure cable free-tension range group '"+getGroupName(boltLayer)+"'");
                     }
                     break;
                 default:
@@ -206,7 +214,9 @@ namespace TunnelBuilder
     
     public enum ExportEnvironment
     {
+        [Description("FLAC3D")]
         FLAC3D,
+        [Description("UDEC")]
         UDEC
     }
 
@@ -229,6 +239,8 @@ namespace TunnelBuilder
         public double yieldTension;
 
         public double yieldCompression;
+
+        public double longitudinalSpacing;
 
     }
 }

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Rhino;
-using Rhino.Commands;
 
 namespace TunnelBuilder
 {
-    class UtilFunctions
+    public static class UtilFunctions
     {
         public static int AddNewLayer(Rhino.RhinoDoc doc,string layer_name)
         {
@@ -96,5 +93,34 @@ namespace TunnelBuilder
 
             return System.Drawing.Color.FromArgb(r, g, b);
         }
-    }
+
+        public static string GetDescription<T>(this T e) where T : IConvertible
+        {
+            if (e is Enum)
+            {
+                Type type = e.GetType();
+                Array values = System.Enum.GetValues(type);
+
+                foreach (int val in values)
+                {
+                    if (val == e.ToInt32(CultureInfo.InvariantCulture))
+                    {
+                        var memInfo = type.GetMember(type.GetEnumName(val));
+                        var descriptionAttribute = memInfo[0]
+                            .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                            .FirstOrDefault() as DescriptionAttribute;
+
+                        if (descriptionAttribute != null)
+                        {
+                            return descriptionAttribute.Description;
+                        }
+                    }
+                }
+            }
+
+            return null; // could also return string.Empty
+        }
+}
+
+   
 }
