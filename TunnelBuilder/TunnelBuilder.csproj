@@ -54,19 +54,23 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\BatchInstallBoltCommand.cs" />
-    <Compile Include="Commands\ExportTunnelSpanCommand.cs" />
-    <Compile Include="Commands\MinimumClearanceCommand.cs" />
-    <Compile Include="Commands\ModifyBoltLengthCommand.cs" />
-    <Compile Include="Commands\ExportBoltCommand.cs" />
+    <Compile Include="Commands\Bolt\BatchInstallBoltCommand.cs" />
+    <Compile Include="Commands\Bolt\BoltClearanceCheckCommand.cs" />
+    <Compile Include="Commands\Tunnel\ExportTunnelSpanCommand.cs" />
+    <Compile Include="Commands\Bolt\MinimumClearanceCommand.cs" />
+    <Compile Include="Commands\Bolt\ModifyBoltLengthCommand.cs" />
+    <Compile Include="Commands\Bolt\ExportBoltCommand.cs" />
+    <Compile Include="Commands\Geology\ProjectGeologyCommand.cs" />
+    <Compile Include="Commands\Tunnel\FitSurfaceToELineCommand.cs" />
+    <Compile Include="Commands\Tunnel\SplitTunnelCLCommand.cs" />
     <Compile Include="Models\TunnelSupport.cs">
       <DependentUpon>TunnelSupport.xsd</DependentUpon>
     </Compile>
     <Compile Include="Views\ExportBoltDialog.cs" />
-    <Compile Include="Commands\InstallBoltCommand.cs" />
-    <Compile Include="Commands\StageConstructionPlaneCommand.cs" />
-    <Compile Include="Commands\StageExcavationCommand.cs" />
-    <Compile Include="Commands\TunnelBuilderCommand.cs" />
+    <Compile Include="Commands\Bolt\InstallBoltCommand.cs" />
+    <Compile Include="Commands\Tunnel\StageConstructionPlaneCommand.cs" />
+    <Compile Include="Commands\Tunnel\StageExcavationCommand.cs" />
+    <Compile Include="Commands\Tunnel\TunnelBuilderCommand.cs" />
     <Compile Include="TunnelBuilderPlugIn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilFunctions.cs" />
@@ -76,10 +80,14 @@
     <EmbeddedResource Include="EmbeddedResources\plugin-utility.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Help\01_Getting_Started.md" />
     <None Include="Models\TunnelSupport.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Models\tsd.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

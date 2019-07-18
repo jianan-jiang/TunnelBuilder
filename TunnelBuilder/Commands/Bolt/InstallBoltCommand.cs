@@ -278,7 +278,7 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        private bool installBoltIteration(RhinoDoc doc,Point3d apex,Curve tunnel_profile,double boltSectionSpacing,double boltLength,int bolt_layer_index,OptionToggle boltInstallLocationToggle, Brep tunnelSurface,Transform plane_to_world,double offset)
+        public static bool installBoltIteration(RhinoDoc doc,Point3d apex,Curve tunnel_profile,double boltSectionSpacing,double boltLength,int bolt_layer_index,OptionToggle boltInstallLocationToggle, Brep tunnelSurface,Transform plane_to_world,double offset)
         {
             
             Interval tunnel_profile_domain = tunnel_profile.Domain;
@@ -301,7 +301,7 @@ namespace TunnelBuilder
 
                 var bolt_installation_point_curvarture = tunnel_profile.CurvatureAt(bolt_installation_point_t_param).Length;
 
-                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture)/bolt_installation_point_curvarture < 0.05;
+                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture)/bolt_installation_point_curvarture < 0.2;
 
                 if (boltInstallLocationToggle.CurrentValue == true && onCrownFlag == false)
                 {
@@ -395,7 +395,7 @@ namespace TunnelBuilder
             return true;
         }
 
-        private BoltLineResult getBoltLine(Curve tunnel_profile, Point3d bolt_installation_point, double boltLength)
+        private static BoltLineResult getBoltLine(Curve tunnel_profile, Point3d bolt_installation_point, double boltLength)
         {
             double bolt_installation_point_t_param;
             tunnel_profile.ClosestPoint(bolt_installation_point, out bolt_installation_point_t_param);

@@ -26,8 +26,6 @@ namespace TunnelBuilder
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
-            // TODO: start here modifying the behaviour of your command.
-            // ---
             RhinoApp.WriteLine("The {0} command will build a tunnel surface.", EnglishName);
             OptionInteger intOption = new OptionInteger(10, 1, 1000);
             OptionDouble leftShoulderDoubleOption = new OptionDouble(1.25);

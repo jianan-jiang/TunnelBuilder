@@ -2,43 +2,53 @@
            xmlns:tns="http://tempuri.org/TunnelSupportSchema.xsd"
            targetNamespace="http://tempuri.org/TunnelSupportSchema.xsd"
            elementFormDefault="qualified">
-  <xsd:element name="TunnelSupport" type="tns:TunnelSupportType"/>
-  <xsd:complexType name="TunnelSupportType">
-    <xsd:sequence>
-      <xsd:element name="Bolt" type="tns:Bolt"/>
-      <xsd:element name="Shotcrete" type="tns:Shotcrete"/>
-    </xsd:sequence>
-    <xsd:attribute name="CreateDate" type="xsd:date"/>
-  </xsd:complexType>
-
-  <xsd:complexType name="Bolt">
-    <xsd:sequence>
-      <xsd:element name="Alignment" type="tns:Alignment" minOccurs="0" maxOccurs="unbounded"/>
-    </xsd:sequence>
+  <xsd:element name="TunnelSupportDefinition">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="BoltSupportLengths">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BoltSupportLength" type="tns:BoltSupportLength" minOccurs="1" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            
+          </xsd:complexType>
+          <xsd:unique name="oneSupportNameforEachBoltSupportLength">
+            <xsd:selector xpath="tns:BoltSupportLength"/>
+            <xsd:field xpath="@Name"/>
+          </xsd:unique>
+        </xsd:element>
+          <xsd:element name="GroundConditions">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="GroundCondition" type="tns:GroundCondition" minOccurs="1" maxOccurs="unbounded"/>
+              </xsd:sequence>
+            </xsd:complexType>
+            <xsd:unique name="oneGroundConditionNameforEachGroundCondition">
+              <xsd:selector xpath="tns:GroundCondition"/>
+              <xsd:field xpath="@Name"/>
+            </xsd:unique>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="CreateDate" type="xsd:date"/>
+    </xsd:complexType>
     
-  </xsd:complexType>
-  
-  <xsd:complexType name="BoltSupportType">
-    <xsd:attribute name="Length" type="xsd:double"/>
+  </xsd:element>
+
+
+
+
+  <xsd:complexType name="GroundCondition">
     <xsd:attribute name="TransversiveSpacing" type="xsd:double"/>
     <xsd:attribute name="LongitudinalSpacing" type="xsd:double"/>
-    <xsd:attribute name="Staggered" type="xsd:boolean"/>
-    <xsd:attribute name="CrownOnly" type="xsd:boolean"/>
-  </xsd:complexType>
-  
-  <xsd:complexType name="Alignment">
-    <xsd:sequence>
-      <xsd:element name="Interval" type="tns:SupportInterval" minOccurs="0" maxOccurs="unbounded"/>
-    </xsd:sequence>
     <xsd:attribute name="Name" type="xsd:string"/>
   </xsd:complexType>
-  <xsd:complexType name="SupportInterval">
-    <xsd:sequence>
-      <xsd:element name="From" type="xsd:double"/>
-      <xsd:element name="To" type="xsd:double"/>
-      <xsd:element name="SupportType" type="tns:BoltSupportType"/>
-    </xsd:sequence>
+  
+  <xsd:complexType name="BoltSupportLength">
+    <xsd:attribute name="TunnelSpan" type="xsd:double"/>
+    <xsd:attribute name="Length" type="xsd:double"/>
+    <xsd:attribute name="Staggered" type="xsd:boolean"/>
+    <xsd:attribute name="CrownOnly" type="xsd:boolean"/>
+    <xsd:attribute name="Name" type="xsd:string"/>
   </xsd:complexType>
-  <xsd:complexType name="Shotcrete">
-  </xsd:complexType>
+
 </xsd:schema>

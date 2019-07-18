@@ -203,7 +203,7 @@ namespace TunnelBuilder
                             if (apex_events.Count > 0)
                             {
                                 Point3d apex = apex_events[0].PointA;
-                                double span = getSpan(doc, apex, tunnel_profile, tunnelSurface, plane_to_world);
+                                double span = getSpan(doc, apex, tunnel_profile);
                                 double currentChainage = 0.0;
                                 if (controlLineDirectionToggle.CurrentValue)
                                 {
@@ -308,6 +308,8 @@ namespace TunnelBuilder
                 int advanceIteration = 1;
 
 
+
+
                 while (totalAdvanceLength <= controlLineLength)
                 {
                     Point3d currentAdvancePoint = controlLine.PointAtLength(totalAdvanceLength);
@@ -360,34 +362,25 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        private double getSpan(RhinoDoc doc, Point3d currentPoint, Curve leftELine, Curve rightELine)
+        public static SpanResult getSpan(RhinoDoc doc, Point3d currentPoint, Curve leftELine, Curve rightELine,bool twoD=false)
         {
             double span = -1.0;
-            var query_z = currentPoint.Z;
-            var start_point = new Point3d(-1000, query_z, 0);
-            var end_point = new Point3d(1000, query_z, 0);
+
+            double query_z = currentPoint.Z;
+            Point3d start_point = new Point3d(-1000, query_z, 0);
+            Point3d end_point = new Point3d(1000, query_z, 0);
             Point3d leftPoint = new Point3d();
             Point3d rightPoint = new Point3d();
 
 
-            var l = new Line(start_point, end_point);
+            Line l = new Line(start_point, end_point);
             Rhino.Geometry.Intersect.CurveIntersections left_events = Rhino.Geometry.Intersect.Intersection.CurveLine(leftELine, l, intersection_tolerance, overlap_tolerance);
             bool flag = false;
-            if (left_events.Count > 0)
-            {
-                leftPoint = left_events[0].PointA;
-                flag = true;
-            }
-            else
-            {
-                flag = false;
-            }
-            
-
 
             Rhino.Geometry.Intersect.CurveIntersections right_events = Rhino.Geometry.Intersect.Intersection.CurveLine(rightELine, l, intersection_tolerance, overlap_tolerance);
-            if (right_events.Count > 0)
+            if (right_events.Count > 0 && left_events.Count>0)
             {
+                leftPoint = left_events[0].PointA;
                 rightPoint = right_events[0].PointA;
                 flag = true;
             }
@@ -401,12 +394,22 @@ namespace TunnelBuilder
             {
                 span = leftPoint.DistanceTo(rightPoint);
             }
-            
 
-            return span;
+            SpanResult sr = new SpanResult();
+            sr.span = span;
+            sr.leftIntersection = leftPoint;
+            sr.rightIntersection = rightPoint;
+
+            return sr;
         }
 
-        private double getSpan(RhinoDoc doc, Point3d apex, Curve tunnel_profile,  Brep tunnelSurface, Transform plane_to_world)
+        public static double getSpan(RhinoDoc doc, Point3d currentPoint, Curve leftELine, Curve rightELine)
+        {
+            SpanResult sr = getSpan( doc,  currentPoint,  leftELine,rightELine,false);
+            return sr.span;
+        }
+
+        public static double getSpan(RhinoDoc doc, Point3d apex, Curve tunnel_profile)
         {
 
             Interval tunnel_profile_domain = tunnel_profile.Domain;
@@ -416,48 +419,43 @@ namespace TunnelBuilder
             tunnel_profile.ClosestPoint(apex, out apex_t_param);
             double apex_tunnel_profile_length = tunnel_profile.GetLength(new Interval(tunnel_profile_domain[0], apex_t_param));
             double span_query_point_profile_length = apex_tunnel_profile_length;
-            Point3d span_query_point = tunnel_profile.PointAtLength(span_query_point_profile_length);
-
-            var current_curvature = tunnel_profile.CurvatureAt(apex_t_param).Length;
-            bool onCrownFlag = true;
 
             double span = -1.0;
 
-            //Intall the bolts in +t_param direction
-            while (span_query_point_profile_length + queryTrialSpacing < tunnel_profile_legnth && span_query_point_profile_length + queryTrialSpacing > 0)
+            var bbox = tunnel_profile.GetBoundingBox(true);
+            double sideWallY = bbox.Min.Y + 1;
+            var start_point = new Point3d(-1000, sideWallY, 0);
+            var end_point = new Point3d(1000, sideWallY, 0);
+            var l = new Line(start_point, end_point);
+            Rhino.Geometry.Intersect.CurveIntersections span_events = Rhino.Geometry.Intersect.Intersection.CurveLine(tunnel_profile, l, intersection_tolerance, overlap_tolerance);
+            if (span_events.Count == 2)
             {
+                Point3d span1 = span_events[0].PointA;
+                Point3d span2 = span_events[1].PointA;
+                span = span1.DistanceTo(span2);
+                
+            }
 
-
-                double bolt_installation_point_t_param;
-                tunnel_profile.ClosestPoint(span_query_point, out bolt_installation_point_t_param);
-
-                var bolt_installation_point_curvarture = tunnel_profile.CurvatureAt(bolt_installation_point_t_param).Length;
-
-                onCrownFlag = Math.Abs(current_curvature - bolt_installation_point_curvarture) / bolt_installation_point_curvarture < 0.05;
-
-                if(onCrownFlag== false && Math.Abs(current_curvature)<0.1)
+            if (span == -1)
+            {
+                try
                 {
-                    var start_point = new Point3d(-1000, span_query_point.Y, 0);
-                    var end_point = new Point3d(1000, span_query_point.Y, 0);
-                    var l = new Line(start_point, end_point);
-                    Rhino.Geometry.Intersect.CurveIntersections span_events = Rhino.Geometry.Intersect.Intersection.CurveLine(tunnel_profile, l, intersection_tolerance, overlap_tolerance);
-                    if (span_events.Count == 2)
-                    {
-                        Point3d span1 = span_events[0].PointA;
-                        Point3d span2 = span_events[1].PointA;
-                        span = span1.DistanceTo(span2);
-                        break;
-                    }
+                    
+                    span = bbox.Max.X - bbox.Min.X;
+                }catch
+                {
+                    
                 }
-                // Advance to next step
-                Point3d nextBoltInstallationPoint = tunnel_profile.PointAtLength(span_query_point_profile_length + queryTrialSpacing);
-                span_query_point = nextBoltInstallationPoint;
-                span_query_point_profile_length = span_query_point_profile_length + queryTrialSpacing;
-
+                
             }
 
             return span;
         }
     }
-
+    public class SpanResult
+    {
+        public double span;
+        public Point3d leftIntersection;
+        public Point3d rightIntersection;
+    }
 }

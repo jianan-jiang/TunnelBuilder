@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:TunnelSupportDefinition xmlns:ns1="http://tempuri.org/TunnelSupportSchema.xsd" CreateDate="2019-07-11">
+	<ns1:BoltSupportLengths>
+		<ns1:BoltSupportLength TunnelSpan="0" Length="2.4" Staggered="true" CrownOnly="true" Name="ML1"/>
+		<ns1:BoltSupportLength TunnelSpan="9" Length="3.2" Staggered="true" CrownOnly="true" Name="ML2"/>
+		<ns1:BoltSupportLength TunnelSpan="12.501" Length="3.9" Staggered="true" CrownOnly="true" Name="ML3"/>
+		<ns1:BoltSupportLength TunnelSpan="14.801" Length="4.2" Staggered="true" CrownOnly="true" Name="ML4"/>
+		<ns1:BoltSupportLength TunnelSpan="17.001" Length="5.1" Staggered="true" CrownOnly="true" Name="ML5"/>
+		<ns1:BoltSupportLength TunnelSpan="21.001" Length="6.2" Staggered="true" CrownOnly="true" Name="ML6"/>
+		<ns1:BoltSupportLength TunnelSpan="23.001" Length="7.2" Staggered="true" CrownOnly="true" Name="ML7"/>
+		<ns1:BoltSupportLength TunnelSpan="26.001" Length="8.2" Staggered="true" CrownOnly="true" Name="ML8"/>
+		<ns1:BoltSupportLength TunnelSpan="29.001" Length="8.7" Staggered="true" CrownOnly="true" Name="ML9"/>
+	</ns1:BoltSupportLengths>
+	<ns1:GroundConditions>
+		<ns1:GroundCondition TransversiveSpacing="1.75" LongitudinalSpacing="1.75" Name="ST1"/>
+		<ns1:GroundCondition TransversiveSpacing="1.5" LongitudinalSpacing="1.5" Name="ST2"/>
+		<ns1:GroundCondition TransversiveSpacing="1.25" LongitudinalSpacing="1.25" Name="ST10"/>
+	</ns1:GroundConditions>
+</ns1:TunnelSupportDefinition>

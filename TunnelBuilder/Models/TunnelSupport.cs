@@ -20,13 +20,13 @@ namespace TunnelBuilder.Models {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    [System.Xml.Serialization.XmlRootAttribute("TunnelSupport", Namespace="http://tempuri.org/TunnelSupportSchema.xsd", IsNullable=false)]
-    public partial class TunnelSupportType {
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd", IsNullable=false)]
+    public partial class TunnelSupportDefinition {
         
-        private Alignment[] boltField;
+        private BoltSupportLength[] boltSupportLengthsField;
         
-        private Shotcrete shotcreteField;
+        private GroundCondition[] groundConditionsField;
         
         private System.DateTime createDateField;
         
@@ -34,22 +34,23 @@ namespace TunnelBuilder.Models {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public Alignment[] Bolt {
+        public BoltSupportLength[] BoltSupportLengths {
             get {
-                return this.boltField;
+                return this.boltSupportLengthsField;
             }
             set {
-                this.boltField = value;
+                this.boltSupportLengthsField = value;
             }
         }
         
         /// <remarks/>
-        public Shotcrete Shotcrete {
+        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
+        public GroundCondition[] GroundConditions {
             get {
-                return this.shotcreteField;
+                return this.groundConditionsField;
             }
             set {
-                this.shotcreteField = value;
+                this.groundConditionsField = value;
             }
         }
         
@@ -82,99 +83,15 @@ namespace TunnelBuilder.Models {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    public partial class Alignment {
+    public partial class BoltSupportLength {
         
-        private SupportInterval[] intervalField;
+        private double tunnelSpanField;
         
-        private string nameField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Interval")]
-        public SupportInterval[] Interval {
-            get {
-                return this.intervalField;
-            }
-            set {
-                this.intervalField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    public partial class SupportInterval {
-        
-        private double fromField;
-        
-        private double toField;
-        
-        private BoltSupportType supportTypeField;
-        
-        /// <remarks/>
-        public double From {
-            get {
-                return this.fromField;
-            }
-            set {
-                this.fromField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public double To {
-            get {
-                return this.toField;
-            }
-            set {
-                this.toField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public BoltSupportType SupportType {
-            get {
-                return this.supportTypeField;
-            }
-            set {
-                this.supportTypeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    public partial class BoltSupportType {
+        private bool tunnelSpanFieldSpecified;
         
         private double lengthField;
         
         private bool lengthFieldSpecified;
-        
-        private double transversiveSpacingField;
-        
-        private bool transversiveSpacingFieldSpecified;
-        
-        private double longitudinalSpacingField;
-        
-        private bool longitudinalSpacingFieldSpecified;
         
         private bool staggeredField;
         
@@ -183,6 +100,30 @@ namespace TunnelBuilder.Models {
         private bool crownOnlyField;
         
         private bool crownOnlyFieldSpecified;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public double TunnelSpan {
+            get {
+                return this.tunnelSpanField;
+            }
+            set {
+                this.tunnelSpanField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool TunnelSpanSpecified {
+            get {
+                return this.tunnelSpanFieldSpecified;
+            }
+            set {
+                this.tunnelSpanFieldSpecified = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -205,6 +146,80 @@ namespace TunnelBuilder.Models {
                 this.lengthFieldSpecified = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool Staggered {
+            get {
+                return this.staggeredField;
+            }
+            set {
+                this.staggeredField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool StaggeredSpecified {
+            get {
+                return this.staggeredFieldSpecified;
+            }
+            set {
+                this.staggeredFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public bool CrownOnly {
+            get {
+                return this.crownOnlyField;
+            }
+            set {
+                this.crownOnlyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool CrownOnlySpecified {
+            get {
+                return this.crownOnlyFieldSpecified;
+            }
+            set {
+                this.crownOnlyFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
+    public partial class GroundCondition {
+        
+        private double transversiveSpacingField;
+        
+        private bool transversiveSpacingFieldSpecified;
+        
+        private double longitudinalSpacingField;
+        
+        private bool longitudinalSpacingFieldSpecified;
+        
+        private string nameField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -252,55 +267,13 @@ namespace TunnelBuilder.Models {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool Staggered {
+        public string Name {
             get {
-                return this.staggeredField;
+                return this.nameField;
             }
             set {
-                this.staggeredField = value;
+                this.nameField = value;
             }
         }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool StaggeredSpecified {
-            get {
-                return this.staggeredFieldSpecified;
-            }
-            set {
-                this.staggeredFieldSpecified = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public bool CrownOnly {
-            get {
-                return this.crownOnlyField;
-            }
-            set {
-                this.crownOnlyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool CrownOnlySpecified {
-            get {
-                return this.crownOnlyFieldSpecified;
-            }
-            set {
-                this.crownOnlyFieldSpecified = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.7.3081.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://tempuri.org/TunnelSupportSchema.xsd")]
-    public partial class Shotcrete {
     }
 }
