@@ -1,0 +1,6 @@
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\TunnelBuilder.dll
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\TunnelBuilder.pdb
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csprojAssemblyReference.cache
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.CoreCompileInputs.cache
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.dll
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.pdb

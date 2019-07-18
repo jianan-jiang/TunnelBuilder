@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -99,7 +99,15 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
-Erase "$(TargetPath)"</PostBuildEvent>
+Erase "$(TargetPath)"
+if $(ConfigurationName) == Release (
+if not exist $(TargetDir)\$(ProjectName) mkdir $(TargetDir)\$(ProjectName)
+if not exist "$(TargetDir)\$(ProjectName)\Rhino 6" mkdir "$(TargetDir)\$(ProjectName)\Rhino 6"
+Copy "$(TargetDir)$(ProjectName).rhp"  "$(TargetDir)\$(ProjectName)\Rhino 6\$(ProjectName).rhp"
+powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
+Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
+Erase "$(TargetDir)\$(ProjectName).zip"
+)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
