@@ -11,7 +11,7 @@ using Rhino.PlugIns;
 [assembly: PlugInDescription(DescriptionType.Phone, "+61 2 98125000")]
 [assembly: PlugInDescription(DescriptionType.Fax, "+61 2 98125001")]
 [assembly: PlugInDescription(DescriptionType.Organization, "Pells Sullivan Meynink")]
-[assembly: PlugInDescription(DescriptionType.UpdateUrl, "-")]
+[assembly: PlugInDescription(DescriptionType.UpdateUrl, "https://github.com/jianan-jiang/TunnelBuilder")]
 [assembly: PlugInDescription(DescriptionType.WebSite, "www.psm.com.au")]
 
 // Icons should be Windows .ico files and contain 32-bit images in the following sizes: 16, 24, 32, 48, and 256.
@@ -52,8 +52,8 @@ using Rhino.PlugIns;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.3.0.0")]
-[assembly: AssemblyFileVersion("1.3.0.0")]
+[assembly: AssemblyVersion("1.4.0.0")]
+[assembly: AssemblyFileVersion("1.4.0.0")]
 
 // Make compatible with Rhino Installer Engine
 [assembly: AssemblyInformationalVersion("2")]

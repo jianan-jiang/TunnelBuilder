@@ -16,3 +16,6 @@ C:\Users\Jianan Jiang\Documents\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuil
 C:\Users\Jianan Jiang\Documents\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CoreCompileInputs.cache
 C:\Users\Jianan Jiang\Documents\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.dll
 C:\Users\Jianan Jiang\Documents\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.pdb
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Resources.resources
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Views.TunnelPropertyPanel.resources
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.GenerateResource.cache

@@ -48,8 +48,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
@@ -62,7 +64,14 @@
     <Compile Include="Commands\Bolt\ExportBoltCommand.cs" />
     <Compile Include="Commands\Geology\ProjectGeologyCommand.cs" />
     <Compile Include="Commands\Tunnel\FitSurfaceToELineCommand.cs" />
+    <Compile Include="Commands\Tunnel\GenerateSettlementContourCommand.cs" />
     <Compile Include="Commands\Tunnel\SplitTunnelCLCommand.cs" />
+    <Compile Include="Models\TunnelProperty.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Models\TunnelSupport.cs">
       <DependentUpon>TunnelSupport.xsd</DependentUpon>
     </Compile>
@@ -75,9 +84,22 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilFunctions.cs" />
     <Compile Include="Views\LayerNameDialog.cs" />
+    <Compile Include="Views\TunnelPropertyPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Views\TunnelPropertyPanel.Designer.cs">
+      <DependentUpon>TunnelPropertyPanel.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EmbeddedResources\plugin-utility.ico" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\TunnelPropertyPanel.resx">
+      <DependentUpon>TunnelPropertyPanel.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Help\01_Getting_Started.md" />
@@ -88,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Models\tsd.xml" />
+    <None Include="Resources\TunnelBuilderIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

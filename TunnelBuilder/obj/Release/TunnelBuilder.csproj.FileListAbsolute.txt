@@ -4,3 +4,6 @@ W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuil
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.CoreCompileInputs.cache
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.dll
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.pdb
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Resources.resources
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Views.TunnelPropertyPanel.resources
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.GenerateResource.cache
