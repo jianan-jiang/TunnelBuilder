@@ -19,3 +19,6 @@ C:\Users\Jianan Jiang\Documents\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuil
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Resources.resources
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Views.TunnelPropertyPanel.resources
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.GenerateResource.cache
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.dll
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.xml
+W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CopyComplete

@@ -38,6 +38,9 @@
       <HintPath>..\packages\RhinoCommon.6.13.19058.371\lib\net45\Eto.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
+    </Reference>
     <Reference Include="Rhino.UI, Version=6.13.19058.370, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
       <HintPath>..\packages\RhinoCommon.6.13.19058.371\lib\net45\Rhino.UI.dll</HintPath>
       <Private>False</Private>
@@ -51,6 +54,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
     <Reference Include="System.Xml.Serialization" />
@@ -127,6 +132,7 @@ if $(ConfigurationName) == Release (
 if not exist $(TargetDir)\$(ProjectName) mkdir $(TargetDir)\$(ProjectName)
 if not exist "$(TargetDir)\$(ProjectName)\Rhino 6" mkdir "$(TargetDir)\$(ProjectName)\Rhino 6"
 Copy "$(TargetDir)$(ProjectName).rhp"  "$(TargetDir)\$(ProjectName)\Rhino 6\$(ProjectName).rhp"
+Copy "$(TargetDir)MathNet.Numerics.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\MathNet.Numerics.dll"
 powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
 Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
 Erase "$(TargetDir)\$(ProjectName).zip"
