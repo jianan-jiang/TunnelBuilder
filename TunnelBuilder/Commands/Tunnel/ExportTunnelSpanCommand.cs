@@ -362,22 +362,38 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        public static SpanResult getSpan(RhinoDoc doc, Point3d currentPoint, Curve leftELine, Curve rightELine,bool twoD=false)
+        public static SpanResult getSpan(RhinoDoc doc, Point3d currentPoint, List<Curve> leftELines, List<Curve> rightELines, bool twoD = false)
+        {
+            SpanResult sr = new SpanResult();
+            sr.span = -1;
+            sr.leftIntersection = Point3d.Unset;
+            sr.rightIntersection = Point3d.Unset;
+            for (int i=0;i<leftELines.Count;i++)
+            {
+                for(int j=0;j<rightELines.Count;j++)
+                {
+                    sr = getSpan(currentPoint, leftELines[i], rightELines[j], twoD);
+                    if(sr.span>0)
+                    {
+                        return sr;
+                    }
+                }
+            }
+            
+            return sr;
+        }
+
+        public static SpanResult getSpan(Point3d currentPoint, Curve leftELine, Curve rightELine,bool twoD=false)
         {
             double span = -1.0;
+            Point3d leftPoint = Point3d.Unset;
+            Point3d rightPoint = Point3d.Unset;
 
-            double query_z = currentPoint.Z;
-            Point3d start_point = new Point3d(-1000, query_z, 0);
-            Point3d end_point = new Point3d(1000, query_z, 0);
-            Point3d leftPoint = new Point3d();
-            Point3d rightPoint = new Point3d();
-
-
-            Line l = new Line(start_point, end_point);
-            Rhino.Geometry.Intersect.CurveIntersections left_events = Rhino.Geometry.Intersect.Intersection.CurveLine(leftELine, l, intersection_tolerance, overlap_tolerance);
+            Plane p = new Plane(currentPoint, new Vector3d(0, 0, 1));
+            Rhino.Geometry.Intersect.CurveIntersections left_events = Rhino.Geometry.Intersect.Intersection.CurvePlane(leftELine, p, 0.001);
             bool flag = false;
 
-            Rhino.Geometry.Intersect.CurveIntersections right_events = Rhino.Geometry.Intersect.Intersection.CurveLine(rightELine, l, intersection_tolerance, overlap_tolerance);
+            Rhino.Geometry.Intersect.CurveIntersections right_events = Rhino.Geometry.Intersect.Intersection.CurvePlane(rightELine, p,0.001);
             if (right_events.Count > 0 && left_events.Count>0)
             {
                 leftPoint = left_events[0].PointA;
@@ -405,7 +421,7 @@ namespace TunnelBuilder
 
         public static double getSpan(RhinoDoc doc, Point3d currentPoint, Curve leftELine, Curve rightELine)
         {
-            SpanResult sr = getSpan( doc,  currentPoint,  leftELine,rightELine,false);
+            SpanResult sr = getSpan( currentPoint,  leftELine,rightELine,false);
             return sr.span;
         }
 

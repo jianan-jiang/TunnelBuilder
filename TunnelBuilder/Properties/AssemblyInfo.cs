@@ -24,7 +24,7 @@ using Rhino.PlugIns;
 [assembly: AssemblyTitle("TunnelBuilder")]
 
 // This will be used also for the plug-in description.
-[assembly: AssemblyDescription("TunnelBuilder plug-in")]
+[assembly: AssemblyDescription("TunnelBuilder plug-in, please attach the rhino file if you want to report a bug")]
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Pells Sullivan Meynink")]
@@ -52,8 +52,8 @@ using Rhino.PlugIns;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.4.0.0")]
-[assembly: AssemblyFileVersion("1.4.0.0")]
+[assembly: AssemblyVersion("1.5.0.0")]
+[assembly: AssemblyFileVersion("1.5.0.0")]
 
 // Make compatible with Rhino Installer Engine
 [assembly: AssemblyInformationalVersion("2")]

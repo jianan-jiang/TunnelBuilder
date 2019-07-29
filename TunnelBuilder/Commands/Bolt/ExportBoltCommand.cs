@@ -105,7 +105,7 @@ namespace TunnelBuilder
         private int iterateLayers(RhinoDoc doc, Rhino.DocObjects.Layer boltLayer, string fn, int boltStartId, int boltSegment,ExportEnvironment exportEnvironment,int fileCount)
         {
             string filenameWithoutExtension = System.IO.Path.ChangeExtension(fn, null);
-            boltStartId = boltStartId + exportBolts(doc, boltLayer, filenameWithoutExtension + "-"+getGroupName(boltLayer) + ExportEnvironmentExtension[exportEnvironment], boltStartId, boltSegment, exportEnvironment,fileCount+1);
+            boltStartId = boltStartId + exportBolts(doc, boltLayer, filenameWithoutExtension + "-"+UtilFunctions.getValidFileName(getGroupName(boltLayer)) + ExportEnvironmentExtension[exportEnvironment], boltStartId, boltSegment, exportEnvironment,fileCount+1);
 
             Rhino.DocObjects.Layer[] childrenLayers = boltLayer.GetChildren();
             if(childrenLayers!=null)

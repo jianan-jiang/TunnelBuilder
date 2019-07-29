@@ -73,8 +73,10 @@ namespace SplitTunnelCL
                         Point3d pt_start = CP + vector1;
                         Point3d pt_end = CP + vector2;
                         Line L = new Line(pt_start, pt_end);
+                        doc.Objects.AddLine(pt_start, pt_end);
+                        doc.Views.Redraw();
 
-                        const double intersection_tolerance = 0.001;
+                        const double intersection_tolerance = 1.0;
                         const double overlap_tolerance = 0.0;
                         var events = Rhino.Geometry.Intersect.Intersection.CurveCurve(CL_3D, new Rhino.Geometry.LineCurve(L), intersection_tolerance, overlap_tolerance);
                         if (events[0] != null)

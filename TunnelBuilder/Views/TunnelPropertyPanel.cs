@@ -10,15 +10,24 @@ using System.Windows.Forms;
 using Rhino.DocObjects;
 using Rhino.UI;
 
+using TunnelBuilder.Models;
+
 namespace TunnelBuilder.Views
 {
-    [System.Runtime.InteropServices.Guid("B907C6DF-B575-492E-A736-B193EDB499AB")]
+    [
+        System.Runtime.InteropServices.Guid("B907C6DF-B575-492E-A736-B193EDB499AB"),
+        Rhino.Commands.CommandStyle(Rhino.Commands.Style.ScriptRunner)
+    ]
     public partial class TunnelPropertyPanel : UserControl
     {
         public TunnelPropertyPanel()
         {
             InitializeComponent();
+            ProfileRoleComboBox.DataSource = getProfileRoleItems();
+            ProfileRoleComboBox.DisplayMember = "Text";
+            ProfileRoleComboBox.ValueMember = "Value";
         }
+
         public double Area {
             get { return (double)AreaUpDown.Value; }
             set { AreaUpDown.Value = (decimal)value; }
@@ -35,19 +44,78 @@ namespace TunnelBuilder.Views
             set { VolumeLossUpDown.Value = (decimal)value; }
         }
 
-        void MaximumSettlmentUpDown_ValueChnaged(object sender,EventArgs e)
+        public string ProfileName
+        {
+            get { return ProfileNameTextBox.Text.Trim(); }
+            set { ProfileNameTextBox.Text = value; }
+        }
+
+        public string ProfileRole
+        {
+            get
+            {
+                ProfileRoleItem selectedRole = (ProfileRoleItem)ProfileRoleComboBox.SelectedItem;
+                return selectedRole.ProfileRole;
+            }
+            set
+            {
+                if (String.IsNullOrEmpty(value))
+                {
+                    ProfileRoleComboBox.SelectedItem = ProfileRoleComboBox.Items[0];
+                }
+                else
+                {
+                    ProfileRoleComboBox.SelectedValue = value;
+                }   
+            }
+        }
+        public double ChainageAtStart
+        {
+            get { return (double)ChainageAtStartUpDown.Value; }
+            set { ChainageAtStartUpDown.Value = (decimal)value; }
+        }
+
+        void MaximumSettlmentUpDown_ValueChanged(object sender,EventArgs e)
         {
             OnTunnelPropertyUpdated(e);
         }
 
-        void TroughWidthUpDown_ValueChnaged(object sender, EventArgs e)
+        void TroughWidthUpDown_ValueChanged(object sender, EventArgs e)
         {
             OnTunnelPropertyUpdated(e);
         }
 
-        void VolumeLossUpDown_ValueChnaged(object sender, EventArgs e)
+        void VolumeLossUpDown_ValueChanged(object sender, EventArgs e)
         {
             OnTunnelPropertyUpdated(e);
+        }
+
+        void ChainageAtStartUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            OnTunnelPropertyUpdated(e);
+        }
+
+        void ProfileNameTextBox_ValueChanged(object sender, EventArgs e)
+        {
+            OnTunnelPropertyUpdated(e);
+        }
+
+        void ProfileRoleComboBox_ValueChanged(object sender, EventArgs e)
+        {
+            if(ProfileRole!="Control Line")
+            {
+                SettlementsGroupBox.Hide();
+            }
+            else
+            {
+                SettlementsGroupBox.Show();
+            }
+            OnTunnelPropertyUpdated(e);
+        }
+
+        void UpdateSettlementGridButton_Clicked(object sender, EventArgs e)
+        {
+            Rhino.RhinoApp.RunScript("GenerateSettlementContour", true);
         }
 
         public event EventHandler TunnelPropertyUpdated;
@@ -56,7 +124,47 @@ namespace TunnelBuilder.Views
             EventHandler handler = TunnelPropertyUpdated;
             handler?.Invoke(this, e);
         }
-        
+
+        private ProfileRoleItem[] getProfileRoleItems()
+        {
+            List<ProfileRoleItem> profileRoleItems = new List<ProfileRoleItem>();
+            int i = 1;
+            foreach(ProfileRole role in Enum.GetValues(typeof(ProfileRole)))
+            {
+                profileRoleItems.Add(new ProfileRoleItem{ ID=i,ProfileRole=TunnelProperty.ProfileRoleNameDictionary[role] });
+            }
+            return profileRoleItems.ToArray();
+        }
+
+    }
+
+    class ProfileRoleItem
+    {
+        public int ID { get; set; }
+        public string ProfileRole { get; set; }
+
+        public string Value {
+            get
+            {
+                return ProfileRole;
+            }
+            set
+            {
+                ProfileRole = value;
+            }
+        }
+
+        public string Text
+        {
+            get
+            {
+                return ProfileRole;
+            }
+            set
+            {
+                ProfileRole = value;
+            }
+        }
     }
 
     class TunnelPropertyPage:ObjectPropertiesPage
@@ -85,7 +193,14 @@ namespace TunnelBuilder.Views
                 rhObj.Geometry.UserData.Remove(tunnelProperty);
             }
 
-            rhObj.Geometry.UserData.Add(new Models.TunnelProperty(m_control.Area, m_control.TroughWidthParameter,m_control.VolumeLoss));
+            tunnelProperty = new Models.TunnelProperty();
+            tunnelProperty.Area = m_control.Area;
+            tunnelProperty.TroughWidthParameter = m_control.TroughWidthParameter;
+            tunnelProperty.VolumeLoss = m_control.VolumeLoss;
+            tunnelProperty.ProfileName = m_control.ProfileName;
+            tunnelProperty.ChainageAtStart = m_control.ChainageAtStart;
+            tunnelProperty.ProfileRole = m_control.ProfileRole;
+            rhObj.Geometry.UserData.Add(tunnelProperty);
         }
         public override bool ShouldDisplay(ObjectPropertiesPageEventArgs e)
         {
@@ -111,6 +226,9 @@ namespace TunnelBuilder.Views
                     m_control.Area = tunnelProperty.Area;
                     m_control.TroughWidthParameter = tunnelProperty.TroughWidthParameter;
                     m_control.VolumeLoss = tunnelProperty.VolumeLoss;
+                    m_control.ProfileName = tunnelProperty.ProfileName;
+                    m_control.ChainageAtStart = tunnelProperty.ChainageAtStart;
+                    m_control.ProfileRole = tunnelProperty.ProfileRole;
                     m_control.TunnelPropertyUpdated += OnTunnelPropertyUpdated;
                     return true;
                 }

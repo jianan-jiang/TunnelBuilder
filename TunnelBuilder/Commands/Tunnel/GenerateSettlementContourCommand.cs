@@ -115,6 +115,7 @@ namespace TunnelBuilder
         
     }
 
+    [System.Runtime.InteropServices.Guid("86FB0539-AE81-4F22-96EE-715A5474F54C")]
     public class OptimizeSettlementContourCommand : Command
     {
         public override string EnglishName

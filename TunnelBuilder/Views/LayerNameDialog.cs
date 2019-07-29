@@ -38,13 +38,17 @@ namespace TunnelBuilder.Views
     class LayerNameDialog:CommandDialog
     {
         private TreeGridView layerNameTreeView;
-        public LayerNameDialog(RhinoDoc doc,string boltLayerFullPath="")
+        public LayerNameDialog(RhinoDoc doc,string boltLayerFullPath=""):this(doc, "Select Root Bolt Layer", boltLayerFullPath)
+        {
+        }
+
+        public LayerNameDialog(RhinoDoc doc, string title,string boltLayerFullPath = "")
         {
             TreeGridItem layerNameRootItem = new TreeGridItem();
-            
+
             foreach (var l in doc.Layers)
             {
-                if(l.ParentLayerId == Guid.Empty)
+                if (l.ParentLayerId == Guid.Empty)
                 {
                     LayerTreeGridItem layerTreeGridItem = new LayerTreeGridItem(l);
                     layerNameRootItem.Children.Add(layerTreeGridItem);
@@ -52,11 +56,11 @@ namespace TunnelBuilder.Views
             }
             layerNameTreeView = new TreeGridView();
             layerNameTreeView.ShowHeader = false;
-            layerNameTreeView.Columns.Add(new GridColumn { DataCell = new TextBoxCell{ Binding=new DelegateBinding<LayerTreeGridItem,string>(r=>r.layerName)}, HeaderText = "Layer", AutoSize = true, Editable = false });
+            layerNameTreeView.Columns.Add(new GridColumn { DataCell = new TextBoxCell { Binding = new DelegateBinding<LayerTreeGridItem, string>(r => r.layerName) }, HeaderText = "Layer", AutoSize = true, Editable = false });
             layerNameTreeView.DataStore = layerNameRootItem;
             layerNameTreeView.AllowMultipleSelection = false;
-            
-            Title = "Select Root Bolt Layer";
+
+            Title = title;
             Resizable = false;
             Maximizable = false;
             Minimizable = false;

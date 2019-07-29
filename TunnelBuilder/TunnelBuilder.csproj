@@ -70,6 +70,7 @@
     <Compile Include="Commands\Geology\ProjectGeologyCommand.cs" />
     <Compile Include="Commands\Tunnel\FitSurfaceToELineCommand.cs" />
     <Compile Include="Commands\Tunnel\GenerateSettlementContourCommand.cs" />
+    <Compile Include="Commands\Tunnel\PlaceTunnelProfilesCommand.cs" />
     <Compile Include="Commands\Tunnel\SplitTunnelCLCommand.cs" />
     <Compile Include="Models\TunnelProperty.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

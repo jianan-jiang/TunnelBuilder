@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -7,6 +8,15 @@ namespace TunnelBuilder
 {
     public static class UtilFunctions
     {
+        public static string getValidFileName(string filename)
+        {
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "_");
+            }
+            return filename;
+        }
         public static int AddNewLayer(Rhino.RhinoDoc doc,string layer_name)
         {
 
@@ -44,6 +54,29 @@ namespace TunnelBuilder
             }
             return layer_index;
         }
+        public static int AddNewLayer(Rhino.RhinoDoc doc, string layer_name, int parent_layer_index)
+        {
+            int layer_index;
+            Rhino.DocObjects.Layer parent_layer = doc.Layers.FindIndex(parent_layer_index);
+            int child_layer_index = doc.Layers.FindByFullPath(parent_layer.FullPath + "::" + layer_name,-1);
+            if(child_layer_index>=0)
+            {
+                return child_layer_index;
+            }
+            Rhino.DocObjects.Layer child_layer = new Rhino.DocObjects.Layer();
+            child_layer.ParentLayerId = parent_layer.Id;
+            child_layer.Name = layer_name;
+            child_layer.Color = getRandomColor();
+
+            layer_index = doc.Layers.Add(child_layer);
+            if (layer_index < 0)
+            {
+                Rhino.RhinoApp.WriteLine("Unable to add {0} layer.", layer_name);
+                return -1;
+            }
+            return layer_index;
+        }
+
         public static int AddNewLayer(Rhino.RhinoDoc doc, string layer_name, string parent_layer_name)
         {
             // Was a layer named entered?
@@ -60,9 +93,19 @@ namespace TunnelBuilder
                 Rhino.RhinoApp.WriteLine(layer_name + " is not a valid layer name.");
                 return -1;
             }
+            // Does the parent layer already exist?
+            int layer_index = doc.Layers.FindByFullPath(parent_layer_name, -1);
+            if (layer_index < 0)
+            {
+                int parent_layer_index = AddNewLayer(doc, parent_layer_name);
+                if(parent_layer_index<0)
+                {
+                    return parent_layer_index;
+                }
+            }
 
             // Does a layer with the same name already exist?
-            int layer_index = doc.Layers.FindByFullPath(parent_layer_name + "::"+layer_name, -1);
+            layer_index = doc.Layers.FindByFullPath(parent_layer_name + "::"+layer_name, -1);
             if (layer_index >= 0)
             {
                 return layer_index;

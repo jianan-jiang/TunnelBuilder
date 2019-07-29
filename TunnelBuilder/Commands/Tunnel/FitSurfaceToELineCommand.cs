@@ -222,7 +222,7 @@ namespace TunnelBuilder
                             var world_to_ELineCPlane = Transform.ChangeBasis(Plane.WorldXY, ELineCPlane);
                             leftELine_plane.Transform(world_to_ELineCPlane);
                             rightELine_plane.Transform(world_to_ELineCPlane);
-                            SpanResult sr = ExportTunnelSpanCommand.getSpan(doc, ELineAdvancePoint, leftELine_plane, rightELine_plane,true);
+                            SpanResult sr = ExportTunnelSpanCommand.getSpan(ELineAdvancePoint, leftELine_plane, rightELine_plane,true);
                             double ELineSpan = sr.span;
                             Point3d ELineCentre = 0.5 * (sr.leftIntersection + sr.rightIntersection);
                             double surfaceSpan = ExportTunnelSpanCommand.getSpan(doc, apex, tunnel_profile);
