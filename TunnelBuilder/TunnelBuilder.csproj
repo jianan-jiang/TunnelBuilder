@@ -35,19 +35,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Eto, Version=2.5.0.0, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.13.19058.371\lib\net45\Eto.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\Eto.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Rhino.UI, Version=6.13.19058.370, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.13.19058.371\lib\net45\Rhino.UI.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="RhinoCommon, Version=6.13.19058.370, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.13.19058.371\lib\net45\RhinoCommon.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Rhino.UI, Version=6.16.19190.7000, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\Rhino.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="RhinoCommon, Version=6.16.19190.7000, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\RhinoCommon.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,6 +92,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UtilFunctions.cs" />
     <Compile Include="Views\LayerNameDialog.cs" />
+    <Compile Include="Views\SheetNameDialog.cs" />
     <Compile Include="Views\TunnelPropertyPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -149,11 +151,11 @@ Erase "$(TargetDir)\$(ProjectName).zip"
     </StartArguments>
     <StartAction>Program</StartAction>
   </PropertyGroup>
-  <Import Project="..\packages\RhinoCommon.6.13.19058.371\build\net45\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.6.13.19058.371\build\net45\RhinoCommon.targets')" />
+  <Import Project="..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\RhinoCommon.6.13.19058.371\build\net45\RhinoCommon.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RhinoCommon.6.13.19058.371\build\net45\RhinoCommon.targets'))" />
+    <Error Condition="!Exists('..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets'))" />
   </Target>
 </Project>

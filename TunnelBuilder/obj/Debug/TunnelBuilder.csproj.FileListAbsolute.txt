@@ -22,3 +22,15 @@ W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuil
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.dll
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.xml
 W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CopyComplete
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.pdb
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\TunnelBuilder.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\TunnelBuilder.pdb
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\MathNet.Numerics.xml
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csprojAssemblyReference.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Resources.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Views.TunnelPropertyPanel.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.GenerateResource.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CoreCompileInputs.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.csproj.CopyComplete
