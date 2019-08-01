@@ -14,7 +14,7 @@ namespace TunnelBuilder
     public class ProfileTestCommand:Command
     {
         public override string EnglishName
-        { get { return "testProfile"; } }
+        { get { return "TestProfile"; } }
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
