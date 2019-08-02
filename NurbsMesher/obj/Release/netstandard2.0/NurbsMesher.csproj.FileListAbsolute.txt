@@ -1,0 +1,6 @@
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Release\netstandard2.0\NurbsMesher.deps.json
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Release\netstandard2.0\NurbsMesher.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Release\netstandard2.0\NurbsMesher.csprojAssemblyReference.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Release\netstandard2.0\NurbsMesher.csproj.CoreCompileInputs.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Release\netstandard2.0\NurbsMesher.AssemblyInfoInputs.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Release\netstandard2.0\NurbsMesher.AssemblyInfo.cs

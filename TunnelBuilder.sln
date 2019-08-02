@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TunnelBuilder", "TunnelBuilder\TunnelBuilder.csproj", "{470CFDD4-AB90-4775-ACD0-8244C66F22A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NurbsMesher", "NurbsMesher\NurbsMesher.csproj", "{234C4A9E-80B9-4717-864A-3AEADE5F2760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NurbsMesherTest", "UnitTestProject1\NurbsMesherTest.csproj", "{97D665F1-9F51-4037-80C4-233B99BB44DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{470CFDD4-AB90-4775-ACD0-8244C66F22A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{470CFDD4-AB90-4775-ACD0-8244C66F22A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{470CFDD4-AB90-4775-ACD0-8244C66F22A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{234C4A9E-80B9-4717-864A-3AEADE5F2760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{234C4A9E-80B9-4717-864A-3AEADE5F2760}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{234C4A9E-80B9-4717-864A-3AEADE5F2760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{234C4A9E-80B9-4717-864A-3AEADE5F2760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97D665F1-9F51-4037-80C4-233B99BB44DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97D665F1-9F51-4037-80C4-233B99BB44DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97D665F1-9F51-4037-80C4-233B99BB44DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97D665F1-9F51-4037-80C4-233B99BB44DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

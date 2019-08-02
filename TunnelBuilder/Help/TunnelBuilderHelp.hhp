@@ -1,0 +1,12 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=TunnelBuilderHelp.chm
+Contents file=About.hhc
+Display compile progress=No
+Index file=Index.hhk
+Language=0xc09 English (Australia)
+Title=Tunnel Builder
+
+
+[INFOTYPES]
+

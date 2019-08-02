@@ -1,0 +1,12 @@
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\Win32\librhino3dmio_native.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\Win64\librhino3dmio_native.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\librhino3dmio_native.dylib
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\NurbsMesher.deps.json
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\NurbsMesher.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\bin\Debug\netstandard2.0\NurbsMesher.pdb
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.csprojAssemblyReference.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.csproj.CoreCompileInputs.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.AssemblyInfoInputs.cache
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.AssemblyInfo.cs
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\NurbsMesher\obj\Debug\netstandard2.0\NurbsMesher.pdb
