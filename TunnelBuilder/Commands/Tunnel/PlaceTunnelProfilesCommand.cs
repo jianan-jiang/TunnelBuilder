@@ -52,9 +52,16 @@ namespace TunnelBuilder
             }
             var profileLayer = doc.Layers.FindIndex(profileLayerIndex);
 
+            bool flip = false;
+            var rc = RhinoGet.GetBool("Flip profiles?", false, "No", "Yes", ref flip);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             var controlLinesDictionary = getProfileDictionaryFromLayer(controlineLayer,doc,Models.ProfileRole.ControlLine);
 
-            iterateProfileLayers(profileLayer, controlLinesDictionary, doc);
+            iterateProfileLayers(profileLayer, controlLinesDictionary, doc,flip);
             clearProfileBuffer(controlLinesDictionary, doc);
             return Result.Success;
         }
@@ -104,14 +111,14 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        public Result iterateProfileLayers(Rhino.DocObjects.Layer profileLayer,Dictionary<string,List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc)
+        public Result iterateProfileLayers(Rhino.DocObjects.Layer profileLayer,Dictionary<string,List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc,bool flip)
         {
             Rhino.DocObjects.Layer[] childrenLayers = profileLayer.GetChildren();
             if (childrenLayers != null)
             {
                 for (int i = 0; i < childrenLayers.Length; i++)
                 {
-                   iterateProfileLayers(childrenLayers[i],  controlLineProfileDictionary, doc);
+                   iterateProfileLayers(childrenLayers[i],  controlLineProfileDictionary, doc,flip);
                 }
             }
 
@@ -161,7 +168,7 @@ namespace TunnelBuilder
                 }
                 else
                 {
-                    TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = getTranforms(cL, tunnelProfilePolyCurve, tunnelProfileChainage, tunnelProperty.ProfileName);
+                    TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = getTranforms(cL, tunnelProfilePolyCurve, tunnelProfileChainage, tunnelProperty.ProfileName,flip);
                 }
             }
             Transform[] transforms = TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()];
@@ -230,7 +237,13 @@ namespace TunnelBuilder
             Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
             tangentUsedToAlignCPlane[2] = 0.0;
             Point3d point = cL.Profile.PointAt(insertionPointTParam);
+
             Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+            if (cplane.YAxis[2] < 0)
+            {
+                //Rotate the plane 180 degree if y axis is pointing down
+                cplane.Rotate(Math.PI, cplane.XAxis);
+            }
 
 
             var cplane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
@@ -241,9 +254,7 @@ namespace TunnelBuilder
             BoundingBox tunnelProfileBoundingBox = tunnelProfileCurve.GetBoundingBox(true);
             Point3d tunnelProfileBasePoint = new Point3d(0, 0, 0);
 
-            Transform tunnelProfileRotationTransform1 = Transform.Rotation(tunnelProfilePlane.Normal, new Vector3d(1, 0, 0), tunnelProfileBasePoint);
-            Transform tunnelProfileRotationTransform2 = Transform.Rotation(new Vector3d(1, 0, 0), cplane.Normal, tunnelProfileBasePoint);
-            Transform tunnelProfileMoveTransform = Transform.Translation(point - tunnelProfileBasePoint);
+            Transform tunnelProfileMoveTransform = cplane_to_world;
             Curve transformedTunnelProfile = tunnelProfileCurve.DuplicateCurve();
             PolyCurve transformedTunnelProfilePolyCurve = tunnelProfile.DuplicatePolyCurve();
 
@@ -257,59 +268,9 @@ namespace TunnelBuilder
                 resultBuffer.Add(flipTransform);
             }
 
-            transformedTunnelProfile.Transform(tunnelProfileRotationTransform1);
-            transformedTunnelProfilePolyCurve.Transform(tunnelProfileRotationTransform1);
-            transformedTunnelProfile.Transform(tunnelProfileRotationTransform2);
-            transformedTunnelProfilePolyCurve.Transform(tunnelProfileRotationTransform2);
-
-            
-
-            resultBuffer.Add(tunnelProfileRotationTransform1);
-            resultBuffer.Add(tunnelProfileRotationTransform2);
-
-            BoundingBox transformedTunnelProfileBoundingBox = transformedTunnelProfile.GetBoundingBox(true);
-            if (transformedTunnelProfile.IsClosed)
-            {
-                Curve[] explodedCurves = transformedTunnelProfilePolyCurve.Explode();
-                double radius = 0;
-                Arc mainArc = new Arc();
-                foreach (Curve c in explodedCurves)
-                {
-                    double tParam;
-                    c.ClosestPoint(c.PointAtNormalizedLength(0.5), out tParam);
-                    if (c.IsArc())
-                    {
-                        Arc arc;
-                        c.TryGetArc(out arc);
-                        double r = arc.Radius;
-                        if (r > radius)
-                        {
-                            radius = r;
-                            mainArc = arc;
-                        }
-                    }
-
-                }
-
-                RotationFunction rotationFunction = new RotationFunction(mainArc, tunnelProfileBasePoint, cplane);
-
-                double angle = Bisection.FindRoot(rotationFunction.loss, -Math.PI / 2, Math.PI / 2, 0.001, 1000);
-
-                Transform tunnelProfileRotationTransform = Transform.Rotation(angle, cplane.Normal, tunnelProfileBasePoint);
-                mainArc.Transform(tunnelProfileRotationTransform);
-                transformedTunnelProfile.Transform(tunnelProfileRotationTransform);
-                resultBuffer.Add(tunnelProfileRotationTransform);
-                transformedTunnelProfileBoundingBox = transformedTunnelProfile.GetBoundingBox(true);
-                if (Math.Abs(transformedTunnelProfile.PointAtEnd.Z - transformedTunnelProfileBoundingBox.Min.Z) < Math.Abs(transformedTunnelProfile.PointAtEnd.Z - transformedTunnelProfileBoundingBox.Max.Z))
-                {
-                    tunnelProfileRotationTransform = Transform.Rotation(Math.PI, cplane.Normal, tunnelProfileBasePoint);
-                    transformedTunnelProfile.Transform(tunnelProfileRotationTransform);
-                    resultBuffer.Add(tunnelProfileRotationTransform);
-                }
-            }
-
-            transformedTunnelProfile.Transform(tunnelProfileMoveTransform);
             resultBuffer.Add(tunnelProfileMoveTransform);
+
+           
 
             return resultBuffer.ToArray();
             
