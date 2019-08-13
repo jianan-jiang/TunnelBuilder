@@ -152,7 +152,7 @@ namespace TunnelBuilder
                     if (cplane.YAxis[2] < 0)
                     {
                         //Rotate the plane 180 degree if y axis is pointing down
-                        cplane.Rotate(Math.PI, cplane.XAxis);
+                        cplane.Rotate(Math.PI, cplane.ZAxis);
                     }
 
                     Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
@@ -324,7 +324,7 @@ namespace TunnelBuilder
                     if (cplane.YAxis[2] < 0)
                     {
                         //Rotate the plane 180 degree if y axis is pointing down
-                        cplane.Rotate(Math.PI, cplane.XAxis);
+                        cplane.Rotate(Math.PI, cplane.ZAxis);
                     }
 
                     var plane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
