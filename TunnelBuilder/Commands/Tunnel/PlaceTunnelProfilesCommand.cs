@@ -20,9 +20,13 @@ namespace TunnelBuilder
 
         private Dictionary<String,Transform[]> TransformBuffer = new Dictionary<string, Transform[]>();
         private Dictionary<String, List<PolyCurve>> ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
+        private Dictionary<String, PolyCurve> ELineProfileBuffer = new Dictionary<string, PolyCurve>();
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
+            TransformBuffer = new Dictionary<string, Transform[]>();
+            ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
+            ELineProfileBuffer = new Dictionary<string, PolyCurve>();
 
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
@@ -63,6 +67,13 @@ namespace TunnelBuilder
 
             iterateProfileLayers(profileLayer, controlLinesDictionary, doc,flip);
             clearProfileBuffer(controlLinesDictionary, doc);
+            createSweep(controlLinesDictionary, doc);
+            return Result.Success;
+        }
+
+        public Result createSweep(Dictionary<string, List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc)
+        {
+            
             return Result.Success;
         }
 
@@ -83,7 +94,6 @@ namespace TunnelBuilder
                 string tunnelProfileAlignmentName = tunnelProfileInformation[0];
                 double tunnelProfileChainage = Double.Parse(tunnelProfileInformation[1]);
                 string tunnelProfileRole = tunnelProfileInformation[2];
-
                 foreach(PolyCurve tunnelProfilePolyCurve in entry.Value)
                 {
                     List<Curve> curveBuffer = new List<Curve>();
@@ -171,6 +181,12 @@ namespace TunnelBuilder
                     TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = getTranforms(cL, tunnelProfilePolyCurve, tunnelProfileChainage, tunnelProperty.ProfileName,flip);
                 }
             }
+
+            if(tunnelProfileRole == "E-Line")
+            {
+                ELineProfileBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = tunnelProfilePolyCurve;
+            }
+
             Transform[] transforms = TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()];
             return transformTunnelProfile(tunnelProfile,transforms,tunnelProperty,tunnelProfileRole,doc);
         }
@@ -231,6 +247,7 @@ namespace TunnelBuilder
             List<Transform> resultBuffer= new List<Transform>();
             Plane tunnelProfilePlane = Plane.WorldXY;
             Point3d insertionPoint = cL.GetPointAtChainage(chainage);
+            Vector3d insertionPointDelta = cL.GetPointAtChainage(chainage + 0.1) - insertionPoint;
             double insertionPointTParam;
             cL.Profile.ClosestPoint(insertionPoint, out insertionPointTParam, 1);
             Vector3d tangent = cL.Profile.TangentAt(insertionPointTParam);
@@ -242,7 +259,7 @@ namespace TunnelBuilder
             if (cplane.YAxis[2] < 0)
             {
                 //Rotate the plane 180 degree if y axis is pointing down
-                cplane.Rotate(Math.PI, cplane.XAxis);
+                cplane.Rotate(Math.PI, cplane.ZAxis);
             }
 
 
@@ -261,10 +278,6 @@ namespace TunnelBuilder
             if (flip)
             {
                 Transform flipTransform = Transform.Rotation(Math.PI, new Vector3d(0, 1, 0), new Point3d(0, 0, 0));
-
-                transformedTunnelProfile.Transform(flipTransform);
-                transformedTunnelProfilePolyCurve.Transform(flipTransform);
-
                 resultBuffer.Add(flipTransform);
             }
 

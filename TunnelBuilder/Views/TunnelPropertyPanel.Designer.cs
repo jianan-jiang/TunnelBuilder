@@ -259,7 +259,7 @@
             this.Controls.Add(this.GeneralGroupBox);
             this.Controls.Add(this.SettlementsGroupBox);
             this.Name = "TunnelPropertyPanel";
-            this.Size = new System.Drawing.Size(263, 285);
+            this.Size = new System.Drawing.Size(263, 574);
             ((System.ComponentModel.ISupportInitialize)(this.TroughWidthParameterUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeLossUpDown)).EndInit();
             this.SettlementsGroupBox.ResumeLayout(false);
