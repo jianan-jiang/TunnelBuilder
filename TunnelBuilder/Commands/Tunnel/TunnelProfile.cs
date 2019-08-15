@@ -191,12 +191,14 @@ namespace TunnelBuilder
                 ELineProfile eLineProfile = new ELineProfile(cLineProfile, shapeParameter);
                 PolyCurve eLineProfilePolyCurve = eLineProfile.GetPolyCurve();
 
-                var cL = PlaceTunnelProfilesCommand.getControlLine(controlLineDictionary, controlLine, chainage);
+                var placeTunnelProfilesCommand = new PlaceTunnelProfilesCommand();
+
+                var cL = placeTunnelProfilesCommand.getControlLine(controlLineDictionary, controlLine, chainage);
                 var cLProperty = cL.Profile.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
-                var transforms = PlaceTunnelProfilesCommand.getTranforms(cL, eLineProfilePolyCurve, chainage, controlLine,flip);
-                PlaceTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc);
-                PlaceTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc);
-                PlaceTunnelProfilesCommand.transformTunnelProfile(dLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.DLineProfile], doc);
+                var transforms = placeTunnelProfilesCommand.getTranforms(cL, eLineProfilePolyCurve, chainage, controlLine,flip);
+                placeTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc,chainage);
+                placeTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc,chainage);
+                placeTunnelProfilesCommand.transformTunnelProfile(dLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.DLineProfile], doc,chainage);
 #if DEBUG
                 int profileForControlLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine, profileLayerIndex);
 

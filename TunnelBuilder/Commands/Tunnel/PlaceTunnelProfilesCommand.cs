@@ -20,13 +20,15 @@ namespace TunnelBuilder
 
         private Dictionary<String,Transform[]> TransformBuffer = new Dictionary<string, Transform[]>();
         private Dictionary<String, List<PolyCurve>> ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
-        private Dictionary<String, PolyCurve> ELineProfileBuffer = new Dictionary<string, PolyCurve>();
-
+        private Dictionary<String, Dictionary<string, Point3d[]>> ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
+        private Dictionary<string, List<ControlLine>> ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
+        private Dictionary<string,Dictionary<double, Curve>> ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
             TransformBuffer = new Dictionary<string, Transform[]>();
             ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
-            ELineProfileBuffer = new Dictionary<string, PolyCurve>();
+            ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
+            ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
 
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
@@ -63,17 +65,73 @@ namespace TunnelBuilder
                 return rc;
             }
 
-            var controlLinesDictionary = getProfileDictionaryFromLayer(controlineLayer,doc,Models.ProfileRole.ControlLine);
+            ControlLinesDictionary = getProfileDictionaryFromLayer(controlineLayer,doc,Models.ProfileRole.ControlLine);
 
-            iterateProfileLayers(profileLayer, controlLinesDictionary, doc,flip);
-            clearProfileBuffer(controlLinesDictionary, doc);
-            createSweep(controlLinesDictionary, doc);
+            var controlLinesNameList = ControlLinesDictionary.Keys;
+            foreach(var alignment in controlLinesNameList)
+            {
+                ELineEdgePointsBuffer[alignment] = new Dictionary<string, Point3d[]>();
+            }
+
+            UtilFunctions.AddNewLayer(doc, "Tunnels");
+
+            iterateProfileLayers(profileLayer, ControlLinesDictionary, doc,flip);
+            clearProfileBuffer(ControlLinesDictionary, doc);
+            createSweep(doc);
+
+            doc.Views.Redraw();
+
             return Result.Success;
         }
 
-        public Result createSweep(Dictionary<string, List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc)
+        public Result createSweep(RhinoDoc doc)
         {
-            
+            List<string> alignmentList = ELineEdgePointsBuffer.Keys.ToList();
+            foreach(string alignment in alignmentList)
+            {
+                var sweepOneD = new SweepOneRail();
+                sweepOneD.GlobalShapeBlending = true;
+                List<Brep> brepBuffer = new List<Brep>();
+
+                List<double> chainageList = ELineProfileDictionary[alignment].Keys.ToList();
+                chainageList.Sort();
+                Curve[] crossSections = new Curve[2];
+                for (int i = 0; i < chainageList.Count - 1; i++)
+                {
+                    var profile1 = ELineProfileDictionary[alignment][chainageList[i]];
+                    var profile2 = ELineProfileDictionary[alignment][chainageList[i + 1]];
+                    var cL = getControlLine(ControlLinesDictionary, alignment, chainageList[i]);
+
+                    crossSections[0] = profile1;
+                    crossSections[1] = profile2;
+
+                    var breps = sweepOneD.PerformSweep(cL.Profile, crossSections);
+                    for (int j = 0; j < breps.Length; j++)
+                    {
+                        brepBuffer.Add(breps[j]);
+                    }
+
+                }
+
+                Brep joinedBrep;
+                joinedBrep = brepBuffer[0];
+                for (int i = 1; i < brepBuffer.Count; i++)
+                {
+                    joinedBrep.Join(brepBuffer[i], doc.ModelAbsoluteTolerance, true);
+                }
+
+                var tunnelSurfaceProperty = new Models.TunnelProperty();
+
+                tunnelSurfaceProperty.ProfileName = alignment;
+                tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
+                joinedBrep.UserData.Add(tunnelSurfaceProperty);
+
+                var attributes = new Rhino.DocObjects.ObjectAttributes();
+                attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, alignment, "Tunnels");
+
+                doc.Objects.AddBrep(joinedBrep,attributes);
+            }
+
             return Result.Success;
         }
 
@@ -113,7 +171,7 @@ namespace TunnelBuilder
                         continue;
                     }
                     Transform[] transforms = TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()];
-                    transformTunnelProfile(tunnelProfile, transforms, tunnelProperty, tunnelProfileRole, doc);
+                    transformTunnelProfile(tunnelProfile, transforms, tunnelProperty, tunnelProfileRole, doc,tunnelProfileChainage);
                 }
                 
             }
@@ -182,19 +240,14 @@ namespace TunnelBuilder
                 }
             }
 
-            if(tunnelProfileRole == "E-Line")
-            {
-                ELineProfileBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = tunnelProfilePolyCurve;
-            }
-
             Transform[] transforms = TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()];
-            return transformTunnelProfile(tunnelProfile,transforms,tunnelProperty,tunnelProfileRole,doc);
+            return transformTunnelProfile(tunnelProfilePolyCurve,transforms,tunnelProperty,tunnelProfileRole,doc,tunnelProfileChainage);
         }
 
-        public static Result transformTunnelProfile(PolyCurve tunnelProfile, Transform[] transforms, Models.TunnelProperty controlLineProperty, string tunnelProfileRole, RhinoDoc doc)
+        public Result transformTunnelProfile(PolyCurve tunnelProfile, Transform[] transforms, Models.TunnelProperty controlLineProperty, string tunnelProfileRole, RhinoDoc doc,double chainage)
         {
             Curve tunnelProfileCurve = GetCurve(tunnelProfile);
-            return transformTunnelProfile(tunnelProfileCurve, transforms, controlLineProperty, tunnelProfileRole, doc);
+            return transformTunnelProfile(tunnelProfileCurve, transforms, controlLineProperty, tunnelProfileRole, doc,chainage);
         }
 
         public static Curve GetCurve(PolyCurve polyCurve)
@@ -213,7 +266,7 @@ namespace TunnelBuilder
             return null;
         }
 
-        public static Result transformTunnelProfile(Curve tunnelProfile, Transform[] transforms, Models.TunnelProperty controlLineProperty, string tunnelProfileRole, RhinoDoc doc)
+        public Result transformTunnelProfile(Curve tunnelProfile, Transform[] transforms, Models.TunnelProperty controlLineProperty, string tunnelProfileRole, RhinoDoc doc,double chainage)
         {
             Curve transformedTunnelProfile = tunnelProfile.DuplicateCurve();
             if (transforms.Length > 0)
@@ -239,15 +292,23 @@ namespace TunnelBuilder
             int transformedProfileParentLayerIndex = UtilFunctions.AddNewLayer(doc, controlLineProperty.ProfileName, "Transformed Profiles");
             attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, tunnelProfileRole, transformedProfileParentLayerIndex);
             doc.Objects.AddCurve(transformedTunnelProfile, attributes);
+
+            if (tunnelProfileRole == "E-Line")
+            {
+                if(!ELineProfileDictionary.ContainsKey(controlLineProperty.ProfileName))
+                {
+                    ELineProfileDictionary[controlLineProperty.ProfileName] = new Dictionary<double, Curve>();
+                }
+                ELineProfileDictionary[controlLineProperty.ProfileName][chainage] = transformedTunnelProfile;
+            }
+
             return Result.Success;
         }
 
-        public static Transform[] getTranforms(ControlLine cL, PolyCurve tunnelProfile,double chainage, string ProfileName,bool flip=false)
+        public Transform[] getTranforms(ControlLine cL, PolyCurve tunnelProfile, double chainage, string alignmentName, bool flip = false)
         {
-            List<Transform> resultBuffer= new List<Transform>();
-            Plane tunnelProfilePlane = Plane.WorldXY;
+            List<Transform> resultBuffer = new List<Transform>();
             Point3d insertionPoint = cL.GetPointAtChainage(chainage);
-            Vector3d insertionPointDelta = cL.GetPointAtChainage(chainage + 0.1) - insertionPoint;
             double insertionPointTParam;
             cL.Profile.ClosestPoint(insertionPoint, out insertionPointTParam, 1);
             Vector3d tangent = cL.Profile.TangentAt(insertionPointTParam);
@@ -264,16 +325,9 @@ namespace TunnelBuilder
 
 
             var cplane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
-            var world_to_cplane = Transform.ChangeBasis(Plane.WorldXY, cplane);
 
-            Curve tunnelProfileCurve = GetCurve(tunnelProfile);
-
-            BoundingBox tunnelProfileBoundingBox = tunnelProfileCurve.GetBoundingBox(true);
-            Point3d tunnelProfileBasePoint = new Point3d(0, 0, 0);
 
             Transform tunnelProfileMoveTransform = cplane_to_world;
-            Curve transformedTunnelProfile = tunnelProfileCurve.DuplicateCurve();
-            PolyCurve transformedTunnelProfilePolyCurve = tunnelProfile.DuplicatePolyCurve();
 
             if (flip)
             {
@@ -283,10 +337,90 @@ namespace TunnelBuilder
 
             resultBuffer.Add(tunnelProfileMoveTransform);
 
-           
-
             return resultBuffer.ToArray();
             
+        }
+
+        private Point3d transformInterpolatedPoint(Point3d startPoint,Point3d endPoint,double chainage,string alignmentName, double startChaiange,double endChaiange,bool flip)
+        {
+            ControlLine cL = getControlLine(ControlLinesDictionary, alignmentName, chainage);
+            Point3d insertionPoint = cL.GetPointAtChainage(chainage);
+            double insertionPointTParam;
+            cL.Profile.ClosestPoint(insertionPoint, out insertionPointTParam, 1);
+            Vector3d tangent = cL.Profile.TangentAt(insertionPointTParam);
+            Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
+            tangentUsedToAlignCPlane[2] = 0.0;
+            Point3d point = cL.Profile.PointAt(insertionPointTParam);
+
+            Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+            if (cplane.YAxis[2] < 0)
+            {
+                //Rotate the plane 180 degree if y axis is pointing down
+                cplane.Rotate(Math.PI, cplane.ZAxis);
+            }
+
+
+            var cplane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
+            double xLeft = startPoint.X + (endPoint.X - startPoint.X) / (endChaiange - startChaiange) * (chainage - startChaiange);
+            double yLeft = startPoint.Y + (endPoint.Y - startPoint.Y) / (endChaiange - startChaiange) * (chainage - startChaiange);
+            Point3d transfomredPoint = new Point3d(xLeft, yLeft, 0);
+
+            if (flip)
+            {
+                Transform flipTransform = Transform.Rotation(Math.PI, new Vector3d(0, 1, 0), new Point3d(0, 0, 0));
+                transfomredPoint.Transform(flipTransform);
+            }
+
+            transfomredPoint.Transform(cplane_to_world);
+            return transfomredPoint;
+        }
+
+        public Result DrawELineEdgeCurves(RhinoDoc doc,string alignmentName,bool flip=false)
+        {
+            var chaiange_list = ELineEdgePointsBuffer[alignmentName].Keys.ToList();
+            chaiange_list.Sort();
+
+            for(int i=0;i<chaiange_list.Count-1;i++)
+            {
+                var leftPointList = new List<Point3d>();
+                var rightPointList = new List<Point3d>();
+
+                Point3d startLeftPoint = ELineEdgePointsBuffer[alignmentName][chaiange_list[i]][0];
+                Point3d startRightPoint = ELineEdgePointsBuffer[alignmentName][chaiange_list[i]][1];
+                Point3d endLeftPoint = ELineEdgePointsBuffer[alignmentName][chaiange_list[i+1]][0];
+                Point3d endRightPoint = ELineEdgePointsBuffer[alignmentName][chaiange_list[i+1]][1];
+
+                double startChaiange = Double.Parse(chaiange_list[i]);
+                double endChainage = Double.Parse(chaiange_list[i + 1]);
+
+                double currentChainage = startChaiange;
+
+                while(currentChainage<endChainage)
+                {
+
+                    Point3d leftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, currentChainage, alignmentName, startChaiange, endChainage, flip);
+                    Point3d rightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, currentChainage, alignmentName, startChaiange, endChainage, flip);
+                    leftPointList.Add(leftPoint);
+                    rightPointList.Add(rightPoint);
+                    currentChainage = currentChainage + 1;
+                }
+
+                endLeftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, endChainage, alignmentName, startChaiange, endChainage, flip);
+                endRightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, endChainage, alignmentName, startChaiange, endChainage, flip);
+                leftPointList.Add(endLeftPoint);
+                rightPointList.Add(endRightPoint);
+
+                var left_curve = Curve.CreateInterpolatedCurve(leftPointList, 3);
+                var right_curve = Curve.CreateInterpolatedCurve(rightPointList, 3);
+
+                var attributes = new Rhino.DocObjects.ObjectAttributes();
+                int transformedProfileParentLayerIndex = UtilFunctions.AddNewLayer(doc, alignmentName, "Transformed Profiles");
+                attributes.LayerIndex = transformedProfileParentLayerIndex;
+
+                doc.Objects.Add(left_curve,attributes);
+                doc.Objects.Add(right_curve,attributes);
+            }
+            return Result.Success;
         }
 
         public List<Curve> filterProfiles(List<Curve> profiles, Models.ProfileRole role,string profileName)
@@ -353,7 +487,7 @@ namespace TunnelBuilder
             return result;
         }
 
-        public static ControlLine getControlLine(Dictionary<string, List<ControlLine>> profileDictionary, string profileName, double chainage)
+        public ControlLine getControlLine(Dictionary<string, List<ControlLine>> profileDictionary, string profileName, double chainage)
         {
             if(!profileDictionary.ContainsKey(profileName))
             {

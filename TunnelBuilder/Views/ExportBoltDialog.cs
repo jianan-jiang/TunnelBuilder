@@ -152,7 +152,7 @@ namespace TunnelBuilder.Views
                         new TableCell(groutCohesionStepper,true)
                         ),
                     new TableRow(
-                        new TableCell(new Label {Text="Grout Stifness" },true),
+                        new TableCell(new Label {Text="Grout Stiffness" },true),
                         new TableCell(groutStiffnessStepper,true)
                         ),
                     new TableRow(
