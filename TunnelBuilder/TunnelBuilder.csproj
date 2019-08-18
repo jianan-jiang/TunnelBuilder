@@ -86,6 +86,11 @@
     <Compile Include="Models\TunnelSupport.cs">
       <DependentUpon>TunnelSupport.xsd</DependentUpon>
     </Compile>
+    <Compile Include="Properties\UpdateResource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>UpdateResource.resx</DependentUpon>
+    </Compile>
     <Compile Include="Views\ExportBoltDialog.cs" />
     <Compile Include="Commands\Bolt\InstallBoltCommand.cs" />
     <Compile Include="Commands\Tunnel\StageConstructionPlaneCommand.cs" />
@@ -108,6 +113,10 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\UpdateResource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UpdateResource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\TunnelPropertyPanel.resx">
       <DependentUpon>TunnelPropertyPanel.cs</DependentUpon>

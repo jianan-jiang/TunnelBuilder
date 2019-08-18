@@ -6,6 +6,7 @@ using Rhino.PlugIns;
 using System.ComponentModel;
 using System.Threading;
 using System;
+
 namespace TunnelBuilder
 {
     ///<summary>
@@ -45,13 +46,13 @@ namespace TunnelBuilder
         {
             //Setup auto update check
             AutoUpdater.OpenDownloadPage = true;
-            AutoUpdater.Start("http://rbsoft.org/updates/AutoUpdaterTest.xml");
+            AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
 
             //Check updates every two minutes
-            System.Timers.Timer timer = new System.Timers.Timer { Interval = 2 * 60 * 1000, SynchronizingObject = this };
+            System.Timers.Timer timer = new System.Timers.Timer { Interval = Convert.ToInt32(Properties.UpdateResource.UpdateInterval) * 60 * 1000, SynchronizingObject = this };
             timer.Elapsed += delegate
             {
-                AutoUpdater.Start("https://jianan-jiang.github.io/TunnelBuilder/AutoUpdaterTest.xml", Assembly);
+                AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
             };
             timer.Start();
      

@@ -9,9 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NurbsMesher", "NurbsMesher\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NurbsMesherTest", "UnitTestProject1\NurbsMesherTest.csproj", "{97D665F1-9F51-4037-80C4-233B99BB44DC}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{363AA34E-2B16-453E-A12F-B273414DDF92}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{42FB24AF-A34F-41EF-B368-12034344333D}"
 	ProjectSection(SolutionItems) = preProject
-		AutoUpdaterTest.xml = AutoUpdaterTest.xml
+		docs\AutoUpdater.xml = docs\AutoUpdater.xml
+		docs\Change_Log.html = docs\Change_Log.html
 	EndProjectSection
 EndProject
 Global
