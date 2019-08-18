@@ -1,6 +1,11 @@
 ﻿using System.Collections.Generic;
 using Rhino.UI;
 using TunnelBuilder.Views;
+using AutoUpdaterDotNET;
+using Rhino.PlugIns;
+using System.ComponentModel;
+using System.Threading;
+using System;
 namespace TunnelBuilder
 {
     ///<summary>
@@ -11,13 +16,18 @@ namespace TunnelBuilder
     /// attributes in AssemblyInfo.cs (you might need to click "Project" ->
     /// "Show All Files" to see it in the "Solution Explorer" window).</para>
     ///</summary>
-    public class TunnelBuilderPlugIn : Rhino.PlugIns.PlugIn
+    public class TunnelBuilderPlugIn : Rhino.PlugIns.PlugIn,ISynchronizeInvoke
 
     {
+
+        private readonly object _sync;
+
         public TunnelBuilderPlugIn()
         {
+            
             Rhino.RhinoApp.WriteLine("Tunnel Builder");
             Rhino.RhinoApp.WriteLine("jianan.jiang@psm.com.au");
+            _sync = new object();
             Instance = this;
         }
 
@@ -31,10 +41,95 @@ namespace TunnelBuilder
         // loading and shut down, add options pages to the Rhino _Option command
         // and maintain plug-in wide options in a document.
 
+        protected override LoadReturnCode OnLoad(ref string errorMessage)
+        {
+            //Setup auto update check
+            AutoUpdater.OpenDownloadPage = true;
+            AutoUpdater.Start("http://rbsoft.org/updates/AutoUpdaterTest.xml");
 
+            //Check updates every two minutes
+            System.Timers.Timer timer = new System.Timers.Timer { Interval = 2 * 60 * 1000, SynchronizingObject = this };
+            timer.Elapsed += delegate
+            {
+                AutoUpdater.Start("https://jianan-jiang.github.io/TunnelBuilder/AutoUpdaterTest.xml", Assembly);
+            };
+            timer.Start();
+     
+            return LoadReturnCode.Success;
+        }
         protected override void ObjectPropertiesPages(List<ObjectPropertiesPage> pages)
         {
             pages.Add(new TunnelPropertyPage());
         }
+
+        //Implements ISynchronizeInvoke Interface
+        ///<summary>Behaviour when the methods have been invoked</summary>
+        public IAsyncResult BeginInvoke(Delegate method,object[] args)
+        {
+            var result = new AsyncResult();
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                result.AsyncWaitHandle = new ManualResetEvent(false);
+                try
+                {
+                    result.AsyncState = Invoke(method, args);
+                }catch (Exception exception)
+                {
+                    result.Exception = exception;
+                }
+                result.IsCompleted = true;
+            });
+
+            return result;
+        }
+
+        public object EndInvoke(IAsyncResult result)
+        {
+            if (!result.IsCompleted)
+            {
+                result.AsyncWaitHandle.WaitOne();
+            }
+
+            return result.AsyncState;
+        }
+
+        public object Invoke(Delegate method,object[] args)
+        {
+            lock (_sync)
+            {
+                return method.DynamicInvoke(args);
+            }
+        }
+
+        public bool InvokeRequired
+        {
+            get { return true; }
+        }
+    }
+
+    class AsyncResult : IAsyncResult
+    {
+        object _state;
+
+        public bool IsCompleted { get; set; }
+        public WaitHandle AsyncWaitHandle { get; internal set; }
+        public object AsyncState {
+            get
+            {
+                if(Exception != null)
+                {
+                    throw Exception;
+                }
+                return _state;
+            }
+            internal set
+            {
+                _state = value;
+            }
+        }
+
+        public bool CompletedSynchronously { get { return IsCompleted; } }
+
+        internal Exception Exception { get; set; }
     }
 }

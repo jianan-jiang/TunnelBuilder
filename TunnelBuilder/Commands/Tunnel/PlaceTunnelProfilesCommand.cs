@@ -91,7 +91,7 @@ namespace TunnelBuilder
             {
                 var sweepOneD = new SweepOneRail();
                 sweepOneD.GlobalShapeBlending = true;
-                List<Brep> brepBuffer = new List<Brep>();
+                List<Guid> brepBuffer = new List<Guid>();
 
                 List<double> chainageList = ELineProfileDictionary[alignment].Keys.ToList();
                 chainageList.Sort();
@@ -108,28 +108,22 @@ namespace TunnelBuilder
                     var breps = sweepOneD.PerformSweep(cL.Profile, crossSections);
                     for (int j = 0; j < breps.Length; j++)
                     {
-                        brepBuffer.Add(breps[j]);
+                        var tunnelSurfaceProperty = new Models.TunnelProperty();
+
+                        tunnelSurfaceProperty.ProfileName = alignment;
+                        tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
+                        breps[j].UserData.Add(tunnelSurfaceProperty);
+
+                        var attributes = new Rhino.DocObjects.ObjectAttributes();
+                        attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, alignment, "Tunnels");
+
+                        var id = doc.Objects.AddBrep(breps[j],attributes);
+                        brepBuffer.Add(id);
+                       
                     }
 
                 }
-
-                Brep joinedBrep;
-                joinedBrep = brepBuffer[0];
-                for (int i = 1; i < brepBuffer.Count; i++)
-                {
-                    joinedBrep.Join(brepBuffer[i], doc.ModelAbsoluteTolerance, true);
-                }
-
-                var tunnelSurfaceProperty = new Models.TunnelProperty();
-
-                tunnelSurfaceProperty.ProfileName = alignment;
-                tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
-                joinedBrep.UserData.Add(tunnelSurfaceProperty);
-
-                var attributes = new Rhino.DocObjects.ObjectAttributes();
-                attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, alignment, "Tunnels");
-
-                doc.Objects.AddBrep(joinedBrep,attributes);
+                doc.Groups.Add(alignment, brepBuffer);
             }
 
             return Result.Success;

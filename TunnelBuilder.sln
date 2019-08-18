@@ -5,9 +5,14 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TunnelBuilder", "TunnelBuilder\TunnelBuilder.csproj", "{470CFDD4-AB90-4775-ACD0-8244C66F22A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NurbsMesher", "NurbsMesher\NurbsMesher.csproj", "{234C4A9E-80B9-4717-864A-3AEADE5F2760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NurbsMesher", "NurbsMesher\NurbsMesher.csproj", "{234C4A9E-80B9-4717-864A-3AEADE5F2760}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NurbsMesherTest", "UnitTestProject1\NurbsMesherTest.csproj", "{97D665F1-9F51-4037-80C4-233B99BB44DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{363AA34E-2B16-453E-A12F-B273414DDF92}"
+	ProjectSection(SolutionItems) = preProject
+		AutoUpdaterTest.xml = AutoUpdaterTest.xml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -153,6 +153,7 @@ Erase "$(TargetDir)\$(ProjectName).zip"
     <StartArguments>
     </StartArguments>
     <StartAction>Program</StartAction>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <Import Project="..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

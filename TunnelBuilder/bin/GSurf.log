@@ -1,0 +1,11 @@
+Itasca Consulting Group, Inc., Griddle-GSurf version: 1.0.5.0 2018.7.23.1050
+Rhino model: C:\Users\Jianan Jiang\Downloads\M150.3dm
+Time: Thu Aug 15 13:34:54 2019
+
+GSurf input parameters
+  MinEdgeLength: 0
+  MaxEdgeLength: 1.79769e+308
+  Mode: Tri
+  RidgeAngle: 20
+  MaxGradation: 0.1
+  DeleteInput: Yes
