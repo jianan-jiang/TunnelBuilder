@@ -145,6 +145,7 @@
     <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).rhp"
 Erase "$(TargetPath)"
 if $(ConfigurationName) == Release (
+"$(SolutionDir)ReleaseHelper\bin\Release\ReleaseHelper.exe" "$(TargetDir)$(ProjectName).rhp" "$(SolutionDir)ReleaseHelper\Templates\AutoUpdaterTemplate.xml" "$(SolutionDir)docs\AutoUpdater.xml"
 if not exist $(TargetDir)\$(ProjectName) mkdir $(TargetDir)\$(ProjectName)
 if not exist "$(TargetDir)\$(ProjectName)\Rhino 6" mkdir "$(TargetDir)\$(ProjectName)\Rhino 6"
 Copy "$(TargetDir)$(ProjectName).rhp"  "$(TargetDir)\$(ProjectName)\Rhino 6\$(ProjectName).rhp"

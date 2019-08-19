@@ -23,13 +23,14 @@ namespace TunnelBuilder
         private Dictionary<String, Dictionary<string, Point3d[]>> ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
         private Dictionary<string, List<ControlLine>> ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
         private Dictionary<string,Dictionary<double, Curve>> ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
+        private Dictionary<string, Dictionary<string, Dictionary<double, Curve>>> ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
             TransformBuffer = new Dictionary<string, Transform[]>();
             ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
             ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
             ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
-
+            ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
             if (dialog_rc != Result.Success)
@@ -86,44 +87,50 @@ namespace TunnelBuilder
 
         public Result createSweep(RhinoDoc doc)
         {
-            List<string> alignmentList = ELineEdgePointsBuffer.Keys.ToList();
+            List<string> alignmentList = ProfileDictionary.Keys.ToList();
             foreach(string alignment in alignmentList)
             {
-                var sweepOneD = new SweepOneRail();
-                sweepOneD.GlobalShapeBlending = true;
-                List<Guid> brepBuffer = new List<Guid>();
-
-                List<double> chainageList = ELineProfileDictionary[alignment].Keys.ToList();
-                chainageList.Sort();
-                Curve[] crossSections = new Curve[2];
-                for (int i = 0; i < chainageList.Count - 1; i++)
+                List<string> profileRoleList = ProfileDictionary[alignment].Keys.ToList();
+                foreach(string profileRole in profileRoleList)
                 {
-                    var profile1 = ELineProfileDictionary[alignment][chainageList[i]];
-                    var profile2 = ELineProfileDictionary[alignment][chainageList[i + 1]];
-                    var cL = getControlLine(ControlLinesDictionary, alignment, chainageList[i]);
+                    var sweepOneD = new SweepOneRail();
+                    sweepOneD.GlobalShapeBlending = true;
+                    List<Guid> brepBuffer = new List<Guid>();
 
-                    crossSections[0] = profile1;
-                    crossSections[1] = profile2;
-
-                    var breps = sweepOneD.PerformSweep(cL.Profile, crossSections);
-                    for (int j = 0; j < breps.Length; j++)
+                    List<double> chainageList = ProfileDictionary[alignment][profileRole].Keys.ToList();
+                    chainageList.Sort();
+                    Curve[] crossSections = new Curve[2];
+                    for (int i = 0; i < chainageList.Count - 1; i++)
                     {
-                        var tunnelSurfaceProperty = new Models.TunnelProperty();
+                        var profile1 = ProfileDictionary[alignment][profileRole][chainageList[i]];
+                        var profile2 = ProfileDictionary[alignment][profileRole][chainageList[i + 1]];
+                        var cL = getControlLine(ControlLinesDictionary, alignment, chainageList[i]);
 
-                        tunnelSurfaceProperty.ProfileName = alignment;
-                        tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
-                        breps[j].UserData.Add(tunnelSurfaceProperty);
+                        crossSections[0] = profile1;
+                        crossSections[1] = profile2;
 
-                        var attributes = new Rhino.DocObjects.ObjectAttributes();
-                        attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, alignment, "Tunnels");
+                        var breps = sweepOneD.PerformSweep(cL.Profile, crossSections);
+                        for (int j = 0; j < breps.Length; j++)
+                        {
+                            var tunnelSurfaceProperty = new Models.TunnelProperty();
 
-                        var id = doc.Objects.AddBrep(breps[j],attributes);
-                        brepBuffer.Add(id);
-                       
+                            tunnelSurfaceProperty.ProfileName = alignment;
+                            tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
+                            breps[j].UserData.Add(tunnelSurfaceProperty);
+
+                            var attributes = new Rhino.DocObjects.ObjectAttributes();
+                            var parentLayerIndex = UtilFunctions.AddNewLayer(doc, alignment, "Tunnels");
+                            attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, profileRole, parentLayerIndex);
+
+                            var id = doc.Objects.AddBrep(breps[j], attributes);
+                            brepBuffer.Add(id);
+
+                        }
+
                     }
+                    doc.Groups.Add(alignment+"_"+profileRole, brepBuffer);
 
                 }
-                doc.Groups.Add(alignment, brepBuffer);
             }
 
             return Result.Success;
@@ -287,14 +294,17 @@ namespace TunnelBuilder
             attributes.LayerIndex = UtilFunctions.AddNewLayer(doc, tunnelProfileRole, transformedProfileParentLayerIndex);
             doc.Objects.AddCurve(transformedTunnelProfile, attributes);
 
-            if (tunnelProfileRole == "E-Line")
+            if(!ProfileDictionary.ContainsKey(controlLineProperty.ProfileName))
             {
-                if(!ELineProfileDictionary.ContainsKey(controlLineProperty.ProfileName))
-                {
-                    ELineProfileDictionary[controlLineProperty.ProfileName] = new Dictionary<double, Curve>();
-                }
-                ELineProfileDictionary[controlLineProperty.ProfileName][chainage] = transformedTunnelProfile;
+                ProfileDictionary[controlLineProperty.ProfileName] = new Dictionary<string, Dictionary<double, Curve>>();
             }
+
+            if (!ProfileDictionary[controlLineProperty.ProfileName].ContainsKey(tunnelProfileRole))
+            {
+                ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole] = new Dictionary<double, Curve>();
+            }
+
+            ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole][chainage] = transformedTunnelProfile;
 
             return Result.Success;
         }
