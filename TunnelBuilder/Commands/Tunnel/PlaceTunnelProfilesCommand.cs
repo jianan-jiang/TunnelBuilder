@@ -22,14 +22,12 @@ namespace TunnelBuilder
         private Dictionary<String, List<PolyCurve>> ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
         private Dictionary<String, Dictionary<string, Point3d[]>> ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
         private Dictionary<string, List<ControlLine>> ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
-        private Dictionary<string,Dictionary<double, Curve>> ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
         private Dictionary<string, Dictionary<string, Dictionary<double, Curve>>> ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
             TransformBuffer = new Dictionary<string, Transform[]>();
             ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
             ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
-            ELineProfileDictionary = new Dictionary<string, Dictionary<double, Curve>>();
             ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
