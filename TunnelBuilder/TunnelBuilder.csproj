@@ -150,6 +150,7 @@ if not exist $(TargetDir)\$(ProjectName) mkdir $(TargetDir)\$(ProjectName)
 if not exist "$(TargetDir)\$(ProjectName)\Rhino 6" mkdir "$(TargetDir)\$(ProjectName)\Rhino 6"
 Copy "$(TargetDir)$(ProjectName).rhp"  "$(TargetDir)\$(ProjectName)\Rhino 6\$(ProjectName).rhp"
 Copy "$(TargetDir)MathNet.Numerics.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\MathNet.Numerics.dll"
+Copy "$(TargetDir)AutoUpdater.NET.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\AutoUpdater.NET.dll"
 powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
 Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
 Erase "$(TargetDir)\$(ProjectName).zip"
