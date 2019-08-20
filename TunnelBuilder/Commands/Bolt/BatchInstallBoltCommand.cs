@@ -263,6 +263,7 @@ namespace TunnelBuilder
 
                             Point3d apex = apex_events[0].PointA;
                             double tunnel_span = ExportTunnelSpanCommand.getSpan(doc, apex, tunnel_profile);
+                            string supportName = "";
                             if(tunnel_span > 0 )
                             {
                                 double boltLength = 0.0;
@@ -274,10 +275,13 @@ namespace TunnelBuilder
                                         if (supportLengthsDefinition.Length > boltLength)
                                         {
                                             boltLength = supportLengthsDefinition.Length;
+                                            supportName = supportLengthsDefinition.Name;
                                             bsl = supportLengthsDefinition;
                                         }
                                     }
                                 }
+
+                                int layerIndex = UtilFunctions.AddNewLayer(doc, supportName, bolt_layer_index);
 
                                 OptionToggle boltInstallLocationToggle = new OptionToggle(bsl.CrownOnly, "All", "CrownOnly");
 
@@ -288,25 +292,25 @@ namespace TunnelBuilder
                                     if (advanceIteration % 2 == 0)
                                     {
                                         //Intall the bolts in +t_param direction
-                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, boltTransversiveSpacing / 2);
+                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, boltTransversiveSpacing / 2);
                                         //Intall the bolts in -t_param direction
-                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing / 2);
+                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing / 2);
                                     }
                                     else
                                     {
                                         //Intall the bolts in +t_param direction
-                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
+                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
                                         //Intall the bolts in -t_param direction
-                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing);
+                                        InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing);
                                     }
 
                                 }
                                 else
                                 {
                                     //Intall the bolts in +t_param direction
-                                    InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
+                                    InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, 0);
                                     //Intall the bolts in -t_param direction
-                                    InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, bolt_layer_index, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing);
+                                    InstallBoltCommand.installBoltIteration(doc, apex, tunnel_profile, -boltTransversiveSpacing, boltLength, layerIndex, boltInstallLocationToggle, tunnelSurface, plane_to_world, -boltTransversiveSpacing);
                                 }
                             }
                         }

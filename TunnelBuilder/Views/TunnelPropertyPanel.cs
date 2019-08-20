@@ -211,7 +211,7 @@ namespace TunnelBuilder.Views
                 var tunnelProperty = rhObj.Geometry.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
                 if (tunnelProperty == null)
                 {
-                    if (rhObj.Geometry as Rhino.Geometry.Curve != null)
+                    if (rhObj.Geometry as Rhino.Geometry.Curve != null || rhObj.Geometry as Rhino.Geometry.Brep != null)
                     {
                         m_control.TunnelPropertyUpdated += OnTunnelPropertyUpdated;
                         return true;

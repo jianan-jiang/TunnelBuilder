@@ -153,6 +153,7 @@ Copy "$(TargetDir)MathNet.Numerics.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\Ma
 Copy "$(TargetDir)AutoUpdater.NET.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\AutoUpdater.NET.dll"
 powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
 Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
+Copy "$(TargetDir)\$(ProjectName).rhi" "W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\$(ProjectName).rhi"
 Erase "$(TargetDir)\$(ProjectName).zip"
 )</PostBuildEvent>
   </PropertyGroup>

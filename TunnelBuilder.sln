@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TunnelBuilder", "TunnelBuilder\TunnelBuilder.csproj", "{470CFDD4-AB90-4775-ACD0-8244C66F22A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F628FA96-1AD7-476E-A47D-0B97922321AB} = {F628FA96-1AD7-476E-A47D-0B97922321AB}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NurbsMesher", "NurbsMesher\NurbsMesher.csproj", "{234C4A9E-80B9-4717-864A-3AEADE5F2760}"
 EndProject

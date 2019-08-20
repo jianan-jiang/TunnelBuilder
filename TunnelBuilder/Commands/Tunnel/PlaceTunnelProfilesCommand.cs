@@ -29,6 +29,7 @@ namespace TunnelBuilder
             ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
             ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
             ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
+            ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
             if (dialog_rc != Result.Success)
