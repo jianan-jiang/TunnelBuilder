@@ -11,6 +11,7 @@ using MathNet.Numerics.RootFinding;
 
 namespace TunnelBuilder
 {
+    [System.Runtime.InteropServices.Guid("47306683-E908-48F3-A810-91B6EF965331")]
     public class PlaceTunnelProfilesCommand:Command
     {
         public override string EnglishName

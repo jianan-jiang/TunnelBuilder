@@ -15,5 +15,6 @@
     <ns1:GroundCondition TransversiveSpacing="1.75" LongitudinalSpacing="1.75" Name="ST1"/>
     <ns1:GroundCondition TransversiveSpacing="1.5" LongitudinalSpacing="1.5" Name="ST2"/>
     <ns1:GroundCondition TransversiveSpacing="1.25" LongitudinalSpacing="1.25" Name="ST10"/>
+    <ns1:GroundCondition TransversiveSpacing="1" LongitudinalSpacing="1.25" Name="ST200"/>
   </ns1:GroundConditions>
 </ns1:TunnelSupportDefinition>

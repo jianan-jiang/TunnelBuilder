@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Commands\Bolt\BatchInstallBoltCommand.cs" />
     <Compile Include="Commands\Bolt\BoltClearanceCheckCommand.cs" />
+    <Compile Include="Commands\Tunnel\CrownProfile.cs" />
     <Compile Include="Commands\Tunnel\ExportTunnelSpanCommand.cs" />
     <Compile Include="Commands\Bolt\MinimumClearanceCommand.cs" />
     <Compile Include="Commands\Bolt\ModifyBoltLengthCommand.cs" />

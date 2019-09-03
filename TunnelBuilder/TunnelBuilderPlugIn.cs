@@ -49,12 +49,12 @@ namespace TunnelBuilder
             AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
 
             //Check updates every two minutes
-            System.Timers.Timer timer = new System.Timers.Timer { Interval = Convert.ToInt32(Properties.UpdateResource.UpdateInterval) * 60 * 1000, SynchronizingObject = this };
-            timer.Elapsed += delegate
-            {
-                AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
-            };
-            timer.Start();
+            //System.Timers.Timer timer = new System.Timers.Timer { Interval = Convert.ToInt32(Properties.UpdateResource.UpdateInterval) * 60 * 1000, SynchronizingObject = this };
+            //timer.Elapsed += delegate
+            //{
+            //    AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
+            //};
+            //timer.Start();
      
             return LoadReturnCode.Success;
         }
