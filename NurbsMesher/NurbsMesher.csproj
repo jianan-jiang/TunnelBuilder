@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Rhino3dmIO.Desktop" Version="6.16.19190.7001" />
+    <PackageReference Include="Rhino3dmIO.Desktop" Version="6.17.19235.15041" />
   </ItemGroup>
 
 </Project>

@@ -26,3 +26,8 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\A
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\AutoUpdater.NET.pdb
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\AutoUpdater.NET.xml
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.UpdateResource.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Isometric.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Plan.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Section.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\NCalc.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\SuperXML.dll

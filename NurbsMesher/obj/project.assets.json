@@ -26,7 +26,7 @@
           "build/netstandard2.0/NETStandard.Library.targets": {}
         }
       },
-      "Rhino3dmIO.Desktop/6.16.19190.7001": {
+      "Rhino3dmIO.Desktop/6.17.19235.15041": {
         "type": "package",
         "compile": {
           "lib/net45/Rhino3dmIO.dll": {}
@@ -184,10 +184,10 @@
         "netstandard.library.nuspec"
       ]
     },
-    "Rhino3dmIO.Desktop/6.16.19190.7001": {
-      "sha512": "QGXG5OCC8aOHxrT4M4taUV6YE/MBj5FvEfVZbQaWs9LdkwcUXIK8ynPHrZ9OWhp/BDXuY3COBbXFqkldfKio/g==",
+    "Rhino3dmIO.Desktop/6.17.19235.15041": {
+      "sha512": "mBtDs+uANnXSn34VpuqU52ZfVkFZxGOWVFpoe4CbC3fFB6Omq2OnG1hax8Bzx0Aw9bl3Wvkl7nQyd3jin/0N6A==",
       "type": "package",
-      "path": "rhino3dmio.desktop/6.16.19190.7001",
+      "path": "rhino3dmio.desktop/6.17.19235.15041",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -196,7 +196,7 @@
         "build/net45/Win64/librhino3dmio_native.dll",
         "build/net45/librhino3dmio_native.dylib",
         "lib/net45/Rhino3dmIO.dll",
-        "rhino3dmio.desktop.6.16.19190.7001.nupkg.sha512",
+        "rhino3dmio.desktop.6.17.19235.15041.nupkg.sha512",
         "rhino3dmio.desktop.nuspec"
       ]
     }
@@ -204,7 +204,7 @@
   "projectFileDependencyGroups": {
     ".NETStandard,Version=v2.0": [
       "NETStandard.Library >= 2.0.3",
-      "Rhino3dmIO.Desktop >= 6.16.19190.7001"
+      "Rhino3dmIO.Desktop >= 6.17.19235.15041"
     ]
   },
   "packageFolders": {
@@ -254,7 +254,7 @@
           },
           "Rhino3dmIO.Desktop": {
             "target": "Package",
-            "version": "[6.16.19190.7001, )"
+            "version": "[6.17.19235.15041, )"
           }
         },
         "imports": [
@@ -270,7 +270,7 @@
       "code": "NU1701",
       "level": "Warning",
       "warningLevel": 1,
-      "message": "Package 'Rhino3dmIO.Desktop 6.16.19190.7001' was restored using '.NETFramework,Version=v4.6.1' instead of the project target framework '.NETStandard,Version=v2.0'. This package may not be fully compatible with your project.",
+      "message": "Package 'Rhino3dmIO.Desktop 6.17.19235.15041' was restored using '.NETFramework,Version=v4.6.1' instead of the project target framework '.NETStandard,Version=v2.0'. This package may not be fully compatible with your project.",
       "libraryId": "Rhino3dmIO.Desktop",
       "targetGraphs": [
         ".NETStandard,Version=v2.0"

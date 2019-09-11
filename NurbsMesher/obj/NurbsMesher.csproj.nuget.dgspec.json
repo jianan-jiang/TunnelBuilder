@@ -47,7 +47,7 @@
             },
             "Rhino3dmIO.Desktop": {
               "target": "Package",
-              "version": "[6.16.19190.7001, )"
+              "version": "[6.17.19235.15041, )"
             }
           },
           "imports": [

@@ -34,11 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoUpdater.NET, Version=1.5.5.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autoupdater.NET.Official.1.5.5\lib\net40\AutoUpdater.NET.dll</HintPath>
+    <Reference Include="AutoUpdater.NET, Version=1.5.6.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autoupdater.NET.Official.1.5.6\lib\net40\AutoUpdater.NET.dll</HintPath>
     </Reference>
     <Reference Include="Eto, Version=2.5.0.0, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\Eto.dll</HintPath>
+      <HintPath>..\packages\RhinoCommon.6.17.19235.15041\lib\net45\Eto.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
@@ -47,11 +47,17 @@
       <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Rhino.UI, Version=6.16.19190.7000, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\Rhino.UI.dll</HintPath>
+    <Reference Include="NCalc, Version=1.3.8.0, Culture=neutral, PublicKeyToken=973cde3f1cafed03, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperXML.3.0.2.0\lib\net45\NCalc.dll</HintPath>
     </Reference>
-    <Reference Include="RhinoCommon, Version=6.16.19190.7000, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
-      <HintPath>..\packages\RhinoCommon.6.16.19190.7001\lib\net45\RhinoCommon.dll</HintPath>
+    <Reference Include="Rhino.UI, Version=6.17.19235.15040, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoCommon.6.17.19235.15041\lib\net45\Rhino.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="RhinoCommon, Version=6.17.19235.15040, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
+      <HintPath>..\packages\RhinoCommon.6.17.19235.15041\lib\net45\RhinoCommon.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperXML, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SuperXML.3.0.2.0\lib\net45\SuperXML.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Commands\Bolt\BatchInstallBoltCommand.cs" />
     <Compile Include="Commands\Bolt\BoltClearanceCheckCommand.cs" />
+    <Compile Include="Commands\Outputs\ExportPlotCommand.cs" />
     <Compile Include="Commands\Tunnel\CrownProfile.cs" />
     <Compile Include="Commands\Tunnel\ExportTunnelSpanCommand.cs" />
     <Compile Include="Commands\Bolt\MinimumClearanceCommand.cs" />
@@ -78,7 +85,18 @@
     <Compile Include="Commands\Tunnel\PlaceTunnelProfilesCommand.cs" />
     <Compile Include="Commands\Tunnel\SplitTunnelCLCommand.cs" />
     <Compile Include="Commands\Tunnel\TunnelProfile.cs" />
+    <Compile Include="Models\FLAC3DPlots.cs" />
     <Compile Include="Models\TunnelProperty.cs" />
+    <Compile Include="Properties\Isometric.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Isometric.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Plan.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Plan.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -86,6 +104,11 @@
     </Compile>
     <Compile Include="Models\TunnelSupport.cs">
       <DependentUpon>TunnelSupport.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Section.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Section.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\UpdateResource.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -111,9 +134,21 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EmbeddedResources\plugin-utility.ico" />
+    <EmbeddedResource Include="Properties\Isometric.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Isometric.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Plan.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Plan.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Section.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Section.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\UpdateResource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -125,6 +160,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Help\01_Getting_Started.md" />
+    <None Include="Models\FLAC3D\Plots\Isometric\BoltAll.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\DISL15.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\DISL20.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\DISL25.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\Overview.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\S1.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\S3.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\TotalDisplacement.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\VerticalDisplacement1.dat" />
+    <None Include="Models\FLAC3D\Plots\Isometric\Yield.dat" />
+    <None Include="Models\FLAC3D\Plots\Plan\HorizontalDisplacement.dat" />
+    <None Include="Models\FLAC3D\Plots\Plan\Overview.dat" />
+    <None Include="Models\FLAC3D\Plots\Plan\Settlement.dat" />
+    <None Include="Models\FLAC3D\Plots\Section\S1.dat" />
+    <None Include="Models\FLAC3D\Plots\Section\S3.dat" />
+    <None Include="Models\FLAC3D\Plots\Section\TotalDisplacement.dat" />
+    <None Include="Models\FLAC3D\Plots\Section\Yield.dat" />
+    <None Include="Models\FLAC3D\Python\email.py" />
+    <None Include="Models\FLAC3D\Python\pdf.py" />
+    <None Include="Models\FLAC3D\Python\plot.py" />
+    <None Include="Models\FLAC3D\Python\surface_disp.py" />
     <None Include="Models\TunnelSupport.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -134,6 +190,7 @@
     <Content Include="Models\tsd.xml" />
     <None Include="Resources\TunnelBuilderIcon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -168,11 +225,11 @@ Erase "$(TargetDir)\$(ProjectName).zip"
     <StartAction>Program</StartAction>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
-  <Import Project="..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets')" />
+  <Import Project="..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets" Condition="Exists('..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RhinoCommon.6.16.19190.7001\build\net45\RhinoCommon.targets'))" />
+    <Error Condition="!Exists('..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets'))" />
   </Target>
 </Project>

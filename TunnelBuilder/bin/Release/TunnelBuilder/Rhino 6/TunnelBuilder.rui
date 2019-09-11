@@ -3,7 +3,7 @@
   <extend_rhino_menus />
   <menus />
   <tool_bar_groups>
-    <tool_bar_group guid="fce0a740-c874-4609-887b-27cadb8ac0a0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="ea95fcb8-5bff-4be1-a8b2-dbe5e2542028" active_tool_bar_group="29b2678a-271f-4813-a21f-4145c9a8dc25" single_file="False" hide_single_tab="False" point_floating="1207,762">
+    <tool_bar_group guid="fce0a740-c874-4609-887b-27cadb8ac0a0" dock_bar_guid32="00000000-0000-0000-0000-000000000000" dock_bar_guid64="ea95fcb8-5bff-4be1-a8b2-dbe5e2542028" active_tool_bar_group="29b2678a-271f-4813-a21f-4145c9a8dc25" single_file="False" hide_single_tab="False" point_floating="-2147483648,0">
       <text>
         <locale_1033>Toolbar group</locale_1033>
       </text>
@@ -13,7 +13,7 @@
         </text>
         <tool_bar_id>6957a923-d3d9-4952-b4dc-65af5f6f8b79</tool_bar_id>
       </tool_bar_group_item>
-      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="True" floating="True" mru_float_style="4096" bar_id="59474" mru_width="32767" point_pos="-1,-1" float_point="1207,762" rect_mru_dock_pos="0,0,0,0" dock_location_u="59420" dock_location="left" float_size="41,62" />
+      <dock_bar_info dpi_scale="100" dock_bar="False" docking="True" horz="False" visible="False" floating="True" mru_float_style="4096" bar_id="59474" mru_width="32767" point_pos="-1,-1" float_point="-2147483648,0" rect_mru_dock_pos="0,0,0,0" dock_location_u="59420" dock_location="left" float_size="41,62" />
     </tool_bar_group>
   </tool_bar_groups>
   <tool_bars>
