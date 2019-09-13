@@ -178,9 +178,9 @@
             this.ProfileRoleLabel.AutoSize = true;
             this.ProfileRoleLabel.Location = new System.Drawing.Point(6, 42);
             this.ProfileRoleLabel.Name = "ProfileRoleLabel";
-            this.ProfileRoleLabel.Size = new System.Drawing.Size(61, 13);
+            this.ProfileRoleLabel.Size = new System.Drawing.Size(29, 13);
             this.ProfileRoleLabel.TabIndex = 8;
-            this.ProfileRoleLabel.Text = "Profile Role";
+            this.ProfileRoleLabel.Text = "Role";
             // 
             // ChainageAtStartLabel
             // 
