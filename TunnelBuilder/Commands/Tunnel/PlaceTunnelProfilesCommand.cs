@@ -192,13 +192,15 @@ namespace TunnelBuilder
             }
 
             string[] tunnelProfileInformation = profileLayer.Name.Split('_');
-            if (tunnelProfileInformation.Length != 3)
+
+            if(tunnelProfileInformation.Count()<3)
             {
-                return Result.Failure;
+                return Result.Nothing;
             }
+
             string tunnelProfileAlignmentName = tunnelProfileInformation[0];
             double tunnelProfileChainage = Double.Parse(tunnelProfileInformation[1]);
-            string tunnelProfileRole = tunnelProfileInformation[2];
+            string tunnelProfileRole = String.Join("",tunnelProfileInformation.Skip(2));
 
             Rhino.DocObjects.RhinoObject[] curveObjs = doc.Objects.FindByLayer(profileLayer);
             if (curveObjs == null || curveObjs.Length < 1)

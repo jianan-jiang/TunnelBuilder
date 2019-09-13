@@ -1,4 +1,3 @@
-geometry import "M130_Cavern.stl" set "M130 Cavern"
 plot create
 plot clear
 plot active on

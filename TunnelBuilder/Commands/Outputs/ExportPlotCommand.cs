@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 using System.Windows.Forms;
 
@@ -23,6 +24,7 @@ namespace TunnelBuilder
         bool OverrideAllFiles = false;
         string Folder;
         ExportEnvironment exportEnvironment;
+        PlotDescriptionExcelFile plotDescriptionExcelFile;
 
         public override string EnglishName
         {
@@ -54,6 +56,32 @@ namespace TunnelBuilder
             ResourceManager resourceManagerSection = new ResourceManager(typeof(Properties.Section));
             ResourceSet resourceSetSection = resourceManagerSection.GetResourceSet(CultureInfo.CurrentCulture, true, true);
 
+            plotDescriptionExcelFile = new PlotDescriptionExcelFile();
+            Rhino.DocObjects.Layer layer = doc.Layers.FindName("Reference Point");
+            Rhino.DocObjects.RhinoObject[] objs = doc.Objects.FindByLayer(layer);
+
+            bool foundOriginOffset = false;
+
+            foreach(var obj in objs)
+            {
+                var orig_x = obj.Attributes.GetUserString("orig_x");
+                var orig_y = obj.Attributes.GetUserString("orig_y");
+                if (orig_x!=null && orig_y!=null)
+                {
+                    var orig_xDouble = Double.Parse(orig_x);
+                    var orig_yDouble = Double.Parse(orig_y);
+                    var OriginOffset = new Point2d(orig_xDouble, orig_yDouble);
+                    plotDescriptionExcelFile.OriginOffset = OriginOffset;
+                    foundOriginOffset = true;
+                    break;
+                }
+            }
+
+            if(!foundOriginOffset)
+            {
+                RhinoApp.WriteLine("Origin Offset not found, please manually set the numbers in Plot Description.xlsx");
+            }
+
             foreach (var viewName in views.Keys)
             {
                 var view = views[viewName];
@@ -66,18 +94,16 @@ namespace TunnelBuilder
                         viewport.ChangeToParallelProjection(true);
                     }
 
-                    var center = viewport.CameraLocation;
-                    var target = viewport.TargetPoint;
+                    var eye = viewport.CameraLocation;
+                    var center = viewport.TargetPoint;
                     double roll = 0.0;
-                    Camera camera = new Camera(center, target, roll);
+                    Camera camera = new Camera(center, eye, roll);
                     foreach (DictionaryEntry entry in resourceSetIsometric)
                     {
                         string plotName = entry.Key.ToString();
                         string plotTemplate = System.Text.Encoding.ASCII.GetString((byte[])entry.Value);
-
                         Plot plot = new Plot(camera, plotTemplate);
                         string plotData = plot.compile();
-
                         result = savePlot("",plotName, plotData);
 
                     }
@@ -89,10 +115,10 @@ namespace TunnelBuilder
                         viewport.ChangeToParallelProjection(true);
                     }
 
-                    var center = viewport.CameraLocation;
-                    var target = viewport.TargetPoint;
+                    var eye = viewport.CameraLocation;
+                    var center = viewport.TargetPoint;
                     double roll = 0.0;
-                    Camera camera = new Camera(center, target, roll);
+                    Camera camera = new Camera(center, eye, roll);
                     foreach (DictionaryEntry entry in resourceSetPlan)
                     {
                         string plotName = entry.Key.ToString();
@@ -106,10 +132,10 @@ namespace TunnelBuilder
                 }
                 else
                 {
-                    var center = viewport.CameraLocation;
-                    var target = viewport.TargetPoint;
+                    var eye = viewport.CameraLocation;
+                    var center = viewport.TargetPoint;
                     double roll = 0.0;
-                    Camera camera = new Camera(center, target, roll);
+                    Camera camera = new Camera(center, eye, roll);
                     Surface cutSurface = null;
                     using (Rhino.Input.Custom.GetObject go = new Rhino.Input.Custom.GetObject())
                     {
@@ -168,6 +194,8 @@ namespace TunnelBuilder
                 }
             }
 
+            plotDescriptionExcelFile.save(Folder);
+
             return Result.Success;
         }
 
@@ -196,10 +224,12 @@ namespace TunnelBuilder
 
         private Result savePlot(string prefix, string plotName, string plotData)
         {
-            string filename = Folder + "\\"+ prefix + plotName + ExportEnvironmentExtension[ExportEnvironment.FLAC3D];
-            System.IO.StreamWriter fs = new System.IO.StreamWriter(filename);
+            string filename = Regex.Replace(prefix + plotName, @"\s+", "");
 
-            if(System.IO.File.Exists(filename) && !OverrideAllFiles)
+            string filepath = Folder + "\\" + filename +ExportEnvironmentExtension[ExportEnvironment.FLAC3D];
+            System.IO.StreamWriter fs = new System.IO.StreamWriter(filepath);
+
+            if(System.IO.File.Exists(filepath) && !OverrideAllFiles)
             {
                 var result = Rhino.UI.Dialogs.ShowMessage("Overwrite existing files", "Found existing files", Rhino.UI.ShowMessageButton.YesNoCancel, Rhino.UI.ShowMessageIcon.Question);
                 if(result == Rhino.UI.ShowMessageResult.Yes)
@@ -216,10 +246,66 @@ namespace TunnelBuilder
                 }
             }
 
+            plotDescriptionExcelFile.addPlotDescription(new PlotDescription(filename, getPlotDescription(prefix, plotData)));
+
             fs.Write(plotData);
             fs.Close();
 
             return Result.Success;
+        }
+
+        private string getPlotDescription(string descriptionPostfix, string plotData)
+        {
+            string plotDescription = "";
+            string contourDescription = "";
+            if(plotData.IndexOf("displacement component magnitude")>0)
+            {
+                contourDescription = "TOTAL DISPLACEMENT IN METRES";
+            }else if (plotData.IndexOf("displacement component z")>0)
+            {
+                contourDescription = "VERTICAL DISPLACEMENT IN METRES";
+            }else if (plotData.IndexOf("label state average")>0)
+            {
+                contourDescription = "ROCK MASS YIELDING";
+            }else if (plotData.IndexOf("contour stress quantity minimum")>0)
+            {
+                contourDescription = "MAJOR PRINCIPAL STRESS IN MPA";
+            }else if (plotData.IndexOf("contour stress quantity maximum") >0)
+            {
+                contourDescription = "MINOR PRINCIPAL STRESS IN MPA";
+            }else if(plotData.IndexOf("structure-cable")>0 && plotData.IndexOf("force-axial")>0)
+            {
+                contourDescription = "BOLT LOADS IN MN";
+            }else if(plotData.IndexOf("DISL")>0)
+            {
+                contourDescription = "DISL Isosurface";
+                if (plotData.IndexOf("extra type scalar index 1") > 0)
+                {
+                    contourDescription = "DISL Isosurface (UCS=25MPA)";
+                }else if (plotData.IndexOf("extra type scalar index 2") > 0)
+                {
+                    contourDescription = "DISL Isosurface (UCS=20MPA)";
+                }else if (plotData.IndexOf("extra type scalar index 3")>0)
+                {
+                    contourDescription = "DISL Isosurface (UCS=15MPA)";
+                }
+            }else if(plotData.IndexOf("contour extra type scalar index 1")>0)
+            {
+                contourDescription = "HORIZONTAL DISPLACEMENT IN METRES";
+            }
+
+            if(descriptionPostfix.Length>0)
+            {
+                plotDescription = contourDescription + " - " + descriptionPostfix;
+            }
+            else
+            {
+                plotDescription = contourDescription;
+            }
+
+            plotDescription = plotDescription.ToUpper();
+
+            return plotDescription;
         }
     }
 

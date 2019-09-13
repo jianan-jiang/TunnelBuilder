@@ -96,7 +96,8 @@ namespace TunnelBuilder.Models
             { Models.ProfileRole.ELineProfile,"E-Line" },
             { Models.ProfileRole.DLineProfile,"D-Line" },
             { Models.ProfileRole.CLineProfile,"C-Line" },
-            {Models.ProfileRole.ELineSurface,"E-Line Surface" }
+            {Models.ProfileRole.ELineSurface,"E-Line Surface" },
+            {Models.ProfileRole.ELineSurface,"BoltedZone" }
         };
     }
 
@@ -108,7 +109,8 @@ namespace TunnelBuilder.Models
         ELineProfile=4,
         DLineProfile=5,
         CLineProfile=6,
-        ELineSurface=7
+        ELineSurface=7,
+        BoltedZone=8
     }
 
     

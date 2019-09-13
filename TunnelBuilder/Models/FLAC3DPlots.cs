@@ -7,6 +7,8 @@ using Rhino;
 using Rhino.Geometry;
 using SuperXML;
 
+using Microsoft.Office.Interop.Excel;
+
 namespace TunnelBuilder.Models.FLAC3D
 {
     public class Camera
@@ -17,8 +19,10 @@ namespace TunnelBuilder.Models.FLAC3D
 
         public Camera(Point3d center,Point3d eye, double roll)
         {
+            Vector3d direction = eye - center;
+
             Center = center;
-            Eye = eye;
+            Eye = center + 1.0/2.0*direction;
             Roll = roll;
         }
 
@@ -114,6 +118,102 @@ namespace TunnelBuilder.Models.FLAC3D
         public override string compile()
         {
             return base.compile();
+        }
+    }
+
+    public class PlotDescriptionExcelFile
+    {
+        Application ExcelApplication;
+        Workbook Workbook;
+
+        List<PlotDescription> PlotDescriptions;
+        public Point2d OriginOffset;
+
+        public PlotDescriptionExcelFile()
+        {
+            PlotDescriptions = new List<PlotDescription>();
+            OriginOffset = new Point2d();
+        }
+
+        public bool addPlotDescription(PlotDescription plotDescription)
+        {
+            PlotDescriptions.Add(plotDescription);
+            return true;
+        }
+
+        public bool save(string folder)
+        {
+            try
+            {
+                ExcelApplication = new Application();
+                ExcelApplication.Visible = false;
+                ExcelApplication.DisplayAlerts = false;
+
+                Workbook = ExcelApplication.Workbooks.Add(Type.Missing);
+
+                var plotDescriptionSheet = (Worksheet)Workbook.ActiveSheet;
+                plotDescriptionSheet.Name = "Plots";
+
+                plotDescriptionSheet.Cells[1, 1] = "Plot Data File Name";
+                plotDescriptionSheet.Cells[1, 2] = "Description";
+                plotDescriptionSheet.Cells[1, 3] = "Section";
+
+                int rowIndex = 2;
+
+                foreach (var plotDescription in PlotDescriptions)
+                {
+                    plotDescriptionSheet.Cells[rowIndex, 1] = plotDescription.DataFileName;
+                    plotDescriptionSheet.Cells[rowIndex, 2] = plotDescription.Description;
+                    plotDescriptionSheet.Cells[rowIndex, 3] = plotDescription.Section;
+                    rowIndex = rowIndex + 1;
+                }
+
+                var runsSheet = (Worksheet)Workbook.Sheets.Add(Type.Missing, Workbook.Sheets[Workbook.Sheets.Count], Type.Missing, Type.Missing);
+                runsSheet.Name = "Runs";
+                runsSheet.Cells[1, 1] = "RunFile";
+                runsSheet.Cells[1, 2] = "Run Descritption";
+                runsSheet.Cells[1, 3] = "Attachment Ref";
+
+                var surfaceDisplacementSheet = (Worksheet)Workbook.Sheets.Add(Type.Missing, Workbook.Sheets[Workbook.Sheets.Count], Type.Missing, Type.Missing);
+                surfaceDisplacementSheet.Name = "Surface_displacement";
+                surfaceDisplacementSheet.Cells[1, 1] = "orig_x";
+                surfaceDisplacementSheet.Cells[1, 2] = OriginOffset.X;
+                surfaceDisplacementSheet.Cells[2, 1] = "orig_y";
+                surfaceDisplacementSheet.Cells[2, 2] = OriginOffset.Y;
+
+                Workbook.SaveAs(folder + "\\Plot Description.xlsx",Type.Missing,Type.Missing,Type.Missing,Type.Missing,Type.Missing,XlSaveAsAccessMode.xlNoChange,Type.Missing,Type.Missing,Type.Missing,Type.Missing,Type.Missing);
+                Workbook.Close(false);
+
+                ExcelApplication.Quit();
+            }
+            catch
+            {
+                return false;
+            }
+            
+
+            return true;
+        }
+    }
+
+    public struct PlotDescription
+    {
+        public string DataFileName;
+        public string Description;
+        public string Section;
+
+        public PlotDescription(string dataFileName, string description, string section)
+        {
+            DataFileName = dataFileName;
+            Description = description;
+            Section = section;
+        }
+
+        public PlotDescription(string dataFileName, string description)
+        {
+            DataFileName = dataFileName;
+            Description = description;
+            Section = "";
         }
     }
 }
