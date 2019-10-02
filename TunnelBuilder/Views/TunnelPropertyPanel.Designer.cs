@@ -45,12 +45,15 @@
             this.ProfileNameLabel = new System.Windows.Forms.Label();
             this.AreaUpDown = new System.Windows.Forms.NumericUpDown();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.SpanUpDownLabel = new System.Windows.Forms.Label();
+            this.SpanUpDown = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.TroughWidthParameterUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.VolumeLossUpDown)).BeginInit();
             this.SettlementsGroupBox.SuspendLayout();
             this.GeneralGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChainageAtStartUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AreaUpDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SpanUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // AreaLabel
@@ -124,7 +127,7 @@
             this.SettlementsGroupBox.Controls.Add(this.VolumeLossUpDown);
             this.SettlementsGroupBox.Controls.Add(this.VolumeLossLabel);
             this.SettlementsGroupBox.Controls.Add(this.TroughWidthParameterUpDown);
-            this.SettlementsGroupBox.Location = new System.Drawing.Point(11, 152);
+            this.SettlementsGroupBox.Location = new System.Drawing.Point(11, 195);
             this.SettlementsGroupBox.Name = "SettlementsGroupBox";
             this.SettlementsGroupBox.Size = new System.Drawing.Size(234, 126);
             this.SettlementsGroupBox.TabIndex = 6;
@@ -147,6 +150,8 @@
             // 
             this.GeneralGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.GeneralGroupBox.Controls.Add(this.SpanUpDownLabel);
+            this.GeneralGroupBox.Controls.Add(this.SpanUpDown);
             this.GeneralGroupBox.Controls.Add(this.ProfileRoleComboBox);
             this.GeneralGroupBox.Controls.Add(this.ProfileRoleLabel);
             this.GeneralGroupBox.Controls.Add(this.ChainageAtStartLabel);
@@ -157,7 +162,7 @@
             this.GeneralGroupBox.Controls.Add(this.AreaUpDown);
             this.GeneralGroupBox.Location = new System.Drawing.Point(11, 18);
             this.GeneralGroupBox.Name = "GeneralGroupBox";
-            this.GeneralGroupBox.Size = new System.Drawing.Size(234, 118);
+            this.GeneralGroupBox.Size = new System.Drawing.Size(234, 155);
             this.GeneralGroupBox.TabIndex = 7;
             this.GeneralGroupBox.TabStop = false;
             this.GeneralGroupBox.Text = "General";
@@ -196,15 +201,20 @@
             this.ChainageAtStartUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ChainageAtStartUpDown.AutoSize = true;
-            this.ChainageAtStartUpDown.DecimalPlaces = 1;
+            this.ChainageAtStartUpDown.DecimalPlaces = 3;
             this.ChainageAtStartUpDown.Location = new System.Drawing.Point(142, 94);
             this.ChainageAtStartUpDown.Maximum = new decimal(new int[] {
             10000,
             0,
             0,
             0});
+            this.ChainageAtStartUpDown.Minimum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            -2147483648});
             this.ChainageAtStartUpDown.Name = "ChainageAtStartUpDown";
-            this.ChainageAtStartUpDown.Size = new System.Drawing.Size(67, 20);
+            this.ChainageAtStartUpDown.Size = new System.Drawing.Size(77, 20);
             this.ChainageAtStartUpDown.TabIndex = 6;
             this.ChainageAtStartUpDown.ThousandsSeparator = true;
             this.ChainageAtStartUpDown.ValueChanged += new System.EventHandler(this.ChainageAtStartUpDown_ValueChanged);
@@ -251,6 +261,38 @@
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
+            // SpanUpDownLabel
+            // 
+            this.SpanUpDownLabel.AutoSize = true;
+            this.SpanUpDownLabel.Location = new System.Drawing.Point(6, 122);
+            this.SpanUpDownLabel.Name = "SpanUpDownLabel";
+            this.SpanUpDownLabel.Size = new System.Drawing.Size(32, 13);
+            this.SpanUpDownLabel.TabIndex = 11;
+            this.SpanUpDownLabel.Text = "Span";
+            // 
+            // SpanUpDown
+            // 
+            this.SpanUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.SpanUpDown.AutoSize = true;
+            this.SpanUpDown.DecimalPlaces = 3;
+            this.SpanUpDown.Location = new System.Drawing.Point(142, 122);
+            this.SpanUpDown.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.SpanUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+            this.SpanUpDown.Name = "SpanUpDown";
+            this.SpanUpDown.ReadOnly = true;
+            this.SpanUpDown.Size = new System.Drawing.Size(77, 20);
+            this.SpanUpDown.TabIndex = 10;
+            this.SpanUpDown.ThousandsSeparator = true;
+            // 
             // TunnelPropertyPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -268,6 +310,7 @@
             this.GeneralGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ChainageAtStartUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AreaUpDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SpanUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -290,5 +333,7 @@
         private System.Windows.Forms.ComboBox ProfileRoleComboBox;
         private System.Windows.Forms.Label ProfileRoleLabel;
         private System.Windows.Forms.Button UpdateSettlementGridButton;
+        private System.Windows.Forms.Label SpanUpDownLabel;
+        private System.Windows.Forms.NumericUpDown SpanUpDown;
     }
 }

@@ -22,14 +22,14 @@ namespace TunnelBuilder
         private Dictionary<String,Transform[]> TransformBuffer = new Dictionary<string, Transform[]>();
         private Dictionary<String, List<PolyCurve>> ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
         private Dictionary<String, Dictionary<string, Point3d[]>> ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
-        private Dictionary<string, List<ControlLine>> ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
-        private Dictionary<string, Dictionary<string, Dictionary<double, Curve>>> ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
+        public Dictionary<string, List<ControlLine>> ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
+        private Dictionary<string, Dictionary<string, Dictionary<double, List<Curve>>>> ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, List<Curve>>>>();
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
             TransformBuffer = new Dictionary<string, Transform[]>();
             ProfileBuffer = new Dictionary<string, List<PolyCurve>>();
             ELineEdgePointsBuffer = new Dictionary<String, Dictionary<string, Point3d[]>>();
-            ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, Curve>>>();
+            ProfileDictionary = new Dictionary<string, Dictionary<string, Dictionary<double, List<Curve>>>>();
             ControlLinesDictionary = new Dictionary<string, List<ControlLine>>();
             var dialog = new Views.LayerNameDialog(doc,"Select control line layer","");
             var dialog_rc = dialog.ShowModal();
@@ -100,10 +100,24 @@ namespace TunnelBuilder
                     List<double> chainageList = ProfileDictionary[alignment][profileRole].Keys.ToList();
                     chainageList.Sort();
                     Curve[] crossSections = new Curve[2];
+                    if(ProfileDictionary[alignment][profileRole][chainageList[0]].Count>1)
+                    {
+                        continue;
+                    }
+                    var profile1 = ProfileDictionary[alignment][profileRole][chainageList[0]][0];
+                    var profile2 = ProfileDictionary[alignment][profileRole][chainageList[0]][0];
                     for (int i = 0; i < chainageList.Count - 1; i++)
                     {
-                        var profile1 = ProfileDictionary[alignment][profileRole][chainageList[i]];
-                        var profile2 = ProfileDictionary[alignment][profileRole][chainageList[i + 1]];
+                        if (ProfileDictionary[alignment][profileRole][chainageList[i]].Count > 1)
+                        {
+                            profile1 = ProfileDictionary[alignment][profileRole][chainageList[i]][ProfileDictionary[alignment][profileRole][chainageList[i]].Count - 1];
+                        }
+                        else
+                        {
+                            profile1 = profile2;
+                        }
+                        profile2 = ProfileDictionary[alignment][profileRole][chainageList[i + 1]][0];
+
                         var cL = getControlLine(ControlLinesDictionary, alignment, chainageList[i]);
 
                         crossSections[0] = profile1;
@@ -116,6 +130,7 @@ namespace TunnelBuilder
 
                             tunnelSurfaceProperty.ProfileName = alignment;
                             tunnelSurfaceProperty.ProfileRole = Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ELineSurface];
+                            tunnelSurfaceProperty.Span = cL.Profile.GetLength();
                             breps[j].UserData.Add(tunnelSurfaceProperty);
 
                             var attributes = new Rhino.DocObjects.ObjectAttributes();
@@ -289,6 +304,8 @@ namespace TunnelBuilder
 
             tunnelProfileProperty.ProfileName = controlLineProperty.ProfileName;
             tunnelProfileProperty.ProfileRole = tunnelProfileRole;
+            tunnelProfileProperty.ChainageAtStart = chainage;
+            tunnelProfileProperty.Span = ExportTunnelSpanCommand.getSpan(doc, tunnelProfile);
             transformedTunnelProfile.UserData.Add(tunnelProfileProperty);
 
             var attributes = new Rhino.DocObjects.ObjectAttributes();
@@ -298,15 +315,20 @@ namespace TunnelBuilder
 
             if(!ProfileDictionary.ContainsKey(controlLineProperty.ProfileName))
             {
-                ProfileDictionary[controlLineProperty.ProfileName] = new Dictionary<string, Dictionary<double, Curve>>();
+                ProfileDictionary[controlLineProperty.ProfileName] = new Dictionary<string, Dictionary<double, List<Curve>>>();
             }
 
             if (!ProfileDictionary[controlLineProperty.ProfileName].ContainsKey(tunnelProfileRole))
             {
-                ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole] = new Dictionary<double, Curve>();
+                ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole] = new Dictionary<double, List<Curve>>();
             }
 
-            ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole][chainage] = transformedTunnelProfile;
+            if (!ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole].ContainsKey(chainage))
+            {
+                ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole][chainage] = new List<Curve>();
+            }
+
+            ProfileDictionary[controlLineProperty.ProfileName][tunnelProfileRole][chainage].Add(transformedTunnelProfile);
 
             return Result.Success;
         }
@@ -570,7 +592,7 @@ namespace TunnelBuilder
             
             Point3d twoDPoint = TwoDCurve.PointAtLength(offset);
             Line verticalLine = new Line(new Point3d(twoDPoint.X, twoDPoint.Y, ThreeDCurveBoundingBox.Max.Z + 10), new Point3d(twoDPoint.X, twoDPoint.Y, ThreeDCurveBoundingBox.Min.Z - 10));
-            var result = Rhino.Geometry.Intersect.Intersection.CurveLine(Profile, verticalLine, IntersectionTolerance, OverlapTolerance);
+            var result = Rhino.Geometry.Intersect.Intersection.CurveCurve(Profile, verticalLine.ToNurbsCurve(), IntersectionTolerance, OverlapTolerance);
             if(result.Count > 0)
             {
                 return result[0].PointA;

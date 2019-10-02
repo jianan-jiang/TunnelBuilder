@@ -69,10 +69,16 @@ namespace TunnelBuilder.Views
                 }   
             }
         }
+
         public double ChainageAtStart
         {
             get { return (double)ChainageAtStartUpDown.Value; }
             set { ChainageAtStartUpDown.Value = (decimal)value; }
+        }
+
+        public double Span
+        {
+            set { SpanUpDown.Value = (decimal)value; }
         }
 
         void MaximumSettlmentUpDown_ValueChanged(object sender,EventArgs e)
@@ -192,14 +198,17 @@ namespace TunnelBuilder.Views
             {
                 rhObj.Geometry.UserData.Remove(tunnelProperty);
             }
-
-            tunnelProperty = new Models.TunnelProperty();
+            else
+            {
+                tunnelProperty = new Models.TunnelProperty();
+            }
             tunnelProperty.Area = m_control.Area;
             tunnelProperty.TroughWidthParameter = m_control.TroughWidthParameter;
             tunnelProperty.VolumeLoss = m_control.VolumeLoss;
             tunnelProperty.ProfileName = m_control.ProfileName;
             tunnelProperty.ChainageAtStart = m_control.ChainageAtStart;
             tunnelProperty.ProfileRole = m_control.ProfileRole;
+
             rhObj.Geometry.UserData.Add(tunnelProperty);
         }
         public override bool ShouldDisplay(ObjectPropertiesPageEventArgs e)
@@ -229,6 +238,7 @@ namespace TunnelBuilder.Views
                     m_control.ProfileName = tunnelProperty.ProfileName;
                     m_control.ChainageAtStart = tunnelProperty.ChainageAtStart;
                     m_control.ProfileRole = tunnelProperty.ProfileRole;
+                    m_control.Span = tunnelProperty.Span;
                     m_control.TunnelPropertyUpdated += OnTunnelPropertyUpdated;
                     return true;
                 }

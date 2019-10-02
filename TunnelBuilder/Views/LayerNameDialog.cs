@@ -48,7 +48,7 @@ namespace TunnelBuilder.Views
 
             foreach (var l in doc.Layers)
             {
-                if (l.ParentLayerId == Guid.Empty)
+                if (l.ParentLayerId == Guid.Empty && !l.IsDeleted)
                 {
                     LayerTreeGridItem layerTreeGridItem = new LayerTreeGridItem(l);
                     layerNameRootItem.Children.Add(layerTreeGridItem);
@@ -61,13 +61,13 @@ namespace TunnelBuilder.Views
             layerNameTreeView.AllowMultipleSelection = false;
 
             Title = title;
-            Resizable = false;
+            Resizable = true;
             Maximizable = false;
             Minimizable = false;
             ShowInTaskbar = false;
             WindowStyle = WindowStyle.Default;
 
-            var layout = new DynamicLayout { DefaultSpacing = new Size(5, 5), Padding = Padding = new Padding(10) };
+            var layout = new DynamicLayout { DefaultSpacing = new Size(5, 5), Padding = Padding = new Padding(10)};
             layout.Add(layerNameTreeView, yscale: true);
 
             Content = layout;

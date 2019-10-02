@@ -425,6 +425,31 @@ namespace TunnelBuilder
             return sr.span;
         }
 
+        public static double getSpan(RhinoDoc doc, Curve tunnel_profile)
+        {
+            var bbox = tunnel_profile.GetBoundingBox(true);
+            var crown_z = bbox.Max[1];
+            var start_point = new Point3d(-1000, crown_z, 0);
+            var end_point = new Point3d(1000, crown_z, 0);
+
+            var intersection_tolerance = 0.001;
+            var overlap_tolerance = 0.001;
+
+            var l = new Line(start_point, end_point);
+            Rhino.Geometry.Intersect.CurveIntersections apex_events = Rhino.Geometry.Intersect.Intersection.CurveLine(tunnel_profile, l, intersection_tolerance, overlap_tolerance);
+
+            if (apex_events.Count > 0)
+            {
+                Point3d apex = apex_events[0].PointA;
+                double span = getSpan(doc, apex, tunnel_profile);
+                return span;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
         public static double getSpan(RhinoDoc doc, Point3d apex, Curve tunnel_profile)
         {
 

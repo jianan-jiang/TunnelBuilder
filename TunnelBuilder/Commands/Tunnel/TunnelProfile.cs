@@ -14,65 +14,16 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TunnelBuilder
 {
-    [System.Runtime.InteropServices.Guid("E56AAFD5-4E3F-41CF-8AC8-9EDC035EAA2C")]
-    public class ProfileTestCommand:Command
+    [Guid("8F04A035-7789-4D88-B8E8-C44C82F67690")]
+    public class GenerateProfilesFromSetoutTableCommand:Command
     {
         public override string EnglishName
-        { get { return "TestProfile"; } }
+        { get { return "GenerateProfilesFromSetoutTable"; } }
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
-            Point2d[] sp= new Point2d[10];
-            sp[0] = new Point2d(-3.3, -0.05);
-            sp[1] = new Point2d(-3.3, 4.37754);
-            sp[2] = new Point2d(-2.5, 5.25);
-            sp[3] = new Point2d(-0.668, 6.18682003);
-            sp[4] = new Point2d(-0.668, 6.18682);
-            sp[5] = new Point2d(3.2, 6.29018);
-            sp[6] = new Point2d(3.2, 6.29018003);
-            sp[7] = new Point2d(4.73837477, 5.57215);
-            sp[8] = new Point2d(5.6, 4.69);
-            sp[9] = new Point2d(5.6, 0.09);
-
-            DLineShapeParameter dsp = new DLineShapeParameter(sp);
-            DLineProfile dProfile = new DLineProfile(dsp);
-            PolyCurve dProfilePolyCurve = dProfile.GetPolyCurve();
-            doc.Objects.Add(dProfilePolyCurve);
-
-            CLineGenerationParameter cgp = new CLineGenerationParameter();
-            cgp.AngleofHaunchCircle = 60 * Math.PI / 180;
-            cgp.CrownRadiusOption = CrownRadiusOption.R1EqualToW;
-
-            CLineProfile cProfile = new CLineProfile(dsp, cgp);
-            PolyCurve cProfilePolyCurve = cProfile.GetPolyCurve();
-            doc.Objects.Add(cProfilePolyCurve);
-
-            TunnelProfileShapeParameter shapeParameter = cProfile.ShapeParameter;
-            shapeParameter.WallCLineELineOffset = 0.165;
-            shapeParameter.CrownCLineELineOffset = 0.44;
-            shapeParameter.HitchRadius = 0.65;
-            shapeParameter.HitchOffset = 0.45;
-            shapeParameter.FloorOffset = 0.5;
-
-            ELineProfile eProfile = new ELineProfile(cProfile, shapeParameter);
-            PolyCurve eProfilePolyCurve = eProfile.GetPolyCurve();
-            doc.Objects.Add(eProfilePolyCurve);
-
-            doc.Views.Redraw();
-
-            return Result.Success;
-        }
-    }
-
-    [System.Runtime.InteropServices.Guid("744E474E-0F26-4FBA-93FF-1FE906998D4E")]
-    public class GenerateProfilesCommand:Command
-    {
-        public override string EnglishName
-        { get { return "GenerateProfiles"; } }
-
-        protected override Result RunCommand(RhinoDoc doc, RunMode mode)
-        {
-            var fd = new Rhino.UI.OpenFileDialog { Filter = "Excel workbook with macro (*.xlsm)|*.xlsm| Excel workbook (*.xlsx)|*.xlsx", Title = "Open Tunnel Setout Points File", MultiSelect = false, DefaultExt = ".xlsm" };
+            RhinoApp.WriteLine("Create 3D tunnel surface from Setout Table as shown in the drawings");
+            var fd = new Rhino.UI.OpenFileDialog { Filter = "Excel workbook (*.xlsx;*.xlsm)|*.xlsx;*.xlsm", Title = "Open Tunnel Setout Points File", MultiSelect = false };
             if (!fd.ShowOpenDialog())
             {
                 return Result.Cancel;
@@ -85,15 +36,15 @@ namespace TunnelBuilder
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(fd.FileName);
             string[] sheetNames = new string[xlWorkbook.Worksheets.Count];
-            for (int i= 1;i <= xlWorkbook.Worksheets.Count;i++)
+            for (int i = 1; i <= xlWorkbook.Worksheets.Count; i++)
             {
                 Excel._Worksheet ws = xlWorkbook.Worksheets[i];
-                sheetNames[i-1] = ws.Name;
-                
+                sheetNames[i - 1] = ws.Name;
+
             }
             var sheetNameDialog = new Views.SheetNameDialog(doc, "Select the sheet that contains tunnel setout points", sheetNames);
             var rc = sheetNameDialog.ShowModal();
-            if(rc!=Result.Success)
+            if (rc != Result.Success)
             {
                 return rc;
             }
@@ -111,16 +62,22 @@ namespace TunnelBuilder
                 return Result.Failure;
             }
 
-            bool flip = false;
-            rc = RhinoGet.GetBool("Flip profiles?", false, "No", "Yes",ref flip);
-            if(rc !=Result.Success)
+            // Based on design drawing specification, the profiles should always be "flipped" due to the fact that
+            // the local coordinate system used for set-out is a "left-handed" coordinate system (see https://www.evl.uic.edu/ralph/508S98/coordinates.html)
+            // but the system that has been conventionally adopted in rhino is a "right-handed" coordiante system.
+            bool flip = true;
+
+            bool keepTwoDProfiles = false;
+            rc = RhinoGet.GetBool("Keep Two D profiles?", false, "No", "Yes", ref keepTwoDProfiles);
+            if (rc != Result.Success)
             {
                 return rc;
             }
 
             var controlLineLayer = doc.Layers.FindIndex(controlLineLayerIndex);
+            var placeTunnelProfilesCommand = new PlaceTunnelProfilesCommand();
             var controlLineDictionary = PlaceTunnelProfilesCommand.getProfileDictionaryFromLayer(controlLineLayer, doc, Models.ProfileRole.ControlLine);
-
+            placeTunnelProfilesCommand.ControlLinesDictionary = controlLineDictionary;
             Excel._Worksheet xlWorksheet = xlWorkbook.Worksheets[sheetNameDialog.selectedSheetID];
             Excel.Range xlRange = xlWorksheet.UsedRange;
 
@@ -128,102 +85,177 @@ namespace TunnelBuilder
             int colCount = xlRange.Columns.Count;
 
             object[,] values = xlRange.Value;
-#if DEBUG
-            int profileLayerIndex = UtilFunctions.AddNewLayer(doc, "Profile");
-#endif
 
-            for(int i=4;i<=rowCount;i++)
+            int profileLayerIndex = -1;
+            if (keepTwoDProfiles)
+            {
+                profileLayerIndex = UtilFunctions.AddNewLayer(doc, "Profile");
+            }
+            
+
+
+            for (int i = 2; i <= rowCount; i++)
             {
                 var val = values[i, 1];
                 //Try to get the control line name and setoutpoints
-                if (values[i,1] ==null)
+                if (values[i, 1] == null)
                 {
                     RhinoApp.WriteLine("Wrong format");
-                    return Result.Failure;
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
                 }
                 string controlLine = values[i, 1].ToString();
                 if (values[i, 2] == null)
                 {
                     RhinoApp.WriteLine("Wrong format");
-                    return Result.Failure;
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
                 }
                 double chainage = Convert.ToDouble(values[i, 2]);
 
-                Point2d[] setOutPoints = new Point2d[10];
-
-                for(int k=0;k<setOutPoints.Length;k++)
+                TunnelProfileShapeParameter shapeParameter = new TunnelProfileShapeParameter();
+                if (values[i, 3] == null)
                 {
-                    if (values[i, 19+2*k] == null)
-                    {
-                        RhinoApp.WriteLine("Wrong format");
-                        return Result.Failure;
-                    }
-                    if (values[i, 19 + 2 * k+1] == null)
-                    {
-                        RhinoApp.WriteLine("Wrong format");
-                        return Result.Failure;
-                    }
-                    double x = Convert.ToDouble(values[i, 19 + 2 * k]);
-                    double y = Convert.ToDouble(values[i, 19 + 2 * k+1]);
+                    RhinoApp.WriteLine(string.Format("B1 not found for {0} CH {1}",controlLine,chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.B1 = Convert.ToDouble(values[i, 3]);
 
-                    setOutPoints[k] = new Point2d(x, y);
+                if (values[i, 4] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("B2 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.B2 = Convert.ToDouble(values[i, 4]);
+
+                if (values[i, 5] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("B3 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.B3 = Convert.ToDouble(values[i, 5]);
+
+                if (values[i, 6] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("R1 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.R1 = Convert.ToDouble(values[i, 6]);
+
+                if (values[i, 7] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("R2 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.R2 = Convert.ToDouble(values[i, 7]);
+
+                if (values[i, 8] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("Theta 1 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.Theta1 = Convert.ToDouble(values[i, 8])*Math.PI/180;
+
+                if (values[i, 9] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("Theta 2 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.Theta2 = Convert.ToDouble(values[i, 9]) * Math.PI / 180;
+
+                if (values[i, 10] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("H1 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.H1 = Convert.ToDouble(values[i, 10]);
+
+                if (values[i, 11] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("H2 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.H2 = Convert.ToDouble(values[i, 11]);
+
+                if (values[i, 12] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("H3 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.H3 = Convert.ToDouble(values[i, 12]);
+
+                if (values[i, 13] == null)
+                {
+                    RhinoApp.WriteLine(string.Format("H4 not found for {0} CH {1}", controlLine, chainage));
+                    return returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Failure);
+                }
+                shapeParameter.H4 = Convert.ToDouble(values[i, 13]);
+
+                if (values[i, 14] != null)
+                {
+                    shapeParameter.H5 = Convert.ToDouble(values[i, 14]);
+                }
+                else
+                {
+                    RhinoApp.WriteLine(string.Format("Assuming H5={0} for {1} CH {2}",-0.525,controlLine,chainage));
+                    shapeParameter.H5 = -0.525;
+                }
+
+                if (values[i, 15] != null)
+                {
+                    shapeParameter.H6 = Convert.ToDouble(values[i, 15]);
+                }
+                else
+                {
+                    RhinoApp.WriteLine(string.Format("Assuming H6={0} for {1} CH {2}", -0.525, controlLine, chainage));
+                    shapeParameter.H6 = -0.525;
                 }
 
 
-                DLineShapeParameter dLineShapeParameter = new DLineShapeParameter(setOutPoints);
-                DLineProfile dLineProfile = new DLineProfile(dLineShapeParameter);
-                PolyCurve dLineProfilePolyCurve = dLineProfile.GetPolyCurve();
-
-                CLineGenerationParameter cgp = new CLineGenerationParameter();
-                cgp.AngleofHaunchCircle = 60 * Math.PI / 180;
-                cgp.CrownRadiusOption = CrownRadiusOption.R1EqualToW;
-
-                CLineProfile cLineProfile = new CLineProfile(dLineShapeParameter, cgp);
+                CLineProfile cLineProfile = new CLineProfile(shapeParameter);
                 PolyCurve cLineProfilePolyCurve = cLineProfile.GetPolyCurve();
-
-                TunnelProfileShapeParameter shapeParameter = cLineProfile.ShapeParameter;
-                shapeParameter.WallCLineELineOffset = 0.165;
-                shapeParameter.CrownCLineELineOffset = 0.44;
+                
+                shapeParameter.WallCLineELineOffset = 0.335;
+                shapeParameter.CrownCLineELineOffset = 0.78;
                 shapeParameter.HitchRadius = 0.65;
                 shapeParameter.HitchOffset = 0.45;
-                shapeParameter.FloorOffset = 0.5;
 
                 ELineProfile eLineProfile = new ELineProfile(cLineProfile, shapeParameter);
                 PolyCurve eLineProfilePolyCurve = eLineProfile.GetPolyCurve();
-
-                var placeTunnelProfilesCommand = new PlaceTunnelProfilesCommand();
+                
+                
 
                 var cL = placeTunnelProfilesCommand.getControlLine(controlLineDictionary, controlLine, chainage);
                 var cLProperty = cL.Profile.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
-                var transforms = placeTunnelProfilesCommand.getTranforms(cL, eLineProfilePolyCurve, chainage, controlLine,flip);
-                placeTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc,chainage);
-                placeTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc,chainage);
-                placeTunnelProfilesCommand.transformTunnelProfile(dLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.DLineProfile], doc,chainage);
-#if DEBUG
-                int profileForControlLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine, profileLayerIndex);
+                var transforms = placeTunnelProfilesCommand.getTranforms(cL, cLineProfilePolyCurve, chainage, controlLine, flip);
+                placeTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc, chainage);
+                placeTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc, chainage);
 
-                
-                int dLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "D-Line", profileForControlLineLayerIndex);
-                var attributes = new Rhino.DocObjects.ObjectAttributes();
-                attributes.LayerIndex = dLineLayerIndex;
+                if(keepTwoDProfiles)
+                {
+                    int profileForControlLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine, profileLayerIndex);
 
-                doc.Objects.AddCurve(dLineProfilePolyCurve, attributes);
+                    int cLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "C-Line", profileForControlLineLayerIndex);
+                    var attributes = new Rhino.DocObjects.ObjectAttributes();
+                    attributes.LayerIndex = cLineLayerIndex;
+                    doc.Objects.AddCurve(cLineProfilePolyCurve, attributes);
 
-                int cLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "C-Line", profileForControlLineLayerIndex);
-                attributes = new Rhino.DocObjects.ObjectAttributes();
-                attributes.LayerIndex = cLineLayerIndex;
-                doc.Objects.AddCurve(cLineProfilePolyCurve, attributes);
-
-                int eLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "E-Line", profileForControlLineLayerIndex);
-                attributes = new Rhino.DocObjects.ObjectAttributes();
-                attributes.LayerIndex = eLineLayerIndex;
-                doc.Objects.AddCurve(eLineProfilePolyCurve, attributes);
-                
-#endif
-
-
+                    int eLineLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "E-Line", profileForControlLineLayerIndex);
+                    attributes = new Rhino.DocObjects.ObjectAttributes();
+                    attributes.LayerIndex = eLineLayerIndex;
+                    doc.Objects.AddCurve(eLineProfilePolyCurve, attributes);
+                }
             }
 
+            placeTunnelProfilesCommand.createSweep(doc);
+
+            returnResult(xlApp, xlWorkbook, xlWorksheet, xlRange, Result.Success);
+
+            doc.Views.Redraw();
+
+            return Result.Success;
+        }
+
+        private Result returnResult(Excel.Application xlApp, Excel.Workbook xlWorkbook, Excel._Worksheet xlWorksheet, Excel.Range xlRange, Result result)
+        {
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
@@ -235,11 +267,12 @@ namespace TunnelBuilder
 
             xlApp.Quit();
             Marshal.ReleaseComObject(xlApp);
-
-            doc.Views.Redraw();
-            return Result.Success;
+            return result;
         }
+
     }
+
+
 
     public abstract class TunnelProfile
     {
@@ -301,33 +334,34 @@ namespace TunnelBuilder
         {
             ShapeParameter = shapeParameter;
             CrownRadius = ShapeParameter.R1 + ShapeParameter.CrownCLineELineOffset;
-            AngleOfFloor = Math.Atan(Math.Abs((cLineProfile.SetoutPoints[8].Y - cLineProfile.SetoutPoints[7].Y) / (cLineProfile.SetoutPoints[8].X - cLineProfile.SetoutPoints[7].X)));
+            ShapeParameter.R3 = CrownRadius;
+            AngleOfFloor = Math.Atan(((cLineProfile.SetoutPoints[5].Y - cLineProfile.SetoutPoints[0].Y) / (cLineProfile.SetoutPoints[5].X - cLineProfile.SetoutPoints[0].X)));
 
             SetoutPoints = new Point2d[11];
 
             //Main Arc Center
-            SetoutPoints[10].X = cLineProfile.SetoutPoints[6].X;
-            SetoutPoints[10].Y = cLineProfile.SetoutPoints[6].Y;
+            SetoutPoints[10].X = cLineProfile.SetoutPoints[8].X;
+            SetoutPoints[10].Y = cLineProfile.SetoutPoints[8].Y;
 
             //Left Side
-            SetoutPoints[1].X = cLineProfile.SetoutPoints[7].X - ShapeParameter.WallCLineELineOffset;
+            SetoutPoints[1].X = cLineProfile.SetoutPoints[0].X - ShapeParameter.WallCLineELineOffset;
 
             SetoutPoints[2].X = SetoutPoints[1].X - ShapeParameter.HitchOffset;
 
             SetoutPoints[8].X = SetoutPoints[2].X + ShapeParameter.HitchRadius;
-            SetoutPoints[8].Y = cLineProfile.SetoutPoints[6].Y + Math.Sqrt(Math.Pow(CrownRadius - ShapeParameter.HitchRadius, 2) - Math.Pow(cLineProfile.SetoutPoints[6].X - SetoutPoints[8].X, 2));
+            SetoutPoints[8].Y = cLineProfile.SetoutPoints[8].Y + Math.Sqrt(Math.Pow(CrownRadius - ShapeParameter.HitchRadius, 2) - Math.Pow(cLineProfile.SetoutPoints[8].X - SetoutPoints[8].X, 2));
             SetoutPoints[2].Y = SetoutPoints[8].Y;
 
-            SetoutPoints[3].X = (CrownRadius * SetoutPoints[8].X - ShapeParameter.HitchRadius * cLineProfile.SetoutPoints[6].X) / (CrownRadius - ShapeParameter.HitchRadius);
-            SetoutPoints[3].Y = cLineProfile.SetoutPoints[6].Y + Math.Sqrt(Math.Pow(CrownRadius,2) - Math.Pow(cLineProfile.SetoutPoints[6].X-SetoutPoints[3].X,2));
+            SetoutPoints[3].X = (CrownRadius * SetoutPoints[8].X - ShapeParameter.HitchRadius * cLineProfile.SetoutPoints[8].X) / (CrownRadius - ShapeParameter.HitchRadius);
+            SetoutPoints[3].Y = cLineProfile.SetoutPoints[8].Y + Math.Sqrt(Math.Pow(CrownRadius,2) - Math.Pow(cLineProfile.SetoutPoints[8].X-SetoutPoints[3].X,2));
 
             SetoutPoints[1].Y = SetoutPoints[8].Y - Math.Sqrt(Math.Pow(shapeParameter.HitchRadius,2) - Math.Pow(SetoutPoints[1].X-SetoutPoints[8].X,2));
 
             SetoutPoints[0].X = SetoutPoints[1].X;
-            SetoutPoints[0].Y = cLineProfile.SetoutPoints[7].Y - ShapeParameter.FloorOffset + ShapeParameter.WallCLineELineOffset * Math.Tan(AngleOfFloor);
+            SetoutPoints[0].Y = cLineProfile.SetoutPoints[0].Y - ShapeParameter.WallCLineELineOffset * Math.Tan(AngleOfFloor);
 
             //Right Side
-            SetoutPoints[6].X = cLineProfile.SetoutPoints[8].X + ShapeParameter.WallCLineELineOffset;
+            SetoutPoints[6].X = cLineProfile.SetoutPoints[5].X + ShapeParameter.WallCLineELineOffset;
             SetoutPoints[6].Y = SetoutPoints[1].Y;
 
             SetoutPoints[5].X = SetoutPoints[6].X + ShapeParameter.HitchOffset;
@@ -337,11 +371,11 @@ namespace TunnelBuilder
             SetoutPoints[9].Y = SetoutPoints[8].Y;
             SetoutPoints[5].Y = SetoutPoints[9].Y;
 
-            SetoutPoints[4].X = (CrownRadius * SetoutPoints[9].X - ShapeParameter.HitchRadius * cLineProfile.SetoutPoints[6].X) / (CrownRadius - ShapeParameter.HitchRadius);
+            SetoutPoints[4].X = (CrownRadius * SetoutPoints[9].X - ShapeParameter.HitchRadius * cLineProfile.SetoutPoints[8].X) / (CrownRadius - ShapeParameter.HitchRadius);
             SetoutPoints[4].Y = SetoutPoints[3].Y;
 
             SetoutPoints[7].X = SetoutPoints[6].X;
-            SetoutPoints[7].Y = cLineProfile.SetoutPoints[8].Y - ShapeParameter.FloorOffset + ShapeParameter.WallCLineELineOffset * Math.Tan(AngleOfFloor);
+            SetoutPoints[7].Y = cLineProfile.SetoutPoints[5].Y +ShapeParameter.WallCLineELineOffset * Math.Tan(AngleOfFloor);
         }
 
     }
@@ -359,161 +393,97 @@ namespace TunnelBuilder
         {
             Profile = new PolyCurve();
 
-            Line rightCWall = new Line(new Point3d(SetoutPoints[8].X, SetoutPoints[8].Y, 0), new Point3d(SetoutPoints[3].X,SetoutPoints[3].Y,0));
+            Line rightCWall = new Line(new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0), new Point3d(SetoutPoints[4].X,SetoutPoints[4].Y,0));
             Profile.Append(rightCWall);
 
-            double rightArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[5].X - SetoutPoints[3].X) / ShapeParameter.R2));
-            double rightArcEndAngle = Math.Acos(Math.Abs((SetoutPoints[5].X - SetoutPoints[2].X) / ShapeParameter.R2));
+            double rightArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[4].X) / ShapeParameter.R2));
+            double rightArcEndAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[3].X) / ShapeParameter.R2));
             Interval rightArcInterval = new Interval(rightArcStartAngle, rightArcEndAngle);
-            Circle rightCircle = new Circle(new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0), ShapeParameter.R2);
+            Circle rightCircle = new Circle(new Point3d(SetoutPoints[7].X, SetoutPoints[7].Y, 0), ShapeParameter.R2);
             Arc rightArc = new Arc(rightCircle, rightArcInterval);
             Profile.Append(rightArc);
 
-            double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[2].X) / ShapeParameter.R1));
-            double mainArcEndAngle = Math.PI-Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[1].X) / ShapeParameter.R1));
+            double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[3].X) / ShapeParameter.R1));
+            double mainArcEndAngle = Math.PI-Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[2].X) / ShapeParameter.R1));
             Interval mainArcInterval = new Interval(mainArcStartAngle, mainArcEndAngle);
-            Circle mainCircle = new Circle(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), ShapeParameter.R1);
+            Circle mainCircle = new Circle(new Point3d(SetoutPoints[8].X, SetoutPoints[8].Y, 0), ShapeParameter.R1);
             Arc mainArc = new Arc(mainCircle, mainArcInterval);
             Profile.Append(mainArc);
 
-            double leftArcStartAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[4].X - SetoutPoints[1].X) / ShapeParameter.R2));
-            double leftArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[4].X - SetoutPoints[0].X) / ShapeParameter.R2));
+            double leftArcStartAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[2].X) / ShapeParameter.R2));
+            double leftArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[1].X) / ShapeParameter.R2));
             Interval leftArcInterval = new Interval(leftArcStartAngle, leftArcEndAngle);
-            Circle leftCircle = new Circle(new Point3d(SetoutPoints[4].X, SetoutPoints[4].Y, 0), ShapeParameter.R2);
+            Circle leftCircle = new Circle(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), ShapeParameter.R2);
             Arc leftArc = new Arc(leftCircle, leftArcInterval);
             Profile.Append(leftArc);
 
-            Line leftCWall = new Line(new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0), new Point3d(SetoutPoints[7].X, SetoutPoints[7].Y, 0));
+            Line leftCWall = new Line(new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0), new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0));
             Profile.Append(leftCWall);
 
-            Line Invert = new Line(new Point3d(SetoutPoints[7].X, SetoutPoints[7].Y, 0), new Point3d(SetoutPoints[8].X, SetoutPoints[8].Y, 0));
+            Line Invert = new Line(new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0), new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0));
             Profile.Append(Invert);
 
             return Profile;
         }
 
-        public CLineProfile(DLineShapeParameter sp, CLineGenerationParameter gp)
+        public CLineProfile(TunnelProfileShapeParameter tunnelProfileShapeParameter)
         {
-            ShapeParameter = new TunnelProfileShapeParameter();
-            ShapeParameter.B1 = sp.getB1();
-            switch (gp.CrownRadiusOption)
-            {
-                case CrownRadiusOption.R1EqualToW:
-                    ShapeParameter.R1 = Math.Round(ShapeParameter.B1 * 10, MidpointRounding.AwayFromZero) / 10;
-                    break;
-                case CrownRadiusOption.R1EqualToWPlusTwo:
-                    ShapeParameter.R1 = Math.Round((ShapeParameter.B1 +2)* 2, MidpointRounding.AwayFromZero) / 2;
-                    break;
-                case CrownRadiusOption.R1EqualToWRounded:
-                    ShapeParameter.R1 = Math.Round(ShapeParameter.B1*2,MidpointRounding.AwayFromZero)/2;
-                    break;
-                default:
-                    throw new ArgumentException();
-            }
-            ShapeParameter.R2 = Math.Round(ShapeParameter.R1/4 * 10, MidpointRounding.AwayFromZero) / 10;
-            calculateSetOutPoints(sp,gp);
-
+            ShapeParameter = tunnelProfileShapeParameter;
+            calculateSetoutPointsFromTunnelProfileShapeParameter();
         }
 
-        private void calculateSetOutPoints(DLineShapeParameter sp, CLineGenerationParameter gp)
+        private void calculateSetoutPointsFromTunnelProfileShapeParameter()
         {
             SetoutPoints = new Point2d[9];
-            //Xc7
-            SetoutPoints[6] = new Point2d();
-            SetoutPoints[6].X = 0.5 * (sp.SetoutPoints[9].X + sp.SetoutPoints[0].X);
-            //Xc5
-            SetoutPoints[4] = new Point2d();
-            SetoutPoints[4].X = sp.SetoutPoints[0].X + ShapeParameter.R2 * Math.Sin(gp.AngleofHaunchCircle);
-            //Xc6
-            SetoutPoints[5] = new Point2d();
-            SetoutPoints[5].X = sp.SetoutPoints[9].X - ShapeParameter.R2 * Math.Sin(gp.AngleofHaunchCircle);
-            //Xc2
+
+            var Theta3 = Math.Atan((ShapeParameter.H2 - ShapeParameter.H3) / (0.5 * ShapeParameter.B1 - ShapeParameter.B3));
+
+            //C1
+            SetoutPoints[0] = new Point2d();
+            SetoutPoints[0].X = -ShapeParameter.B2 - 0.5 * ShapeParameter.B1;
+            SetoutPoints[0].Y = ShapeParameter.H6;
+
+            //C2
             SetoutPoints[1] = new Point2d();
-            SetoutPoints[1].X = (ShapeParameter.R1 * SetoutPoints[4].X - ShapeParameter.R2 * SetoutPoints[6].X) / (ShapeParameter.R1 - ShapeParameter.R2);
-            //Xc3
+            SetoutPoints[1].X = -ShapeParameter.B2 - 0.5 * ShapeParameter.B1;
+            SetoutPoints[1].Y = -ShapeParameter.H4 + ShapeParameter.H2;
+
+            //C3
             SetoutPoints[2] = new Point2d();
-            SetoutPoints[2].X = (ShapeParameter.R1 * SetoutPoints[5].X - ShapeParameter.R2 * SetoutPoints[6].X) / (ShapeParameter.R1 - ShapeParameter.R2);
-            //Xc1
-            SetoutPoints[0].X = sp.SetoutPoints[0].X;
-            //Xc4
-            SetoutPoints[3].X = sp.SetoutPoints[9].X;
+            SetoutPoints[2].X = -ShapeParameter.B2 - ShapeParameter.B3 - ShapeParameter.R2 * Math.Cos(ShapeParameter.Theta2 + Theta3);
+            SetoutPoints[2].Y = -ShapeParameter.H4 + ShapeParameter.H3 + ShapeParameter.R2 * Math.Sin(ShapeParameter.Theta2 + Theta3);
 
+            //C4
+            SetoutPoints[3] = new Point2d();
+            SetoutPoints[3].X = -ShapeParameter.B2 + ShapeParameter.B3 + ShapeParameter.R2 * Math.Cos(ShapeParameter.Theta2 + Theta3);
+            SetoutPoints[3].Y = -ShapeParameter.H4 + ShapeParameter.H3 + ShapeParameter.R2 * Math.Sin(ShapeParameter.Theta2 + Theta3);
 
-            //Yc7
-            SetoutPoints[6].Y = getYc7(sp);
-            //Yc5
-            SetoutPoints[4].Y = SetoutPoints[6].Y + Math.Sqrt(Math.Pow(ShapeParameter.R1 - ShapeParameter.R2, 2) - Math.Pow(SetoutPoints[6].X - SetoutPoints[4].X, 2));
-            //Yc1
-            SetoutPoints[0].Y = SetoutPoints[4].Y + Math.Sqrt(Math.Pow(ShapeParameter.R2, 2) - Math.Pow(SetoutPoints[4].X - sp.SetoutPoints[0].X, 2));
-            //Yc2
-            SetoutPoints[1].Y = SetoutPoints[6].Y + Math.Sqrt(Math.Pow(ShapeParameter.R1, 2) - Math.Pow(SetoutPoints[6].X - SetoutPoints[1].X, 2));
-            //Yc6
-            SetoutPoints[5].Y = SetoutPoints[4].Y;
-            //Yc4
-            SetoutPoints[3].Y = SetoutPoints[0].Y;
-            //Yc3
-            SetoutPoints[2].Y = SetoutPoints[1].Y;
+            //C5
+            SetoutPoints[4] = new Point2d();
+            SetoutPoints[4].X = -ShapeParameter.B2 + 0.5 * ShapeParameter.B1;
+            SetoutPoints[4].Y = -ShapeParameter.H4 + ShapeParameter.H2;
 
-            //Xc8 and Yc8
+            //C6
+            SetoutPoints[5] = new Point2d();
+            SetoutPoints[5].X = -ShapeParameter.B2 + 0.5 * ShapeParameter.B1;
+            SetoutPoints[5].Y = ShapeParameter.H5;
+
+            //C7
+            SetoutPoints[6] = new Point2d();
+            SetoutPoints[6].X = -ShapeParameter.B2 - ShapeParameter.B3;
+            SetoutPoints[6].Y = -ShapeParameter.H4 + ShapeParameter.H3;
+
+            //C8
             SetoutPoints[7] = new Point2d();
-            SetoutPoints[7].X = sp.SetoutPoints[0].X;
-            SetoutPoints[7].Y = sp.SetoutPoints[0].Y;
+            SetoutPoints[7].X = -ShapeParameter.B2 + ShapeParameter.B3;
+            SetoutPoints[7].Y = -ShapeParameter.H4 + ShapeParameter.H3;
 
-            //Xc9 and Yc9
+            //C9
             SetoutPoints[8] = new Point2d();
-            SetoutPoints[8].X = sp.SetoutPoints[9].X;
-            SetoutPoints[8].Y = sp.SetoutPoints[9].Y;
-
+            SetoutPoints[8].X = -ShapeParameter.B2;
+            SetoutPoints[8].Y = -ShapeParameter.H4;
         }
 
-        private double getYc7(DLineShapeParameter sp)
-        {
-            double max = Yc7(sp.SetoutPoints[1]);
-            for(int i=2;i<sp.SetoutPoints.Length-1;i++)
-            {
-                double y = Yc7(sp.SetoutPoints[i]);
-                if(y>max)
-                {
-                    max = y;
-                }
-            }
-            return max;
-        }
-
-        private double Yc5(Point2d point)
-        {
-            if(point.X<SetoutPoints[1].X)
-            {
-                return point.Y - Math.Sqrt(Math.Pow(ShapeParameter.R2, 2) - Math.Pow(SetoutPoints[4].X - point.X, 2));
-            }
-            return Double.NaN;
-        }
-
-        private double Yc6(Point2d point)
-        {
-            if(point.X>=SetoutPoints[2].X)
-            {
-                return point.Y - Math.Sqrt(Math.Pow(ShapeParameter.R2,2) - Math.Pow(point.X - SetoutPoints[5].X, 2));
-            }
-            return Double.NaN;
-        }
-
-        private double Yc7(Point2d point)
-        {
-            if(point.X>SetoutPoints[1].X && point.X<SetoutPoints[2].X)
-            {
-                return point.Y - Math.Sqrt(Math.Pow(ShapeParameter.R1, 2) - Math.Pow(SetoutPoints[6].X - point.X, 2));
-            }
-            if(point.X<SetoutPoints[1].X)
-            {
-                return Yc5(point) - Math.Sqrt(Math.Pow(ShapeParameter.R1 - ShapeParameter.R2, 2) - Math.Pow(SetoutPoints[6].X - SetoutPoints[4].X, 2));
-            }
-            if(point.X>=SetoutPoints[2].X)
-            {
-                return Yc6(point) - Math.Sqrt(Math.Pow(ShapeParameter.R1 - ShapeParameter.R2, 2) - Math.Pow(SetoutPoints[5].X-SetoutPoints[6].X, 2));
-            }
-            return Double.NaN;
-        }
     }
 
     class DLineProfile:TunnelProfile
@@ -568,6 +538,13 @@ namespace TunnelBuilder
         public double H2;
         public double H3;
         public double H4;
+        // Parameters below are not officially present in the drawing
+        // H5 and H6 are used to define profiles below control level
+        public double H5;
+        public double H6;
+        public double Theta3;
+        public double R3;
+        public double R4;
 
         public double WallCLineELineOffset;
         public double CrownCLineELineOffset;

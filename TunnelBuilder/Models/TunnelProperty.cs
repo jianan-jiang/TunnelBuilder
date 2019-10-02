@@ -16,6 +16,7 @@ namespace TunnelBuilder.Models
 
         public string ProfileName { get; set; }
         public double ChainageAtStart { get; set; }
+        public double Span { get; set; }
 
         public string ProfileRole { get; set; }
 
@@ -35,7 +36,7 @@ namespace TunnelBuilder.Models
 
         public override string ToString()
         {
-            return string.Format("Tunnel Area: {0}m2, Trough Width Parameter {1}, Volume Loss {2}, Profile {3}, Chainage at start {4}, Profile Role {5}", Area, TroughWidthParameter, VolumeLoss, ProfileName, ChainageAtStart,ProfileRole);
+            return string.Format("Tunnel Area: {0}m2, Trough Width Parameter {1}, Volume Loss {2}, Profile {3}, Chainage at start {4}, Profile Role {5}, Span {6}m", Area, TroughWidthParameter, VolumeLoss, ProfileName, ChainageAtStart,ProfileRole,Span);
         }
 
         protected override void OnDuplicate(Rhino.DocObjects.Custom.UserData source)
@@ -49,6 +50,7 @@ namespace TunnelBuilder.Models
                 ProfileName = src.ProfileName;
                 ChainageAtStart = src.ChainageAtStart;
                 ProfileRole = src.ProfileRole;
+                Span = src.Span;
             }
         }
 
@@ -72,18 +74,23 @@ namespace TunnelBuilder.Models
                 ChainageAtStart = (double)dict["ChainageAtStart"];
                 ProfileRole = (string)dict["ProfileRole"];
             }
+            if(dict.ContainsKey("Span"))
+            {
+                Span = (double)dict["Span"];
+            }
             return true;
         }
 
         protected override bool Write(BinaryArchiveWriter archive)
         {
-            var dict = new Rhino.Collections.ArchivableDictionary(3, "TunnelProperty");
+            var dict = new Rhino.Collections.ArchivableDictionary(4, "TunnelProperty");
             dict.Set("Area", Area);
             dict.Set("TroughWidthParameter", TroughWidthParameter);
             dict.Set("VolumeLoss", VolumeLoss);
             dict.Set("ProfileName", ProfileName);
             dict.Set("ChainageAtStart", ChainageAtStart);
             dict.Set("ProfileRole", ProfileRole);
+            dict.Set("Span", Span);
             archive.WriteDictionary(dict);
             return true;
         }
@@ -99,6 +106,7 @@ namespace TunnelBuilder.Models
             {Models.ProfileRole.ELineSurface,"E-Line Surface" },
             {Models.ProfileRole.BoltedZone,"BoltedZone" }
         };
+
     }
 
     public enum ProfileRole
@@ -139,6 +147,7 @@ namespace TunnelBuilder
                 string ProfileName = "";
                 double ChainageAtStart = 0;
                 string ProfileRole = "";
+                double Span = 0;
                 rc = Rhino.Input.RhinoGet.GetNumber("Tunnel Area", false, ref Area);
                 if (rc != Result.Success)
                     return rc;
@@ -157,6 +166,9 @@ namespace TunnelBuilder
                 rc = Rhino.Input.RhinoGet.GetString("Profile Role", false, ref ProfileRole);
                 if (rc != Result.Success)
                     return rc;
+                rc = Rhino.Input.RhinoGet.GetNumber("Span", false, ref Span);
+                if (rc != Result.Success)
+                    return rc;
                 tunnelProperty = new Models.TunnelProperty();
                 tunnelProperty.Area = Area;
                 tunnelProperty.TroughWidthParameter = TroughWidthParameter;
@@ -164,11 +176,12 @@ namespace TunnelBuilder
                 tunnelProperty.ProfileName = ProfileName;
                 tunnelProperty.ChainageAtStart = ChainageAtStart;
                 tunnelProperty.ProfileRole = ProfileRole;
+                tunnelProperty.Span = Span;
                 objref.Geometry().UserData.Add(tunnelProperty);
             }
             else
             {
-                string output = string.Format("Tunnel Area: {0}m2, Trough Width Parameter {1}, Volume Loss {2}, Profile {3}, Chainage at start {4}", tunnelProperty.Area, tunnelProperty.TroughWidthParameter, tunnelProperty.VolumeLoss, tunnelProperty.ProfileName, tunnelProperty.ChainageAtStart);
+                string output = string.Format("Tunnel Area: {0}m2, Trough Width Parameter {1}, Volume Loss {2}, Profile {3}, Chainage at start {4}, Profile Role {5}, Span {6}m", tunnelProperty.Area, tunnelProperty.TroughWidthParameter, tunnelProperty.VolumeLoss, tunnelProperty.ProfileName, tunnelProperty.ChainageAtStart, tunnelProperty.ProfileRole,tunnelProperty.Span);
                 RhinoApp.WriteLine(output);
             }
             return Result.Success;
