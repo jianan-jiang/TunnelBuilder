@@ -197,7 +197,7 @@ namespace TunnelBuilder.Views
         void OnTunnelPropertyUpdated(object sender,EventArgs e)
         {
             var tunnelProperty = rhObj.Geometry.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
-            if (tunnelProperty == null)
+            if (tunnelProperty != null)
             {
                 rhObj.Geometry.UserData.Remove(tunnelProperty);
             }
@@ -218,6 +218,7 @@ namespace TunnelBuilder.Views
         {
             
             var objCount = e.ObjectCount;
+            m_control.TunnelPropertyUpdated -= OnTunnelPropertyUpdated;
             if (objCount == 1){
                 rhObj = e.Objects[0];
                 var tunnelProperty = rhObj.Geometry.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
@@ -242,6 +243,7 @@ namespace TunnelBuilder.Views
                     m_control.ChainageAtStart = tunnelProperty.ChainageAtStart;
                     m_control.ProfileRole = tunnelProperty.ProfileRole;
                     m_control.Span = tunnelProperty.Span;
+                    m_control.TunnelPropertyUpdated += OnTunnelPropertyUpdated;
                     return true;
                 }
             }
