@@ -108,14 +108,17 @@ namespace TunnelBuilder.Views
 
         void ProfileRoleComboBox_ValueChanged(object sender, EventArgs e)
         {
-            if(ProfileRole!="Control Line")
+            if(ProfileRole!= TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ControlLine])
             {
+                ChainageAtStartLabel.Text = "Chainage";
                 SettlementsGroupBox.Hide();
             }
             else
             {
+                ChainageAtStartLabel.Text = "Chainage at start";
                 SettlementsGroupBox.Show();
             }
+
             OnTunnelPropertyUpdated(e);
         }
 
@@ -194,7 +197,7 @@ namespace TunnelBuilder.Views
         void OnTunnelPropertyUpdated(object sender,EventArgs e)
         {
             var tunnelProperty = rhObj.Geometry.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
-            if (tunnelProperty != null)
+            if (tunnelProperty == null)
             {
                 rhObj.Geometry.UserData.Remove(tunnelProperty);
             }
@@ -239,12 +242,12 @@ namespace TunnelBuilder.Views
                     m_control.ChainageAtStart = tunnelProperty.ChainageAtStart;
                     m_control.ProfileRole = tunnelProperty.ProfileRole;
                     m_control.Span = tunnelProperty.Span;
-                    m_control.TunnelPropertyUpdated += OnTunnelPropertyUpdated;
                     return true;
                 }
             }
             else
             {
+
                 return false;
             }
             
