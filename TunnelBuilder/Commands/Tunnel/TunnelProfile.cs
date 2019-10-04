@@ -9,6 +9,7 @@ using Rhino.Input;
 using Rhino.Geometry;
 using Rhino.Commands;
 using TunnelBuilder.Models;
+using TunnelBuilder.Views;
 
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -62,17 +63,33 @@ namespace TunnelBuilder
                 return Result.Failure;
             }
 
+            GenerateTunnelProfilesDialog generateTunnelProfilesDialog = new GenerateTunnelProfilesDialog(doc);
+            generateTunnelProfilesDialog.WallCLineELineOffset = 0.335;
+            generateTunnelProfilesDialog.CrownCLineELineOffset = 0.78;
+            generateTunnelProfilesDialog.HitchRadius = 0.65;
+            generateTunnelProfilesDialog.HitchOffset = 0.45;
+            generateTunnelProfilesDialog.includeHitch = true;
+            generateTunnelProfilesDialog.KeepTwoDProfiles = false;
+            generateTunnelProfilesDialog.FlipProfiles = true;
+
+            var dialog_rc = generateTunnelProfilesDialog.ShowModal();
+            if (dialog_rc != Result.Success)
+            {
+                return dialog_rc;
+            }
+
+            var WallCLineELineOffset = generateTunnelProfilesDialog.WallCLineELineOffset;
+            var CrownCLineELineOffset = generateTunnelProfilesDialog.CrownCLineELineOffset;
+            var includeHitch = generateTunnelProfilesDialog.includeHitch;
+            var HitchRadius = generateTunnelProfilesDialog.HitchRadius;
+            var HitchOffset = generateTunnelProfilesDialog.HitchOffset;
+            var keepTwoDProfiles = generateTunnelProfilesDialog.KeepTwoDProfiles;
+
+
             // Based on design drawing specification, the profiles should always be "flipped" due to the fact that
             // the local coordinate system used for set-out is a "left-handed" coordinate system (see https://www.evl.uic.edu/ralph/508S98/coordinates.html)
             // but the system that has been conventionally adopted in rhino is a "right-handed" coordiante system.
-            bool flip = true;
-
-            bool keepTwoDProfiles = false;
-            rc = RhinoGet.GetBool("Keep Two D profiles?", false, "No", "Yes", ref keepTwoDProfiles);
-            if (rc != Result.Success)
-            {
-                return rc;
-            }
+            bool flip = generateTunnelProfilesDialog.FlipProfiles;
 
             var controlLineLayer = doc.Layers.FindIndex(controlLineLayerIndex);
             var placeTunnelProfilesCommand = new PlaceTunnelProfilesCommand();
@@ -212,11 +229,11 @@ namespace TunnelBuilder
 
                 CLineProfile cLineProfile = new CLineProfile(shapeParameter);
                 PolyCurve cLineProfilePolyCurve = cLineProfile.GetPolyCurve();
-                
-                shapeParameter.WallCLineELineOffset = 0.335;
-                shapeParameter.CrownCLineELineOffset = 0.78;
-                shapeParameter.HitchRadius = 0.65;
-                shapeParameter.HitchOffset = 0.45;
+
+                shapeParameter.WallCLineELineOffset = WallCLineELineOffset;
+                shapeParameter.CrownCLineELineOffset = CrownCLineELineOffset;
+                shapeParameter.HitchRadius = HitchRadius;
+                shapeParameter.HitchOffset = HitchOffset;
 
                 ELineProfile eLineProfile = new ELineProfile(cLineProfile, shapeParameter);
                 PolyCurve eLineProfilePolyCurve = eLineProfile.GetPolyCurve();
@@ -309,7 +326,11 @@ namespace TunnelBuilder
             Profile.Append(rightEWall);
 
             Arc rightHitch = new Arc(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0), new Point3d(SetoutPoints[4].X, SetoutPoints[4].Y, 0));
-            Profile.Append(rightHitch);
+            if (rightHitch.Length > 0)
+            {
+                Profile.Append(rightHitch);
+            }
+            
 
             double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[10].X - SetoutPoints[4].X) / CrownRadius));
             double mainArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[10].X - SetoutPoints[3].X) / CrownRadius));
@@ -319,7 +340,11 @@ namespace TunnelBuilder
             Profile.Append(mainArc);
 
             Arc leftHitch = new Arc(new Point3d(SetoutPoints[3].X, SetoutPoints[3].Y, 0), new Point3d(SetoutPoints[2].X, SetoutPoints[2].Y, 0), new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0));
-            Profile.Append(leftHitch);
+            if(leftHitch.Length>0)
+            {
+                Profile.Append(leftHitch);
+            }
+            
 
             Line leftEWall = new Line(new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0), new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0));
             Profile.Append(leftEWall);
@@ -396,26 +421,35 @@ namespace TunnelBuilder
             Line rightCWall = new Line(new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0), new Point3d(SetoutPoints[4].X,SetoutPoints[4].Y,0));
             Profile.Append(rightCWall);
 
-            double rightArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[4].X) / ShapeParameter.R2));
-            double rightArcEndAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[3].X) / ShapeParameter.R2));
-            Interval rightArcInterval = new Interval(rightArcStartAngle, rightArcEndAngle);
-            Circle rightCircle = new Circle(new Point3d(SetoutPoints[7].X, SetoutPoints[7].Y, 0), ShapeParameter.R2);
-            Arc rightArc = new Arc(rightCircle, rightArcInterval);
-            Profile.Append(rightArc);
-
-            double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[3].X) / ShapeParameter.R1));
-            double mainArcEndAngle = Math.PI-Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[2].X) / ShapeParameter.R1));
-            Interval mainArcInterval = new Interval(mainArcStartAngle, mainArcEndAngle);
-            Circle mainCircle = new Circle(new Point3d(SetoutPoints[8].X, SetoutPoints[8].Y, 0), ShapeParameter.R1);
-            Arc mainArc = new Arc(mainCircle, mainArcInterval);
-            Profile.Append(mainArc);
-
-            double leftArcStartAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[2].X) / ShapeParameter.R2));
-            double leftArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[1].X) / ShapeParameter.R2));
-            Interval leftArcInterval = new Interval(leftArcStartAngle, leftArcEndAngle);
-            Circle leftCircle = new Circle(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), ShapeParameter.R2);
-            Arc leftArc = new Arc(leftCircle, leftArcInterval);
-            Profile.Append(leftArc);
+            if(ShapeParameter.R2>0)
+            {
+                double rightArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[4].X) / ShapeParameter.R2));
+                double rightArcEndAngle = Math.Acos(Math.Abs((SetoutPoints[7].X - SetoutPoints[3].X) / ShapeParameter.R2));
+                Interval rightArcInterval = new Interval(rightArcStartAngle, rightArcEndAngle);
+                Circle rightCircle = new Circle(new Point3d(SetoutPoints[7].X, SetoutPoints[7].Y, 0), ShapeParameter.R2);
+                Arc rightArc = new Arc(rightCircle, rightArcInterval);
+                Profile.Append(rightArc);
+            }
+            
+            if(ShapeParameter.R1>0)
+            {
+                double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[3].X) / ShapeParameter.R1));
+                double mainArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[8].X - SetoutPoints[2].X) / ShapeParameter.R1));
+                Interval mainArcInterval = new Interval(mainArcStartAngle, mainArcEndAngle);
+                Circle mainCircle = new Circle(new Point3d(SetoutPoints[8].X, SetoutPoints[8].Y, 0), ShapeParameter.R1);
+                Arc mainArc = new Arc(mainCircle, mainArcInterval);
+                Profile.Append(mainArc);
+            }
+            
+            if(ShapeParameter.R2>0)
+            {
+                double leftArcStartAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[2].X) / ShapeParameter.R2));
+                double leftArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[1].X) / ShapeParameter.R2));
+                Interval leftArcInterval = new Interval(leftArcStartAngle, leftArcEndAngle);
+                Circle leftCircle = new Circle(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), ShapeParameter.R2);
+                Arc leftArc = new Arc(leftCircle, leftArcInterval);
+                Profile.Append(leftArc);
+            }
 
             Line leftCWall = new Line(new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0), new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0));
             Profile.Append(leftCWall);

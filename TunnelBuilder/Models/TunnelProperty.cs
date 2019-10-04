@@ -95,6 +95,8 @@ namespace TunnelBuilder.Models
             return true;
         }
 
+        
+
         public static Dictionary<ProfileRole, string> ProfileRoleNameDictionary = new Dictionary<ProfileRole, string>
         {
             { Models.ProfileRole.ControlLine,"Control Line" },
