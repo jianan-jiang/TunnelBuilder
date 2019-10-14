@@ -31,3 +31,4 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\T
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Section.resources
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\NCalc.dll
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Release\SuperXML.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.BuildInfo.resources

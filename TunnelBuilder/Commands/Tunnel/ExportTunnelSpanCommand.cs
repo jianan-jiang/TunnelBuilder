@@ -35,6 +35,7 @@ namespace TunnelBuilder
             Curve controlLine = null;
             double querySpacing = 1;
             double controlLineStartChainage = 0;
+            string controlLineName = "";
 
             OptionToggle controlLineDirectionToggle = new OptionToggle(true,"-","+");
 
@@ -49,16 +50,7 @@ namespace TunnelBuilder
                 return Result.Failure;
             }
 
-            rc = RhinoGet.GetNumber("Control Line Start Chaiange", false, ref controlLineStartChainage);
-            if (rc != Result.Success)
-            {
-                return rc;
-            }
-            if (querySpacing < 0)
-            {
-                RhinoApp.WriteLine("Control Line Start Chaiange must be positive");
-                return Result.Failure;
-            }
+            
 
             using (GetObject go = new GetObject())
             {
@@ -83,6 +75,28 @@ namespace TunnelBuilder
                         continue;
                     }
                     break;
+                }
+            }
+
+            var CLProperty = controlLine.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
+
+            if (CLProperty != null && CLProperty.ProfileRole == Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ControlLine])
+            {
+                controlLineStartChainage = CLProperty.ChainageAtStart;
+                controlLineName = CLProperty.ProfileName;
+                RhinoApp.WriteLine(String.Format("Using {0} Control Line Start Chaiange: {1}m",controlLineName,controlLineStartChainage));
+            }
+            else
+            {
+                rc = RhinoGet.GetNumber("Control Line Start Chaiange", false, ref controlLineStartChainage);
+                if (rc != Result.Success)
+                {
+                    return rc;
+                }
+                if (controlLineStartChainage < 0)
+                {
+                    RhinoApp.WriteLine("Control Line Start Chaiange must be positive");
+                    return Result.Failure;
                 }
             }
 
@@ -125,8 +139,14 @@ namespace TunnelBuilder
 
                 }
 
-                var fn = RhinoGet.GetFileName(GetFileNameMode.SaveTextFile, "span.txt", "Tunnel Span File Name", null);
-                if (fn == string.Empty)
+                string spanFileName = "span.txt";
+                if(controlLineName.Length>0)
+                {
+                    spanFileName = string.Format("{0} span", controlLineName);
+                }
+
+                var fn = RhinoGet.GetFileName(GetFileNameMode.SaveTextFile, spanFileName, "Tunnel Span File Name", null);
+                if (fn == string.Empty||fn==null)
                 {
                     return Result.Cancel;
                 }

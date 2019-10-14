@@ -25,8 +25,9 @@ namespace TunnelBuilder
 
         public TunnelBuilderPlugIn()
         {
-            
-            Rhino.RhinoApp.WriteLine("Tunnel Builder");
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            string buildDate = Properties.BuildInfo.BuildDate.Replace(Environment.NewLine,"");
+            Rhino.RhinoApp.WriteLine("Loading Tunnel Builder, version {0}, built on {1}",version,buildDate);
             Rhino.RhinoApp.WriteLine("jianan.jiang@psm.com.au");
             _sync = new object();
             Instance = this;

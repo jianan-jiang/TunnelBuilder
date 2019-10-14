@@ -43,3 +43,4 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\SuperXML.
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Isometric.resources
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Plan.resources
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.Section.resources
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Debug\TunnelBuilder.Properties.BuildInfo.resources

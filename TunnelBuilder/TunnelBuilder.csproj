@@ -97,6 +97,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Plan.resx</DependentUpon>
     </Compile>
+    <Compile Include="Properties\BuildInfo.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BuildInfo.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -142,6 +147,10 @@
     <EmbeddedResource Include="Properties\Plan.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Plan.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\BuildInfo.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>BuildInfo.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -189,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Models\tsd.xml" />
+    <None Include="Resources\BuildDate.txt" />
     <None Include="Resources\TunnelBuilderIcon.ico" />
   </ItemGroup>
   <ItemGroup />
@@ -233,4 +243,7 @@ Erase "$(TargetDir)\$(ProjectName).zip"
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RhinoCommon.6.17.19235.15041\build\net45\RhinoCommon.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PreBuildEvent>echo %25date%25 %25time%25 &gt; "$(ProjectDir)\Resources\BuildDate.txt"</PreBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -35,17 +35,8 @@ namespace TunnelBuilder
             RhinoApp.WriteLine("The {0} will project geology profile(s) along 3D control line", EnglishName);
             // Input: 
             //  1.  3D control line
-            double controlLineStartChainage = 0.0;
-            var rc = RhinoGet.GetNumber("The start chainage of the control line", false, ref controlLineStartChainage);
-            if (rc != Result.Success)
-            {
-                return rc;
-            }
-            if (controlLineStartChainage < 0)
-            {
-                RhinoApp.WriteLine("The start chainage of the control line must be positive");
-                return Result.Failure;
-            }
+            double controlLineStartChainage = 0;
+            string controlLineName = "";
 
             Curve threeDControlLine = null;
             using (Rhino.Input.Custom.GetObject go = new Rhino.Input.Custom.GetObject())
@@ -77,9 +68,32 @@ namespace TunnelBuilder
                     return Rhino.Commands.Result.Failure;
                 }
             }
+
+            var CLProperty = threeDControlLine.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
+
+            if (CLProperty != null && CLProperty.ProfileRole == Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ControlLine])
+            {
+                controlLineStartChainage = CLProperty.ChainageAtStart;
+                controlLineName = CLProperty.ProfileName;
+                RhinoApp.WriteLine(String.Format("Using {0} Control Line Start Chaiange: {1}m", controlLineName, controlLineStartChainage));
+            }
+            else
+            {
+                var r = RhinoGet.GetNumber("Control Line Start Chaiange", false, ref controlLineStartChainage);
+                if (r != Result.Success)
+                {
+                    return r;
+                }
+                if (controlLineStartChainage < 0)
+                {
+                    RhinoApp.WriteLine("Control Line Start Chaiange must be positive");
+                    return Result.Failure;
+                }
+            }
+
             //  2.  Geology profile(s)
             double profileStartChainage = 0.0;
-            rc = RhinoGet.GetNumber("The start chainage of available geological profiles", false, ref profileStartChainage);
+            var rc = RhinoGet.GetNumber("The start chainage of available geological profiles", false, ref profileStartChainage);
             if (rc != Result.Success)
             {
                 return rc;
