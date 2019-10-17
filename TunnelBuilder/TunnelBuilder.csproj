@@ -34,14 +34,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoUpdater.NET, Version=1.5.6.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Autoupdater.NET.Official.1.5.6\lib\net40\AutoUpdater.NET.dll</HintPath>
+    <Reference Include="AutoUpdater.NET, Version=1.5.7.0, Culture=neutral, PublicKeyToken=501435c91b35f4bc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autoupdater.NET.Official.1.5.7\lib\net40\AutoUpdater.NET.dll</HintPath>
     </Reference>
     <Reference Include="Eto, Version=2.5.0.0, Culture=neutral, PublicKeyToken=552281e97c755530, processorArchitecture=MSIL">
       <HintPath>..\packages\RhinoCommon.6.17.19235.15041\lib\net45\Eto.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.8.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.8.1\lib\net40\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=4.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.9.0\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Office.Interop.Excel.15.0.4795.1000\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
@@ -220,6 +220,8 @@ if not exist "$(TargetDir)\$(ProjectName)\Rhino 6" mkdir "$(TargetDir)\$(Project
 Copy "$(TargetDir)$(ProjectName).rhp"  "$(TargetDir)\$(ProjectName)\Rhino 6\$(ProjectName).rhp"
 Copy "$(TargetDir)MathNet.Numerics.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\MathNet.Numerics.dll"
 Copy "$(TargetDir)AutoUpdater.NET.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\AutoUpdater.NET.dll"
+Copy "$(TargetDir)NCalc.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\NCalc.dll"
+Copy "$(TargetDir)SuperXML.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\SuperXML.dll"
 powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
 Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
 Copy "$(TargetDir)\$(ProjectName).rhi" "W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\$(ProjectName).rhi"

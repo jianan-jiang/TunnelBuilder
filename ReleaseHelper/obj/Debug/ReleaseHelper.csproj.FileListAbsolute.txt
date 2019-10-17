@@ -4,7 +4,6 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Debug\Rel
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Debug\NCalc.dll
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Debug\SuperXML.dll
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Debug\ReleaseHelper.csprojAssemblyReference.cache
-C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Debug\ReleaseHelper.csproj.CoreCompileInputs.cache
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Debug\ReleaseHelper.csproj.CopyComplete
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Debug\ReleaseHelper.exe
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Debug\ReleaseHelper.pdb

@@ -1,5 +1,4 @@
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Release\ReleaseHelper.csprojAssemblyReference.cache
-C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\obj\Release\ReleaseHelper.csproj.CoreCompileInputs.cache
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Release\ReleaseHelper.exe.config
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Release\ReleaseHelper.exe
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\ReleaseHelper\bin\Release\ReleaseHelper.pdb

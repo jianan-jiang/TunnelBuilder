@@ -18,7 +18,6 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\T
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Properties.Resources.resources
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.Views.TunnelPropertyPanel.resources
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.GenerateResource.cache
-C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.CoreCompileInputs.cache
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.csproj.CopyComplete
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.dll
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\obj\Release\TunnelBuilder.pdb

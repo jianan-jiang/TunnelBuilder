@@ -236,6 +236,11 @@ namespace TunnelBuilder
             Curve tunnelProfile = Curve.JoinCurves(curveBuffer)[0];
 
             ControlLine cL = getControlLine(controlLineProfileDictionary, tunnelProfileAlignmentName, tunnelProfileChainage);
+            if (cL==null)
+            {
+                RhinoApp.WriteLine(string.Format("Can't find control line for {0} at CH{1} m",tunnelProfileAlignmentName,tunnelProfileChainage));
+                return Result.Failure;
+            }
             var tunnelProperty = cL.Profile.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
             double tunnelProfileLength = cL.Profile.GetLength();
 
