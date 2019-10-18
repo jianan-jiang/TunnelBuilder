@@ -10,7 +10,8 @@ using Rhino.Geometry;
 using Rhino.Commands;
 using TunnelBuilder.Models;
 using TunnelBuilder.Views;
-
+using System.Xml.Serialization;
+using System.IO;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TunnelBuilder
@@ -62,6 +63,53 @@ namespace TunnelBuilder
             {
                 return Result.Failure;
             }
+
+            fd = new Rhino.UI.OpenFileDialog { Filter = "XML Files (*.xml)|*.xml", Title = "Open Tunnel Support Definition File", MultiSelect = false, DefaultExt = "xml" };
+            if (!fd.ShowOpenDialog())
+            {
+                return Result.Cancel;
+            }
+            fn = fd.FileName;
+            if (fn == string.Empty || !System.IO.File.Exists(fn))
+            {
+                return Result.Cancel;
+            }
+
+
+            TunnelSupportDefinition tsd;
+            FileStream tstFileStream;
+            XmlSerializer tstSerializer = new XmlSerializer(typeof(TunnelSupportDefinition));
+            try
+            {
+                tstFileStream = new FileStream(fn, FileMode.Open);
+            }
+            catch
+            {
+                RhinoApp.WriteLine("Unable to open tunnel support definition file");
+                return Result.Failure;
+            }
+
+            try
+            {
+                tsd = (TunnelSupportDefinition)tstSerializer.Deserialize(tstFileStream);
+            }
+            catch
+            {
+                RhinoApp.WriteLine("Wrong tunnel support definition format");
+                return Result.Failure;
+            }
+
+            tstFileStream.Close();
+            RhinoApp.WriteLine("Applying Tunnel Support Definition created on " + tsd.CreateDate.ToShortDateString());
+
+            List<string> groundConditionNames = new List<string>();
+
+            foreach (var groundCondition in tsd.GroundConditions)
+            {
+                groundConditionNames.Add(groundCondition.Name);
+            }
+
+            string[] groundConditionNameList = groundConditionNames.ToArray();
 
             GenerateTunnelProfilesDialog generateTunnelProfilesDialog = new GenerateTunnelProfilesDialog(doc);
             generateTunnelProfilesDialog.WallCLineELineOffset = 0.335;
@@ -237,14 +285,36 @@ namespace TunnelBuilder
 
                 ELineProfile eLineProfile = new ELineProfile(cLineProfile, shapeParameter);
                 PolyCurve eLineProfilePolyCurve = eLineProfile.GetPolyCurve();
-                
-                
+
+                double tunnel_span = ExportTunnelSpanCommand.getSpan(doc,eLineProfilePolyCurve);
+                string supportName = "";
+                double crownBoltLength = 0.0;
+                BoltSupportLength bsl = null;
+                foreach (var supportLengthsDefinition in tsd.BoltSupportLengths)
+                {
+                    if (tunnel_span > supportLengthsDefinition.TunnelSpan)
+                    {
+                        if (supportLengthsDefinition.Length > crownBoltLength)
+                        {
+                            crownBoltLength = supportLengthsDefinition.Length;
+                            supportName = supportLengthsDefinition.Name;
+                            bsl = supportLengthsDefinition;
+                        }
+                    }
+                }
+
+                double wallBoltLength = 1.5;
+                double angleOffCrownBoltExtent = 15 * Math.PI / 180;
+
+                BoltedZoneProfile boltedZoneProfile = new BoltedZoneProfile(eLineProfile, wallBoltLength, crownBoltLength, angleOffCrownBoltExtent);
+                PolyCurve boltedZoneProfilePolyCurve = boltedZoneProfile.GetPolyCurve();
 
                 var cL = placeTunnelProfilesCommand.getControlLine(controlLineDictionary, controlLine, chainage);
                 var cLProperty = cL.Profile.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
                 var transforms = placeTunnelProfilesCommand.getTranforms(cL, cLineProfilePolyCurve, chainage, controlLine, flip);
                 placeTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc, chainage);
                 placeTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc, chainage);
+                placeTunnelProfilesCommand.transformTunnelProfile(boltedZoneProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.BoltedZone], doc, chainage);
 
                 if(keepTwoDProfiles)
                 {
@@ -259,6 +329,11 @@ namespace TunnelBuilder
                     attributes = new Rhino.DocObjects.ObjectAttributes();
                     attributes.LayerIndex = eLineLayerIndex;
                     doc.Objects.AddCurve(eLineProfilePolyCurve, attributes);
+
+                    int boltedZoneLayerIndex = UtilFunctions.AddNewLayer(doc, controlLine + "_" + chainage.ToString("0.##") + "_" + "Bolted Zone", profileForControlLineLayerIndex);
+                    attributes = new Rhino.DocObjects.ObjectAttributes();
+                    attributes.LayerIndex = eLineLayerIndex;
+                    doc.Objects.AddCurve(boltedZoneProfilePolyCurve, attributes);
                 }
             }
 
@@ -307,12 +382,96 @@ namespace TunnelBuilder
         public Point2d[] SetoutPoints;
     }
 
+    class BoltedZoneProfile:TunnelProfile
+    {
+        PolyCurve Profile;
+        double WallBoltLength;
+        double CrownBoltLength;
+        double AngleOffCrownBoltExtent;
+        double BoltedZoneRadius;
+
+        new public Point2d[] SetoutPoints;
+        public override ProfileRole Role
+        {
+            get { return ProfileRole.BoltedZone; }
+        }
+
+        public override PolyCurve GetPolyCurve()
+        {
+            Profile = new PolyCurve();
+
+            Line rightEWall = new Line(new Point3d(SetoutPoints[5].X, SetoutPoints[5].Y, 0), new Point3d(SetoutPoints[4].X, SetoutPoints[4].Y, 0));
+            Profile.Append(rightEWall);
+
+            Line rightOffCrownExtent = new Line(new Point3d(SetoutPoints[4].X, SetoutPoints[4].Y, 0), new Point3d(SetoutPoints[3].X, SetoutPoints[3].Y, 0));
+            Profile.Append(rightOffCrownExtent);
+
+            double mainArcStartAngle = Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[3].X) / BoltedZoneRadius));
+            double mainArcEndAngle = Math.PI - Math.Acos(Math.Abs((SetoutPoints[6].X - SetoutPoints[2].X) / BoltedZoneRadius));
+            Interval mainArcInterval = new Interval(mainArcStartAngle, mainArcEndAngle);
+            Circle mainCircle = new Circle(new Point3d(SetoutPoints[6].X, SetoutPoints[6].Y, 0), BoltedZoneRadius);
+            Arc mainArc = new Arc(mainCircle, mainArcInterval);
+            Profile.Append(mainArc);
+
+            Line leftOffCrownExtent = new Line(new Point3d(SetoutPoints[2].X, SetoutPoints[2].Y, 0), new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0));
+            Profile.Append(leftOffCrownExtent);
+
+            Line leftEWall = new Line(new Point3d(SetoutPoints[1].X, SetoutPoints[1].Y, 0), new Point3d(SetoutPoints[0].X, SetoutPoints[0].Y, 0));
+            Profile.Append(leftEWall);
+
+            return Profile;
+        }
+
+        public BoltedZoneProfile(ELineProfile eLineProfile,double wallBoltLength,double crownBoltLength,double angleOffCrownBoltExtent)
+        {
+            WallBoltLength = wallBoltLength;
+            CrownBoltLength = crownBoltLength;
+            AngleOffCrownBoltExtent = angleOffCrownBoltExtent;
+
+            BoltedZoneRadius = eLineProfile.ShapeParameter.R1 + CrownBoltLength;
+            double eLineCrownSpreadAngle = Math.Atan((eLineProfile.SetoutPoints[10].X - eLineProfile.SetoutPoints[3].X) / (eLineProfile.SetoutPoints[3].Y-eLineProfile.SetoutPoints[10].Y));
+            double angle3 = Math.Asin(eLineProfile.ShapeParameter.R1*Math.Sin(Math.PI-AngleOffCrownBoltExtent)/BoltedZoneRadius);
+            double angle4 = AngleOffCrownBoltExtent - angle3;
+
+            SetoutPoints = new Point2d[7];
+
+            SetoutPoints[0] = new Point2d();
+            SetoutPoints[0].X = eLineProfile.SetoutPoints[0].X - WallBoltLength;
+            SetoutPoints[0].Y = eLineProfile.SetoutPoints[0].Y;
+
+            SetoutPoints[1] = new Point2d();
+            SetoutPoints[1].X = eLineProfile.SetoutPoints[1].X - WallBoltLength;
+            SetoutPoints[1].Y = eLineProfile.SetoutPoints[1].Y;
+
+            SetoutPoints[2] = new Point2d();
+            SetoutPoints[2].X = eLineProfile.SetoutPoints[10].X + BoltedZoneRadius * Math.Cos(Math.PI / 2 + eLineCrownSpreadAngle + angle4);
+            SetoutPoints[2].Y = eLineProfile.SetoutPoints[10].Y + BoltedZoneRadius * Math.Sin(Math.PI / 2 + eLineCrownSpreadAngle + angle4);
+
+            SetoutPoints[3] = new Point2d();
+            SetoutPoints[3].X = eLineProfile.SetoutPoints[10].X + BoltedZoneRadius * Math.Cos(Math.PI / 2 - eLineCrownSpreadAngle - angle4);
+            SetoutPoints[3].Y = eLineProfile.SetoutPoints[10].Y + BoltedZoneRadius * Math.Sin(Math.PI / 2 - eLineCrownSpreadAngle - angle4);
+
+            SetoutPoints[4] = new Point2d();
+            SetoutPoints[4].X = eLineProfile.SetoutPoints[6].X + WallBoltLength;
+            SetoutPoints[4].Y = eLineProfile.SetoutPoints[6].Y;
+
+            SetoutPoints[5] = new Point2d();
+            SetoutPoints[5].X = eLineProfile.SetoutPoints[7].X + WallBoltLength;
+            SetoutPoints[5].Y = eLineProfile.SetoutPoints[7].Y;
+
+            //Center of the arc
+            SetoutPoints[6] = new Point2d();
+            SetoutPoints[6].X = eLineProfile.SetoutPoints[10].X;
+            SetoutPoints[6].Y = eLineProfile.SetoutPoints[10].Y;
+        }
+    }
+
     class ELineProfile:TunnelProfile
     {
         PolyCurve Profile;
         double CrownRadius;
         double AngleOfFloor;
-        TunnelProfileShapeParameter ShapeParameter;
+        public TunnelProfileShapeParameter ShapeParameter;
         new public Point2d[] SetoutPoints;
         public override ProfileRole Role
         {
