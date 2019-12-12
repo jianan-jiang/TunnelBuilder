@@ -90,6 +90,7 @@ namespace TunnelBuilder
             {
                 RhinoApp.RunScript("SetWorkingDirectory", true);
                 RhinoApp.RunScript("!_BR _EnterEnd", true);
+                RhinoApp.RunScript("!_GInt _EnterEnd", true);
                 RhinoApp.RunScript("!_GSurf _EnterEnd", true);
                 RhinoApp.RunScript("!_GVol _EnterEnd", true);
                 RhinoApp.RunScript("!_G_NMExtract _EnterEnd", true);
