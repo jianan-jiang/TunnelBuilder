@@ -172,6 +172,25 @@ namespace TunnelBuilder
             return installBolt(doc, controlLine, tunnelSurface, tsd, groundConditionNameList[groundConditionNameIndex], bolt_layer_index);
         }
 
+        public static void getBoltLength(double tunnel_span,TunnelSupportDefinition tsd,out double boltLength,out string supportName)
+        {
+            boltLength = 0.0;
+            supportName = "";
+            BoltSupportLength bsl = null;
+            foreach (var supportLengthsDefinition in tsd.BoltSupportLengths)
+            {
+                if (tunnel_span > supportLengthsDefinition.TunnelSpan)
+                {
+                    if (supportLengthsDefinition.Length > boltLength)
+                    {
+                        boltLength = supportLengthsDefinition.Length;
+                        supportName = supportLengthsDefinition.Name;
+                        bsl = supportLengthsDefinition;
+                    }
+                }
+            }
+        }
+
         public Result installBolt(RhinoDoc doc, Curve controlLine, Brep tunnelSurface, TunnelSupportDefinition tsd, string groundConditionName, int bolt_layer_index)
         {
             double controlLineLength = controlLine.GetLength();

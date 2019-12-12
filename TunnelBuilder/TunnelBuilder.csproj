@@ -73,6 +73,8 @@
   <ItemGroup>
     <Compile Include="Commands\Bolt\BatchInstallBoltCommand.cs" />
     <Compile Include="Commands\Bolt\BoltClearanceCheckCommand.cs" />
+    <Compile Include="Commands\Misc\ConnectToGriddle.cs" />
+    <Compile Include="Commands\Outputs\ExportCrossSection.cs" />
     <Compile Include="Commands\Outputs\ExportPlotCommand.cs" />
     <Compile Include="Commands\Tunnel\CrownProfile.cs" />
     <Compile Include="Commands\Tunnel\ExportTunnelSpanCommand.cs" />
@@ -222,9 +224,10 @@ Copy "$(TargetDir)MathNet.Numerics.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\Ma
 Copy "$(TargetDir)AutoUpdater.NET.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\AutoUpdater.NET.dll"
 Copy "$(TargetDir)NCalc.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\NCalc.dll"
 Copy "$(TargetDir)SuperXML.dll"  "$(TargetDir)\$(ProjectName)\Rhino 6\SuperXML.dll"
+Copy "$(TargetDir)Tunnel Builder.rui"  "$(TargetDir)\$(ProjectName)\TunnelBuilder.rui"
 powershell Compress-Archive -Path '"$(TargetDir)\$(ProjectName)"' -DestinationPath '"$(TargetDir)\$(ProjectName).zip"' -Force
 Copy "$(TargetDir)\$(ProjectName).zip" "$(TargetDir)\$(ProjectName).rhi"
-Copy "$(TargetDir)\$(ProjectName).rhi" "W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\$(ProjectName).rhi"
+Copy "$(TargetDir)\$(ProjectName).rhi" "\\PSMNAS01\files\Public\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\$(ProjectName).rhi"
 Erase "$(TargetDir)\$(ProjectName).zip"
 )</PostBuildEvent>
   </PropertyGroup>

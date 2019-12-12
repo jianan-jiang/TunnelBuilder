@@ -289,19 +289,8 @@ namespace TunnelBuilder
                 double tunnel_span = ExportTunnelSpanCommand.getSpan(doc,eLineProfilePolyCurve);
                 string supportName = "";
                 double crownBoltLength = 0.0;
-                BoltSupportLength bsl = null;
-                foreach (var supportLengthsDefinition in tsd.BoltSupportLengths)
-                {
-                    if (tunnel_span > supportLengthsDefinition.TunnelSpan)
-                    {
-                        if (supportLengthsDefinition.Length > crownBoltLength)
-                        {
-                            crownBoltLength = supportLengthsDefinition.Length;
-                            supportName = supportLengthsDefinition.Name;
-                            bsl = supportLengthsDefinition;
-                        }
-                    }
-                }
+
+                BatchInstallBoltCommand.getBoltLength(tunnel_span, tsd, out crownBoltLength, out supportName);
 
                 double wallBoltLength = 1.5;
                 double angleOffCrownBoltExtent = 15 * Math.PI / 180;
@@ -428,7 +417,7 @@ namespace TunnelBuilder
             CrownBoltLength = crownBoltLength;
             AngleOffCrownBoltExtent = angleOffCrownBoltExtent;
 
-            BoltedZoneRadius = eLineProfile.ShapeParameter.R1 + CrownBoltLength;
+            BoltedZoneRadius = eLineProfile.ShapeParameter.R1 + eLineProfile.ShapeParameter.CrownCLineELineOffset + CrownBoltLength;
             double eLineCrownSpreadAngle = Math.Atan((eLineProfile.SetoutPoints[10].X - eLineProfile.SetoutPoints[3].X) / (eLineProfile.SetoutPoints[3].Y-eLineProfile.SetoutPoints[10].Y));
             double angle3 = Math.Asin(eLineProfile.ShapeParameter.R1*Math.Sin(Math.PI-AngleOffCrownBoltExtent)/BoltedZoneRadius);
             double angle4 = AngleOffCrownBoltExtent - angle3;
