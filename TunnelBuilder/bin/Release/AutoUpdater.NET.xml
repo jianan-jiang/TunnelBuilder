@@ -294,6 +294,11 @@
             </summary>
             <param name="remoteData">A string containing remote data received from the AppCast file.</param>
         </member>
+        <member name="T:AutoUpdaterDotNET.IAuthentication">
+            <summary>
+                Interface for authentication
+            </summary>
+        </member>
         <member name="T:AutoUpdaterDotNET.BasicAuthentication">
             <summary>
                 Provides Basic Authentication header for web request.
@@ -307,6 +312,20 @@
             <param name="password">Password to use for Basic Authentication</param>
         </member>
         <member name="M:AutoUpdaterDotNET.BasicAuthentication.ToString">
+            <inheritdoc />
+        </member>
+        <member name="T:AutoUpdaterDotNET.CustomAuthentication">
+            <summary>
+                Provides Custom Authentication header for web request.
+            </summary>
+        </member>
+        <member name="M:AutoUpdaterDotNET.CustomAuthentication.#ctor(System.String)">
+            <summary>
+            Initializes authorization header value for Custom Authentication
+            </summary>
+            <param name="httpRequestHeaderAuthorizationValue">Value to use as http request header authorization value</param>
+        </member>
+        <member name="M:AutoUpdaterDotNET.CustomAuthentication.ToString">
             <inheritdoc />
         </member>
         <member name="F:AutoUpdaterDotNET.DownloadUpdateDialog.components">

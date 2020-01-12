@@ -61,7 +61,7 @@ namespace TunnelBuilder.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mon 14/10/2019 16:19:15.49 
+        ///   Looks up a localized string similar to Thu 12/12/2019 14:11:01.35 
         ///.
         /// </summary>
         internal static string BuildDate {

@@ -64,6 +64,11 @@ namespace TunnelBuilder
             pages.Add(new TunnelPropertyPage());
         }
 
+        protected override void OptionsDialogPages(List<OptionsDialogPage> pages)
+        {
+            pages.Add(new OptionsPage("Tunnel Builder Options"));
+        }
+
         //Implements ISynchronizeInvoke Interface
         ///<summary>Behaviour when the methods have been invoked</summary>
         public IAsyncResult BeginInvoke(Delegate method,object[] args)
@@ -107,6 +112,19 @@ namespace TunnelBuilder
         {
             get { return true; }
         }
+    }
+
+    class OptionsPage:OptionsDialogPage
+    {
+        string EnglishPageTitle;
+        public OptionsPage(string englishPageTitle):base(englishPageTitle)
+        {
+            EnglishPageTitle = englishPageTitle;
+        }
+
+        private OptionPageControl _control;
+
+        public override object PageControl => _control ?? (_control = new OptionPageControl());
     }
 
     class AsyncResult : IAsyncResult

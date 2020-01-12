@@ -10,6 +10,9 @@ using Rhino.Commands;
 using Rhino.Geometry;
 using Rhino.Input;
 
+using Firebase.Database;
+using Firebase.Database.Query;
+
 namespace TunnelBuilder
 {
     [System.Runtime.InteropServices.Guid("7B2260B5-C0C7-446F-91B2-365DFE928385"),
@@ -50,7 +53,7 @@ namespace TunnelBuilder
                     srvID = getID(l);
                 }
 
-                int devIsGriddle = l.IndexOf("Griddle");
+                int devIsGriddle = l.IndexOf("Griddle",StringComparison.CurrentCultureIgnoreCase);
                 int devIsShared = l.IndexOf("Shared");
                 int devIsConnected = l.IndexOf("Connected");
                 if (devIsGriddle>-1 && devIsShared>-1)
@@ -67,6 +70,8 @@ namespace TunnelBuilder
                 }
             }
 
+            var licenseUser = new LicenseUser(Environment.UserName, "Griddle");
+            
             if (srvID>-1 && devID>-1 && !griddleIsConnected)
             {
                 System.Diagnostics.Process connectionProcess = new System.Diagnostics.Process();
@@ -83,6 +88,7 @@ namespace TunnelBuilder
                 if(connectionOutput.IndexOf("Device is connected")>-1)
                 {
                     griddleIsConnected = true;
+                    licenseUser.ConnectedToLicense();
                 }
             }
 
@@ -128,6 +134,32 @@ namespace TunnelBuilder
             }
             return -1;
         }
-    }
 
+    }
+    public class LicenseUser
+    {
+        public string Name { get; set; }
+        public string Software { get; set; }
+
+        public LicenseUser(string name,string software)
+        {
+            Name = name;
+            Software = software;
+        }
+
+        public void ConnectedToLicense()
+        {
+            var firebase = new FirebaseClient("https://license-users.firebaseio.com/");
+            try
+            {
+                firebase.Child(Software).PutAsync(Name).Wait();
+            }
+            catch
+            {
+
+            }
+            
+            return;
+        }
+    }
 }
