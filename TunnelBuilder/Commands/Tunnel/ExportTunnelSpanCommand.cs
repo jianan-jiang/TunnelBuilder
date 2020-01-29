@@ -409,11 +409,20 @@ namespace TunnelBuilder
             Point3d leftPoint = Point3d.Unset;
             Point3d rightPoint = Point3d.Unset;
 
+            SpanResult sr = new SpanResult();
+
             Plane p = new Plane(currentPoint, new Vector3d(0, 0, 1));
             Rhino.Geometry.Intersect.CurveIntersections left_events = Rhino.Geometry.Intersect.Intersection.CurvePlane(leftELine, p, 0.001);
             bool flag = false;
 
             Rhino.Geometry.Intersect.CurveIntersections right_events = Rhino.Geometry.Intersect.Intersection.CurvePlane(rightELine, p,0.001);
+            if(left_events==null || right_events==null)
+            {
+                sr.span = span;
+                sr.leftIntersection = leftPoint;
+                sr.rightIntersection = rightPoint;
+                return sr;
+            }
             if (right_events.Count > 0 && left_events.Count>0)
             {
                 leftPoint = left_events[0].PointA;
@@ -431,7 +440,7 @@ namespace TunnelBuilder
                 span = leftPoint.DistanceTo(rightPoint);
             }
 
-            SpanResult sr = new SpanResult();
+            
             sr.span = span;
             sr.leftIntersection = leftPoint;
             sr.rightIntersection = rightPoint;
