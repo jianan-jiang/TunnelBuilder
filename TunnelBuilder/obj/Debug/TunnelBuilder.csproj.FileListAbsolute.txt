@@ -147,3 +147,5 @@ C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Firebase.
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\LiteDB.xml
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\Newtonsoft.Json.xml
 C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\System.Reactive.xml
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\OpenJobFolderLibrary.dll
+C:\Users\Jianan Jiang\Documents\GitHub\TunnelBuilder\TunnelBuilder\bin\OpenJobFolderLibrary.pdb

@@ -6,6 +6,7 @@ using Rhino.PlugIns;
 using System.ComponentModel;
 using System.Threading;
 using System;
+using OpenJobFolderLibrary;
 
 namespace TunnelBuilder
 {
@@ -46,6 +47,7 @@ namespace TunnelBuilder
         protected override LoadReturnCode OnLoad(ref string errorMessage)
         {
             //Setup auto update check
+            DriveMapper.MapPSMDrives("W");
             AutoUpdater.OpenDownloadPage = true;
             AutoUpdater.Start(Properties.UpdateResource.UpdateXMLAddress, Assembly);
 
@@ -59,6 +61,7 @@ namespace TunnelBuilder
      
             return LoadReturnCode.Success;
         }
+
         protected override void ObjectPropertiesPages(List<ObjectPropertiesPage> pages)
         {
             pages.Add(new TunnelPropertyPage());
