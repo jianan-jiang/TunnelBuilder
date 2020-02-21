@@ -76,6 +76,13 @@ namespace TunnelBuilder
                 return rc;
             }
 
+            bool vertical = false;
+            rc = RhinoGet.GetBool("Place profiles", false, "PerpendicularToControlLine", "Vertically", ref vertical);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             double controlLineLength = controlLine.GetLength();
             double totalAdvanceLength = 0.0;
             int advanceIteration = 1;
@@ -88,16 +95,10 @@ namespace TunnelBuilder
                 double currentAdvancePoint_t_param;
                 controlLine.ClosestPoint(currentAdvancePoint, out currentAdvancePoint_t_param);
                 Vector3d tangent = controlLine.TangentAt(currentAdvancePoint_t_param);
-                Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-                tangentUsedToAlignCPlane[2] = 0.0;
+                
                 Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
-                Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+                Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
 
-                if (cplane.YAxis[2] < 0)
-                {
-                    //Rotate the plane 180 degree if y axis is pointing down
-                    cplane.Rotate(Math.PI, cplane.ZAxis);
-                }
 
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                 const double intersection_tolerance = 0.001;

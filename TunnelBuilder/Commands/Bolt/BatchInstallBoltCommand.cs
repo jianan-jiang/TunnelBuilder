@@ -169,7 +169,7 @@ namespace TunnelBuilder
             }
 
 
-            return installBolt(doc, controlLine, tunnelSurface, tsd, groundConditionNameList[groundConditionNameIndex], bolt_layer_index);
+            return installBolt(doc, controlLine, tunnelSurface, tsd, groundConditionNameList[groundConditionNameIndex], bolt_layer_index,false);
         }
 
         public static void getBoltLength(double tunnel_span,TunnelSupportDefinition tsd,out double boltLength,out string supportName)
@@ -191,7 +191,7 @@ namespace TunnelBuilder
             }
         }
 
-        public Result installBolt(RhinoDoc doc, Curve controlLine, Brep tunnelSurface, TunnelSupportDefinition tsd, string groundConditionName, int bolt_layer_index)
+        public Result installBolt(RhinoDoc doc, Curve controlLine, Brep tunnelSurface, TunnelSupportDefinition tsd, string groundConditionName, int bolt_layer_index,bool vertical)
         {
             double controlLineLength = controlLine.GetLength();
             double totalAdvanceLength = 0.0;
@@ -220,16 +220,8 @@ namespace TunnelBuilder
                 double currentAdvancePoint_t_param;
                 controlLine.ClosestPoint(currentAdvancePoint, out currentAdvancePoint_t_param);
                 Vector3d tangent = controlLine.TangentAt(currentAdvancePoint_t_param);
-                Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-                tangentUsedToAlignCPlane[2] = 0.0;
                 Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
-                Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
-
-                if (cplane.YAxis[2] < 0)
-                {
-                    //Rotate the plane 180 degree if y axis is pointing down
-                    cplane.Rotate(Math.PI, cplane.ZAxis);
-                }
+                Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
 
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                 const double intersection_tolerance = 0.001;

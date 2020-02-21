@@ -117,10 +117,8 @@ namespace TunnelBuilder
                 }
                 double x = normalizedLengthParam * (t[1] - t[0]) + t[0];
                 Vector3d tangent = controlLine.TangentAt(x);
-                Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-                tangentUsedToAlignCPlane[2] = 0.0;
                 Point3d point = controlLine.PointAt(x);
-                Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+                Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, true);
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                 //doc.Objects.AddPoint(point);
                 const double intersection_tolerance = 0.001;

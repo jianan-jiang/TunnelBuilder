@@ -157,13 +157,7 @@ namespace TunnelBuilder
                 Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
                 tangentUsedToAlignCPlane[2] = 0.0;
                 Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
-                Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
-
-                if (cplane.YAxis[2] < 0)
-                {
-                    //Rotate the plane 180 degree if y axis is pointing down
-                    cplane.Rotate(Math.PI, cplane.ZAxis);
-                }
+                Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, true);
 
                 Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
 

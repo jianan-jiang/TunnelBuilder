@@ -64,6 +64,13 @@ namespace TunnelBuilder
                 return Result.Failure;
             }
 
+            bool vertical = false;
+            rc = RhinoGet.GetBool("Place profiles", false, "PerpendicularToControlLine", "Vertically", ref vertical);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             fd = new Rhino.UI.OpenFileDialog { Filter = "XML Files (*.xml)|*.xml", Title = "Open Tunnel Support Definition File", MultiSelect = false, DefaultExt = "xml" };
             if (!fd.ShowOpenDialog())
             {
@@ -300,7 +307,7 @@ namespace TunnelBuilder
 
                 var cL = placeTunnelProfilesCommand.getControlLine(controlLineDictionary, controlLine, chainage);
                 var cLProperty = cL.Profile.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
-                var transforms = placeTunnelProfilesCommand.getTranforms(cL, cLineProfilePolyCurve, chainage, controlLine, flip);
+                var transforms = placeTunnelProfilesCommand.getTranforms(cL, cLineProfilePolyCurve, chainage, controlLine, flip,vertical);
                 placeTunnelProfilesCommand.transformTunnelProfile(eLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.ELineProfile], doc, chainage);
                 placeTunnelProfilesCommand.transformTunnelProfile(cLineProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.CLineProfile], doc, chainage);
                 placeTunnelProfilesCommand.transformTunnelProfile(boltedZoneProfilePolyCurve, transforms, cLProperty, Models.TunnelProperty.ProfileRoleNameDictionary[ProfileRole.BoltedZone], doc, chainage);

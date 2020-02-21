@@ -172,13 +172,8 @@ namespace TunnelBuilder
                     twoDProfile.ClosestPoint(twoDprofilePoint, out twoDParam);
                     Vector3d tangent = twoDProfile.TangentAt(twoDParam);
                     Vector3d tangentUsedToAlignProfile = new Vector3d(tangent);
-                    tangentUsedToAlignProfile[2] = 0.0;
-                    Plane cplane = new Plane(twoDprofilePoint, tangentUsedToAlignProfile);
-                    if (cplane.YAxis[2] < 0)
-                    {
-                        //Rotate the plane 180 degree if y axis is pointing down
-                        cplane.Rotate(Math.PI, cplane.ZAxis);
-                    }
+                    Plane cplane = UtilFunctions.GetLocalCPlane(twoDprofilePoint, tangent, true);
+
                     Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
                     const double intersection_tolerance = 0.001;
                     const double overlap_tolerance = 0.0;

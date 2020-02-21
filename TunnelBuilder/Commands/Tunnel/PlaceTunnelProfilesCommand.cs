@@ -59,8 +59,15 @@ namespace TunnelBuilder
             }
             var profileLayer = doc.Layers.FindIndex(profileLayerIndex);
 
+            bool vertical = false;
+            var rc = RhinoGet.GetBool("Place profiles", false, "PerpendicularToControlLine", "Vertically", ref vertical);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             bool flip = false;
-            var rc = RhinoGet.GetBool("Flip profiles?", false, "No", "Yes", ref flip);
+            RhinoGet.GetBool("Flip profiles?", false, "No", "Yes", ref flip);
             if (rc != Result.Success)
             {
                 return rc;
@@ -76,7 +83,7 @@ namespace TunnelBuilder
 
             UtilFunctions.AddNewLayer(doc, "Tunnels");
 
-            iterateProfileLayers(profileLayer, ControlLinesDictionary, doc,flip);
+            iterateProfileLayers(profileLayer, ControlLinesDictionary, doc,flip,vertical);
             clearProfileBuffer(ControlLinesDictionary, doc);
             createSweep(doc);
 
@@ -195,14 +202,14 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        public Result iterateProfileLayers(Rhino.DocObjects.Layer profileLayer,Dictionary<string,List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc,bool flip)
+        public Result iterateProfileLayers(Rhino.DocObjects.Layer profileLayer,Dictionary<string,List<ControlLine>> controlLineProfileDictionary, RhinoDoc doc,bool flip,bool vertical)
         {
             Rhino.DocObjects.Layer[] childrenLayers = profileLayer.GetChildren();
             if (childrenLayers != null)
             {
                 for (int i = 0; i < childrenLayers.Length; i++)
                 {
-                   iterateProfileLayers(childrenLayers[i],  controlLineProfileDictionary, doc,flip);
+                   iterateProfileLayers(childrenLayers[i],  controlLineProfileDictionary, doc,flip,vertical);
                 }
             }
 
@@ -259,7 +266,7 @@ namespace TunnelBuilder
                 }
                 else
                 {
-                    TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = getTranforms(cL, tunnelProfilePolyCurve, tunnelProfileChainage, tunnelProperty.ProfileName,flip);
+                    TransformBuffer[tunnelProfileAlignmentName + "_" + tunnelProfileChainage.ToString()] = getTranforms(cL, tunnelProfilePolyCurve, tunnelProfileChainage, tunnelProperty.ProfileName,flip,vertical);
                 }
             }
 
@@ -338,23 +345,17 @@ namespace TunnelBuilder
             return Result.Success;
         }
 
-        public Transform[] getTranforms(ControlLine cL, PolyCurve tunnelProfile, double chainage, string alignmentName, bool flip = false)
+        public Transform[] getTranforms(ControlLine cL, PolyCurve tunnelProfile, double chainage, string alignmentName, bool flip,bool vertical)
         {
             List<Transform> resultBuffer = new List<Transform>();
             Point3d insertionPoint = cL.GetPointAtChainage(chainage);
             double insertionPointTParam;
             cL.Profile.ClosestPoint(insertionPoint, out insertionPointTParam, 1);
             Vector3d tangent = cL.Profile.TangentAt(insertionPointTParam);
-            Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-            tangentUsedToAlignCPlane[2] = 0.0;
+
             Point3d point = cL.Profile.PointAt(insertionPointTParam);
 
-            Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
-            if (cplane.YAxis[2] < 0)
-            {
-                //Rotate the plane 180 degree if y axis is pointing down
-                cplane.Rotate(Math.PI, cplane.ZAxis);
-            }
+            Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
 
 
             var cplane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
@@ -374,23 +375,18 @@ namespace TunnelBuilder
             
         }
 
-        private Point3d transformInterpolatedPoint(Point3d startPoint,Point3d endPoint,double chainage,string alignmentName, double startChaiange,double endChaiange,bool flip)
+        private Point3d transformInterpolatedPoint(Point3d startPoint,Point3d endPoint,double chainage,string alignmentName, double startChaiange,double endChaiange,bool flip,bool vertical)
         {
             ControlLine cL = getControlLine(ControlLinesDictionary, alignmentName, chainage);
             Point3d insertionPoint = cL.GetPointAtChainage(chainage);
             double insertionPointTParam;
             cL.Profile.ClosestPoint(insertionPoint, out insertionPointTParam, 1);
             Vector3d tangent = cL.Profile.TangentAt(insertionPointTParam);
-            Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-            tangentUsedToAlignCPlane[2] = 0.0;
+
             Point3d point = cL.Profile.PointAt(insertionPointTParam);
 
-            Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
-            if (cplane.YAxis[2] < 0)
-            {
-                //Rotate the plane 180 degree if y axis is pointing down
-                cplane.Rotate(Math.PI, cplane.ZAxis);
-            }
+            Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
+
 
 
             var cplane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
@@ -408,7 +404,7 @@ namespace TunnelBuilder
             return transfomredPoint;
         }
 
-        public Result DrawELineEdgeCurves(RhinoDoc doc,string alignmentName,bool flip=false)
+        public Result DrawELineEdgeCurves(RhinoDoc doc,string alignmentName,bool flip,bool vertical)
         {
             var chaiange_list = ELineEdgePointsBuffer[alignmentName].Keys.ToList();
             chaiange_list.Sort();
@@ -431,15 +427,15 @@ namespace TunnelBuilder
                 while(currentChainage<endChainage)
                 {
 
-                    Point3d leftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, currentChainage, alignmentName, startChaiange, endChainage, flip);
-                    Point3d rightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, currentChainage, alignmentName, startChaiange, endChainage, flip);
+                    Point3d leftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, currentChainage, alignmentName, startChaiange, endChainage, flip,vertical);
+                    Point3d rightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, currentChainage, alignmentName, startChaiange, endChainage, flip,vertical);
                     leftPointList.Add(leftPoint);
                     rightPointList.Add(rightPoint);
                     currentChainage = currentChainage + 1;
                 }
 
-                endLeftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, endChainage, alignmentName, startChaiange, endChainage, flip);
-                endRightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, endChainage, alignmentName, startChaiange, endChainage, flip);
+                endLeftPoint = transformInterpolatedPoint(startLeftPoint, endLeftPoint, endChainage, alignmentName, startChaiange, endChainage, flip,vertical);
+                endRightPoint = transformInterpolatedPoint(startRightPoint, endRightPoint, endChainage, alignmentName, startChaiange, endChainage, flip,vertical);
                 leftPointList.Add(endLeftPoint);
                 rightPointList.Add(endRightPoint);
 

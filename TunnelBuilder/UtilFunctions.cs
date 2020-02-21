@@ -4,6 +4,9 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
+using Rhino;
+using Rhino.Geometry;
+
 namespace TunnelBuilder
 {
     public static class UtilFunctions
@@ -164,6 +167,39 @@ namespace TunnelBuilder
                 default:
                     return num + "th";
             }
+
+        }
+
+        public static Plane GetLocalCPlane(Point3d origin, Vector3d tangent, bool vertical)
+        {
+            Plane verticalCPlane;
+            Vector3d verticalCPlaneTangent = tangent;
+            verticalCPlaneTangent[2] = 0.0;
+
+            verticalCPlane = new Plane(origin, verticalCPlaneTangent);
+
+            if (verticalCPlane.YAxis[2] < 0)
+            {
+                //Rotate the plane 180 degree if y axis is pointing down
+                verticalCPlane.Rotate(Math.PI, verticalCPlane.ZAxis);
+            }
+
+            if (verticalCPlane.YAxis[0] == 1 && verticalCPlane.YAxis[2] == 0)
+            {
+                verticalCPlane.Rotate(-Math.PI / 2, verticalCPlane.ZAxis);
+            }
+
+            if (vertical)
+            {
+                return verticalCPlane;
+            }
+
+            var angle = Math.Asin(tangent[2]);
+            Plane CPlane = verticalCPlane.Clone();
+
+            CPlane.Rotate(-angle, CPlane.XAxis);
+
+            return CPlane;
 
         }
 

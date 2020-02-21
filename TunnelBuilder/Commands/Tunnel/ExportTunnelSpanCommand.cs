@@ -78,6 +78,13 @@ namespace TunnelBuilder
                 }
             }
 
+            bool vertical = false;
+            rc = RhinoGet.GetBool("Place profiles", false, "PerpendicularToControlLine", "Vertically", ref vertical);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             var CLProperty = controlLine.UserData.Find(typeof(Models.TunnelProperty)) as Models.TunnelProperty;
 
             if (CLProperty != null && CLProperty.ProfileRole == Models.TunnelProperty.ProfileRoleNameDictionary[Models.ProfileRole.ControlLine])
@@ -164,16 +171,9 @@ namespace TunnelBuilder
                     double currentAdvancePoint_t_param;
                     controlLine.ClosestPoint(currentAdvancePoint, out currentAdvancePoint_t_param);
                     Vector3d tangent = controlLine.TangentAt(currentAdvancePoint_t_param);
-                    Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-                    tangentUsedToAlignCPlane[2] = 0.0;
+                    
                     Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
-                    Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
-
-                    if (cplane.YAxis[2] < 0)
-                    {
-                        //Rotate the plane 180 degree if y axis is pointing down
-                        cplane.Rotate(Math.PI, cplane.ZAxis);
-                    }
+                    Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
 
                     Surface srf = new PlaneSurface(cplane, new Interval(-1000, 1000), new Interval(-1000, 1000));
 
@@ -336,16 +336,10 @@ namespace TunnelBuilder
                     double currentAdvancePoint_t_param;
                     controlLine.ClosestPoint(currentAdvancePoint, out currentAdvancePoint_t_param);
                     Vector3d tangent = controlLine.TangentAt(currentAdvancePoint_t_param);
-                    Vector3d tangentUsedToAlignCPlane = new Vector3d(tangent);
-                    tangentUsedToAlignCPlane[2] = 0.0;
+                    
                     Point3d point = controlLine.PointAt(currentAdvancePoint_t_param);
-                    Plane cplane = new Plane(point, tangentUsedToAlignCPlane);
+                    Plane cplane = UtilFunctions.GetLocalCPlane(point, tangent, vertical);
 
-                    if (cplane.YAxis[2] < 0)
-                    {
-                        //Rotate the plane 180 degree if y axis is pointing down
-                        cplane.Rotate(Math.PI, cplane.ZAxis);
-                    }
 
                     var plane_to_world = Transform.ChangeBasis(cplane, Plane.WorldXY);
                     var world_to_plane = Transform.ChangeBasis(Plane.WorldXY, cplane);

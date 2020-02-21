@@ -182,6 +182,13 @@ namespace TunnelBuilder
                 tunnelSectionControlPoint = getPointAction.Point();
             }
 
+            bool vertical = false;
+            var rc = RhinoGet.GetBool("Place profiles", false, "PerpendicularToControlLine", "Vertically", ref vertical);
+            if (rc != Result.Success)
+            {
+                return rc;
+            }
+
             //Rotate tunnel section perpendicular to control line
             Rhino.Geometry.Plane tunnelSectionPlane;
             if(!tunnelSection.TryGetPlane(out tunnelSectionPlane,0.01))
@@ -203,7 +210,11 @@ namespace TunnelBuilder
                 double x = (double)i/n * (t[1] - t[0]) + t[0];
                 Vector3d tangent = controlLine.TangentAt(x);
                 Vector3d tangentUsedToAlignControlLine = new Vector3d(tangent);
-                tangentUsedToAlignControlLine[2] = 0.0;
+                if(vertical)
+                {
+                    tangentUsedToAlignControlLine[2] = 0.0;
+                }
+                
                 Point3d point = controlLine.PointAt(x);
                 var geometryBase = tunnelSection.Duplicate();
                 Transform xform;
