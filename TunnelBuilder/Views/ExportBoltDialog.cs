@@ -40,6 +40,7 @@ namespace TunnelBuilder.Views
         private NumericStepper preTensionStepper;
         private NumericStepper longitudinalSpacingStepper;
         private ExportEnvironment exportEnvironment;
+        private CheckBox facePlateCheckBox;
         private RhinoDoc doc;
 
         public ExportBoltDialog(ExportEnvironment eE, RhinoDoc d)
@@ -115,6 +116,9 @@ namespace TunnelBuilder.Views
             longitudinalSpacingStepper.MinValue = 0;
             longitudinalSpacingStepper.Value = 1.0;
 
+            facePlateCheckBox = new CheckBox();
+            facePlateCheckBox.Checked = false;
+
             Content = exportBoltDialogLayout();
             
         }
@@ -171,8 +175,18 @@ namespace TunnelBuilder.Views
                         new TableCell(new Label {Text="Yield Compression" },true),
                         new TableCell(yieldCompressionStepper,true)
                         ),
+                    
                 }
             };
+
+            if (exportEnvironment == ExportEnvironment.FLAC3D)
+            {
+                layout.Rows.Add(new TableRow(
+                        new TableCell(new Label { Text = "Install Face Plate" }, true),
+                        new TableCell(facePlateCheckBox, true)
+                        )
+                    );
+            }
 
             if (exportEnvironment == ExportEnvironment.UDEC)
             {
@@ -259,6 +273,14 @@ namespace TunnelBuilder.Views
         public double longitudinalSpacing
         {
             get { return longitudinalSpacingStepper.Value; }
+        }
+
+        public bool installFacePlate
+        {
+            get
+            {
+                return facePlateCheckBox.Checked ?? false;
+            }
         }
     }
 }

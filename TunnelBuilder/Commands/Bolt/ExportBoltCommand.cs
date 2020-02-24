@@ -83,6 +83,7 @@ namespace TunnelBuilder
             bp.yieldTension = dialog.yieldTension;
             bp.yieldCompression = dialog.yieldCompression;
             bp.longitudinalSpacing = dialog.longitudinalSpacing;
+            bp.installFacePlate = dialog.installFacePlate;
 
             Rhino.DocObjects.Layer boltLayer;
 
@@ -141,15 +142,32 @@ namespace TunnelBuilder
             }
 
             System.IO.StreamWriter fs = new System.IO.StreamWriter(filename);
+            int boltCounter = 0;
             for (int i = 0; i < boltObjs.Length; i++)
             {
                 Guid boltId = boltObjs[i].Id;
                 var boltLine = new Rhino.DocObjects.ObjRef(boltId).Curve();
+                List<string> lines = new List<string>();
                 string line;
+                if (boltLine == null)
+                {
+                    RhinoApp.WriteLine("WARNING: Bolt Layer {0} contains non-line object(s)",boltLayer.Name);
+                    continue;
+                }
                 switch (exportEnvironment)
                 {
                     case ExportEnvironment.FLAC3D:
-                        line = "structure cable create by-line " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " id=" + (boltStartId + i).ToString() + " seg=" + boltSegment.ToString();
+                        line = "structure cable create by-line " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " id=" + (boltStartId + boltCounter).ToString() + " seg=" + boltSegment.ToString();
+                        lines.Add(line);
+                        if(bp.installFacePlate)
+                        {
+                            line = "structure link attach x rigid range id "+ (boltStartId + boltCounter).ToString()+" position-x "+boltLine.PointAtStart.X.ToString()+" position-y "+ boltLine.PointAtStart.Y.ToString() + " position-z "+ boltLine.PointAtStart.Z.ToString();
+                            lines.Add(line);
+                            line = "structure link attach y rigid range id " + (boltStartId + boltCounter).ToString() + " position-x " + boltLine.PointAtStart.X.ToString() + " position-y " + boltLine.PointAtStart.Y.ToString() + " position-z " + boltLine.PointAtStart.Z.ToString();
+                            lines.Add(line);
+                            line = "structure link attach z rigid range id " + (boltStartId + boltCounter).ToString() + " position-x " + boltLine.PointAtStart.X.ToString() + " position-y " + boltLine.PointAtStart.Y.ToString() + " position-z " + boltLine.PointAtStart.Z.ToString();
+                            lines.Add(line);
+                        }
                         break;
                     case ExportEnvironment.UDEC:
                         if (bp.preTension == 0)
@@ -160,12 +178,16 @@ namespace TunnelBuilder
                         {
                             line = "block structure cable create begin " + getCoordString(boltLine.PointAtStart, exportEnvironment) + " end " + getCoordString(boltLine.PointAtEnd, exportEnvironment) + " group='" + getGroupName(boltLayer) + "' seg=" + boltSegment.ToString() +" m-s 1 m-g "+grountMaterialCount.ToString();
                         }
-                        
+                        lines.Add(line);
                         break;
                     default:
                         throw new System.ArgumentException("Unsupported Export Environment");
                 }
-                fs.WriteLine(line);
+               foreach (string l in lines)
+               {
+                    fs.WriteLine(l);
+               }
+                boltCounter = boltCounter + 1;
             }
            
             switch (exportEnvironment)
@@ -203,7 +225,7 @@ namespace TunnelBuilder
             fs.Close();
 
             // Return the number of bolts in the layer
-            return boltObjs.Length;
+            return boltCounter;
         }
 
         private string getGroupName(Rhino.DocObjects.Layer boltLayer)
@@ -241,6 +263,8 @@ namespace TunnelBuilder
         public double yieldCompression;
 
         public double longitudinalSpacing;
+
+        public bool installFacePlate;
 
     }
 }
