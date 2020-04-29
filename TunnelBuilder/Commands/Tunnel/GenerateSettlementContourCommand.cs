@@ -40,7 +40,7 @@ namespace TunnelBuilder
             PointCloud settlementCloud = new PointCloud();
             foreach(SettlementGridNode node in settlementGrid)
             {
-                Point3d settlementPoint = new Point3d(node.Point.X, node.Point.Y, node.Settlement);
+                Point3d settlementPoint = new Point3d(node.Point.X, node.Point.Y,-node.Settlement);
                 settlementCloud.Add(settlementPoint);
             }
             doc.Objects.AddPointCloud(settlementCloud);
@@ -143,11 +143,11 @@ namespace TunnelBuilder
                 var points = Rhino.Geometry.Intersect.Intersection.ProjectPointsToBreps(new List<Brep> { groundSurface.ToBrep() }, new List<Point3d> { new Point3d(p.X,p.Y,0) }, new Vector3d(0, 0, 1), doc.ModelAbsoluteTolerance);
                 if(points.Length>0)
                 {
-                    targetSettlementGrid.Add(new SettlementGridNode(new Point3d(p.X, p.Y, points[0].Z), p.Z));
+                    targetSettlementGrid.Add(new SettlementGridNode(new Point3d(p.X, p.Y, points[0].Z), -p.Z));
                 }
                 else
                 {
-                    targetSettlementGrid.Add(new SettlementGridNode(new Point3d(p.X, p.Y, 0), p.Z));
+                    targetSettlementGrid.Add(new SettlementGridNode(new Point3d(p.X, p.Y, 0), -p.Z));
                 }
                 
             }
@@ -184,7 +184,7 @@ namespace TunnelBuilder
             PointCloud settlementCloud = new PointCloud();
             foreach (SettlementGridNode node in settlementGrid)
             {
-                Point3d settlementPoint = new Point3d(node.Point.X, node.Point.Y, node.Settlement);
+                Point3d settlementPoint = new Point3d(node.Point.X, node.Point.Y, -node.Settlement);
                 settlementCloud.Add(settlementPoint);
             }
             doc.Objects.AddPointCloud(settlementCloud);

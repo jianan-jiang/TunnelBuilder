@@ -56,7 +56,7 @@ namespace TunnelBuilder
                 int devIsGriddle = l.IndexOf("Griddle",StringComparison.CurrentCultureIgnoreCase);
                 int devIsShared = l.IndexOf("Shared");
                 int devIsConnected = l.IndexOf("Connected");
-                if (devIsGriddle>-1 && devIsShared>-1)
+                if (devIsGriddle>-1)
                 {
                     devID = getID(l);
                     break;
