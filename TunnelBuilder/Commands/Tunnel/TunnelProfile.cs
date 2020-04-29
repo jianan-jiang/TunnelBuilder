@@ -297,7 +297,7 @@ namespace TunnelBuilder
                 string supportName = "";
                 double crownBoltLength = 0.0;
 
-                BatchInstallBoltCommand.getBoltLength(tunnel_span, tsd, out crownBoltLength, out supportName);
+                BatchInstallBoltsCommand.getBoltLength(tunnel_span, tsd, out crownBoltLength, out supportName);
 
                 double wallBoltLength = 1.5;
                 double angleOffCrownBoltExtent = 15 * Math.PI / 180;

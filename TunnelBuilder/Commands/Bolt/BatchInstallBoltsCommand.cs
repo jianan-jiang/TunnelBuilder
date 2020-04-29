@@ -14,10 +14,10 @@ using System.IO;
 namespace TunnelBuilder
 {
     [System.Runtime.InteropServices.Guid("CF972E53-CCD5-4A61-9D0A-7A60E1DE5223")]
-    public class BatchInstallBoltCommand : Command
+    public class BatchInstallBoltsCommand : Command
     {
         ///<summary>The only instance of this command.</summary>
-        public static BatchInstallBoltCommand Instance
+        public static BatchInstallBoltsCommand Instance
         {
             get; private set;
         }
@@ -25,7 +25,7 @@ namespace TunnelBuilder
         ///<returns>The command name as it appears on the Rhino command line.</returns>
         public override string EnglishName
         {
-            get { return "BatchInstallBolt"; }
+            get { return "BatchInstallBolts"; }
         }
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)

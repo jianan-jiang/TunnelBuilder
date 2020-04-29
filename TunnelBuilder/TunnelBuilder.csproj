@@ -79,7 +79,7 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\Bolt\BatchInstallBoltCommand.cs" />
+    <Compile Include="Commands\Bolt\BatchInstallBoltsCommand.cs" />
     <Compile Include="Commands\Bolt\BoltClearanceCheckCommand.cs" />
     <Compile Include="Commands\Misc\ConnectToGriddle.cs" />
     <Compile Include="Commands\Outputs\ExportCrossSection.cs" />
