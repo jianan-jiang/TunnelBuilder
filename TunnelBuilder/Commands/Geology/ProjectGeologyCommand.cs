@@ -165,9 +165,9 @@ namespace TunnelBuilder
                 Curve twoDProfile = Curve.ProjectToPlane(profile, Plane.WorldXY);
                 double twoDprofileLength = twoDProfile.GetLength();
 
-                if (advanceLength > twoDprofileLength||controlLineChainage+twoDControlLineLength<profileStartChainage)
+                if (advanceLength > twoDprofileLength||controlLineStartChainage+twoDControlLineLength<profileStartChainage)
                 {
-                    RhinoApp.WriteLine(string.Format("Geology profile starts at CH {0}m, ends at CH {1}m, control line starts at CH {2}m, ends at CH {3}m no overlapping segments",profileStartChainage,profileStartChainage+twoDprofileLength,controlLineChainage,controlLineChainage+twoDControlLineLength));
+                    RhinoApp.WriteLine(string.Format("Geology profile starts at CH {0}m, ends at CH {1}m, control line starts at CH {2}m, ends at CH {3}m no overlapping segments",profileStartChainage,profileStartChainage+twoDprofileLength,controlLineStartChainage,controlLineStartChainage+twoDControlLineLength));
                     return Result.Failure;
                 }
 
