@@ -1,6 +1,6 @@
 <item>
   <version>2.12.3.0</version>
-  <url>W:\Technical\Software_Engineering\Rhino\Rhino 6\Plugins\TunnelBuilder\TunnelBuilder\bin\Release\TunnelBuilder.rhi</url>
+  <url>https://github.com/jianan-jiang/TunnelBuilder/raw/master/TunnelBuilder/bin/Release/TunnelBuilder.rhi</url>
   <changelog>https://jianan-jiang.github.io/TunnelBuilder/Change_Log.html</changelog>
   <mandatory>false</mandatory>
 </item>
