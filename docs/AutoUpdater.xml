@@ -2,5 +2,5 @@
   <version>2.12.3.0</version>
   <url>https://github.com/jianan-jiang/TunnelBuilder/raw/master/TunnelBuilder/bin/Release/TunnelBuilder.rhi</url>
   <changelog>https://jianan-jiang.github.io/TunnelBuilder/Change_Log.html</changelog>
-  <mandatory>false</mandatory>
+  <mandatory>true</mandatory>
 </item>
